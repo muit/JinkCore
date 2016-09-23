@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include "ModuleManager.h"
+#include "JinkCorePrivatePCH.h"
 
 class FJinkCoreModule : public IModuleInterface
 {

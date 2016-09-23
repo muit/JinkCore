@@ -9,7 +9,8 @@ public class JinkCore : ModuleRules
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
-				"JinkCore/Public"
+                "JinkCore/Public",
+                "JinkCore/Public/Entities"
 				// ... add public include paths required here ...
 			}
 			);
