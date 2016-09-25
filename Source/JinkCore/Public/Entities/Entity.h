@@ -5,7 +5,7 @@
 #include "GameFramework/Character.h"
 #include "Entity.generated.h"
 
-UCLASS(Blueprintable)
+UCLASS(config = Game, BlueprintType, meta = (ShortTooltip = "An entity is a type of Character that includes the basic alive features."))
 class JINKCORE_API AEntity : public ACharacter
 {
 	GENERATED_BODY()
@@ -21,6 +21,11 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Entity)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Pawn|Entity")
 	float live;
+
+
+public:
+	UFUNCTION(BlueprintCallable, Category = "Pawn|Entity")
+	virtual bool IsAlive() const;
 };
