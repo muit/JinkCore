@@ -2,14 +2,14 @@
 
 using UnrealBuildTool;
 
-public class JinkCore : ModuleRules
+public class JinkEditor : ModuleRules
 {
-	public JinkCore(TargetInfo Target)
+	public JinkEditor(TargetInfo Target)
 	{
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
-                "JinkCore/Public"
+                "Editor/Public"
 				// ... add public include paths required here ...
 			}
 			);
@@ -17,7 +17,7 @@ public class JinkCore : ModuleRules
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				"JinkCore/Private"
+				"Editor/Private"
 				// ... add other private include paths required here ...
 			}
 			);

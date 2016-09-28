@@ -5,7 +5,7 @@
 #include "Object.h"
 #include "LenguajeData.generated.h"
 
-/** Replicated data when playing a root motion montage. */
+/** COntains all the lenguaje data. */
 USTRUCT()
 struct FLenguajeData
 {

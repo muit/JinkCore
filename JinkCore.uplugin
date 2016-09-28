@@ -19,6 +19,11 @@
 			"Name": "JinkCore",
 			"Type": "Developer",
 			"LoadingPhase": "Default"
+		}, 
+		{
+            "Name": "JinkEditor",
+            "Type": "Editor",
+            "LoadingPhase":  "PostEngineInit"
 		}
 	]
 }

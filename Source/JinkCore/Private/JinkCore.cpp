@@ -2,10 +2,14 @@
 
 #include "JinkCorePrivatePCH.h"
 
+DEFINE_LOG_CATEGORY(JinkCore)
+
 #define LOCTEXT_NAMESPACE "FJinkCoreModule"
 
 void FJinkCoreModule::StartupModule()
 {
+	UE_LOG(JinkCore, Warning, TEXT("JinkCore: Log Started"));
+
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 	
 	RegisterSettings();
@@ -13,6 +17,7 @@ void FJinkCoreModule::StartupModule()
 
 void FJinkCoreModule::ShutdownModule()
 {
+	UE_LOG(JinkCore, Warning, TEXT("JinkCore: Log Ended"));
 	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
 	// we call this function before unloading the module.
 
