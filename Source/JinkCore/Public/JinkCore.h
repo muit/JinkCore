@@ -10,6 +10,7 @@
 #include "ISettingsSection.h"
 #include "ISettingsContainer.h"
 
+DECLARE_LOG_CATEGORY_EXTERN(JinkCore, All, All)
 
 class FJinkCoreModule : public IModuleInterface
 {

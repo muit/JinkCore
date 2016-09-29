@@ -5,7 +5,7 @@
 #include "Object.h"
 #include "LenguajeData.generated.h"
 
-/** COntains all the lenguaje data. */
+/** Contains all the lenguaje data. */
 USTRUCT()
 struct FLenguajeData
 {

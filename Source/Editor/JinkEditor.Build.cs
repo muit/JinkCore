@@ -27,6 +27,8 @@ public class JinkEditor : ModuleRules
 			new string[]
 			{
 				"Core",
+                "InputCore",
+                "JinkCore"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -38,7 +40,11 @@ public class JinkEditor : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore"
+				"SlateCore",
+                "EditorStyle",
+                "PropertyEditor",
+                "DetailCustomizations",
+                "Settings"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

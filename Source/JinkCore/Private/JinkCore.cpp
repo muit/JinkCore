@@ -4,7 +4,7 @@
 
 DEFINE_LOG_CATEGORY(JinkCore)
 
-#define LOCTEXT_NAMESPACE "FJinkCoreModule"
+#define LOCTEXT_NAMESPACE "JinkCore"
 
 void FJinkCoreModule::StartupModule()
 {

@@ -10,7 +10,7 @@
  * Find Custom Config documentation here: wiki.unrealengine.com/CustomSettings 
  */
 UCLASS(config = Game, defaultconfig)
-class UJinkCoreSettings : public UObject
+class JINKCORE_API UJinkCoreSettings : public UObject
 {
 	GENERATED_BODY()
 	
