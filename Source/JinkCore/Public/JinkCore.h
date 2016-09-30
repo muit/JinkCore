@@ -22,7 +22,17 @@ public:
 
 	virtual bool SupportsDynamicReloading() override { return true; }
 
+	DECLARE_DELEGATE_RetVal(void, FOnModifiedSettings)
+	FOnModifiedSettings& OnModifiedSettings()
+	{
+		return ModifiedSettingsDelegate;
+	}
+
 private:
+	ISettingsSectionPtr SettingsSection;
+
+	/** Holds a delegate that is executed after the settings section has been modified. */
+	FOnModifiedSettings ModifiedSettingsDelegate;
 
 	// Callback for when the settings were saved.
 	bool HandleSettingsSaved();
@@ -30,4 +40,6 @@ private:
 	void RegisterSettings();
 
 	void UnregisterSettings();
+
+	
 };

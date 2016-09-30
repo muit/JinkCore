@@ -3,7 +3,7 @@
 #include "JinkEditorPrivatePCH.h"
 #include "Editor/DetailCustomizations/Private/DetailCustomizationsPrivatePCH.h"
 
-//Settings
+#include "JinkCore/Private/JinkCorePrivatePCH.h"
 #include "JinkCoreSettings.h"
 
 #include "FactionCustomization.h"
@@ -13,13 +13,17 @@
 void FFactionCustomization::CustomizeHeader(TSharedRef<class IPropertyHandle> StructPropertyHandle, class FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& StructCustomizationUtils) 
 {
 	StructHandle = StructPropertyHandle;
-	
 	NameHandle = StructPropertyHandle->GetChildHandle("Name");
 
 	if (NameHandle->IsValidHandle()) {
-		UpdateFactionNames();
-		TSharedPtr<FString> InitialValue = MakeShareable(&GetFactionNameComboBoxContentString());
+		if (FJinkCoreModule* JinkCoreModule = FModuleManager::GetModulePtr<FJinkCoreModule>("JinkCore"))
+		{
+			//Bind On Settings Changed event
+			JinkCoreModule->OnModifiedSettings().BindRaw(this, &FFactionCustomization::OnSettingsChanged);
+		}
 
+		UpdateFactionNames();
+		
 		HeaderRow.NameContent()
 		[
 			StructPropertyHandle->CreatePropertyNameWidget()
@@ -32,7 +36,7 @@ void FFactionCustomization::CustomizeHeader(TSharedRef<class IPropertyHandle> St
 			.OptionsSource(&FactionNames)
 			.OnGenerateWidget(this, &FFactionCustomization::HandleFactionNameComboBoxGenerateWidget)
 			.OnSelectionChanged(this, &FFactionCustomization::OnSelectionChanged)
-			.InitiallySelectedItem(InitialValue)
+			//.InitiallySelectedItem(GetVariableFactionValue())
 			[
 				SNew(STextBlock)
 				.Text(this, &FFactionCustomization::GetFactionNameComboBoxContentText)
@@ -65,29 +69,15 @@ FText FFactionCustomization::GetFactionNameComboBoxContentText() const
 
 	if (RowResult != FPropertyAccess::MultipleValues)
 	{
-		TSharedPtr<FString> SelectedRowContent = ComboBox->GetSelectedItem();
-		if (SelectedRowContent.IsValid())
-		{
-			return FText::FromString(*SelectedRowContent);
-		}
-		else
-		{
-			return LOCTEXT("Faction_None", "None");
-		}
+		return FText::FromString(*ContainedValue);
 	}
 	return LOCTEXT("MultipleValues", "Multiple Values");
-}
-
-
-FString FFactionCustomization::GetFactionNameComboBoxContentString() const {
-	return GetFactionNameComboBoxContentText().ToString();
 }
 
 /** Update the root data on a change of selection */
 void FFactionCustomization::OnSelectionChanged(TSharedPtr<FString> SelectedItem, ESelectInfo::Type SelectInfo)
 {
-	if (SelectedItem.IsValid())
-	{
+	if (SelectedItem.IsValid()) {
 		FString NewValue = **SelectedItem;
 
 		UpdateFactionNames();
@@ -96,11 +86,18 @@ void FFactionCustomization::OnSelectionChanged(TSharedPtr<FString> SelectedItem,
 	}
 }
 
+void FFactionCustomization::OnSettingsChanged()
+{
+	UpdateFactionNames();
+}
+
 /** Display the current column selection */
 void FFactionCustomization::UpdateFactionNames()
 {
-	TArray<FString> Names = GetDefault<UJinkCoreSettings>()->Factions;
-	
+	Names = GetDefault<UJinkCoreSettings>()->Factions;
+	Names.Remove("None");
+	Names.Insert("None", 0);
+
 	FactionNames.Empty();
 	
 	//Convert FString to Shared Ptrs and Populate the array
@@ -113,7 +110,9 @@ void FFactionCustomization::UpdateFactionNames()
 		}
 	}
 
-	//FactionNames = GetDefault<UJinkCoreSettings>()->;
+	if (ComboBox.IsValid()) {
+		ComboBox->RefreshOptions();
+	}
 }
 
 

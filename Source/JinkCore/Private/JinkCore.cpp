@@ -32,6 +32,10 @@ bool FJinkCoreModule::HandleSettingsSaved()
 	UJinkCoreSettings* Settings = GetMutableDefault<UJinkCoreSettings>();
 	bool ResaveSettings = false;
 
+	if (ModifiedSettingsDelegate.IsBound()) {
+		ModifiedSettingsDelegate.Execute();
+	}
+
 	// You can put any validation code in here and resave the settings in case an invalid
 	// value has been entered
 	
@@ -73,7 +77,7 @@ void FJinkCoreModule::RegisterSettings()
 			LOCTEXT("RuntimeWDCategoryDescription", "Game configuration for the CustomSettings game module"));
 
 		// Register the settings
-		ISettingsSectionPtr SettingsSection = SettingsModule->RegisterSettings("Project", "Jink Core", "General",
+		SettingsSection = SettingsModule->RegisterSettings("Project", "Jink Core", "General",
 			LOCTEXT("RuntimeGeneralSettingsName", "General"),
 			LOCTEXT("RuntimeGeneralSettingsDescription", "Base configuration for the Jink core"),
 			GetMutableDefault<UJinkCoreSettings>());

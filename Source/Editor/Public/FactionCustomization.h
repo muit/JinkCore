@@ -27,10 +27,11 @@ private:
 	/** Display the current column selection */
 	FText GetFactionNameComboBoxContentText() const;
 
-	FString FFactionCustomization::GetFactionNameComboBoxContentString() const;
-
 	/** Update the root data on a change of selection */
 	void OnSelectionChanged(TSharedPtr<FString> SelectedItem, ESelectInfo::Type SelectInfo);
+
+	/** Update the root data on a change of selection */
+	void OnSettingsChanged();
 
 
 	void UpdateFactionNames();
@@ -40,6 +41,8 @@ private:
 	/** Handle to the struct properties being customized */
 	TSharedPtr<IPropertyHandle> StructHandle;
 	TSharedPtr<IPropertyHandle> NameHandle;
+
+	TArray<FString> Names;
 	/** A cached copy of strings to populate the column combo box */
 	TArray<TSharedPtr<FString>> FactionNames;
 };

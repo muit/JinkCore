@@ -2,5 +2,3 @@
 
 #include "JinkCorePrivatePCH.h"
 #include "Faction.h"
-
-
