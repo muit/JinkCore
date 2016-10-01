@@ -62,7 +62,7 @@ public:
 	virtual void UpdateMovementSpeed();
 
 
-	UFUNCTION(BlueprintCallable, Category = "Entity")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
 	virtual bool IsAlive() const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")

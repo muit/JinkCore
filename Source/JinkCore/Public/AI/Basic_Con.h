@@ -15,10 +15,13 @@ class JINKCORE_API ABasic_Con : public AAIController
 	GENERATED_BODY()
 
 public:
-	ABasic_Con();
+	ABasic_Con(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	// Called when an actor is possessed
+	virtual void Possess(APawn* InPawn) override;
 
 	// Called every frame
 	virtual void Tick(float DeltaSeconds) override;
@@ -34,11 +37,23 @@ public:
 	/**
 	* COMBAT
 	*/
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "AI|Combat")
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Follow")
+	bool bFollows;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Follow")
+	float MinMeleDistance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Follow")
+	float MaxMeleDistance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	AEntity* Target;
+
+
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool AttackStart(AEntity* Victim);
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	bool SetTarget(AEntity* Victim);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Combat")
 	bool IsValidTarget(AEntity* Entity);
@@ -48,8 +63,27 @@ public:
 
 	//Combat Events
 	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
-	bool BeforeEnterCombat(AEntity* Entity);
+	bool BeforeEnterCombat(AEntity* _Target);
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
-	void EnterCombat(AEntity* Entity);
+	void EnterCombat(AEntity* _Target);
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+	void TargetChanged(AEntity* NewTarget);
 
+
+	/**
+	 * UTIL
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Movement")
+	bool IsAIMoving() const {
+		return GetMoveStatus() == EPathFollowingStatus::Moving;
+	}
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Math")
+	float GetDistanceToTarget() const {
+		return (Target != nullptr) ? Me->GetDistanceTo(Target) : -1.0f;
+	}
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Math")
+	float GetSquaredDistanceToTarget() const {
+		return (Target != nullptr) ? Me->GetSquaredDistanceTo(Target) : -1.0f;
+	}
 };
