@@ -23,9 +23,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaSeconds) override;
 
-	UPROPERTY(BlueprintReadWrite, Category = "AI")
+	UPROPERTY(BlueprintReadOnly, Category = "AI")
 	AEntity* Me;
-	UFUNCTION(BlueprintCallable, Category = "AI")
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI")
 	AEntity* GetMe() { 
 		if (!Me) Me = Cast<AEntity>(GetPawn());
 		return Me;
