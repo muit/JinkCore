@@ -10,7 +10,8 @@ AEntity::AEntity()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	Live = 100;
-	
+	Faction = FFaction();
+
 	MovementState = EMovementState::MS_Walk;
 	WalkSpeed = 250;
 	RunSpeed = 400;
@@ -68,5 +69,18 @@ void AEntity::UpdateMovementSpeed()
 		}
 	}
 }
+
+bool AEntity::IsHostileTo(AEntity* Other) {
+	if (Other == nullptr) {
+		UE_LOG(JinkCore, Warning, TEXT("JinkCore: AEntity::IsHostileTo tried to compare a Null Entity"));
+		return false;
+	}
+	return Faction.IsHostileTo(Other->Faction);
+}
+
+bool AEntity::IsHostileToFaction(FFaction Other) {
+	return Faction.IsHostileTo(Other);
+}
+
 
 

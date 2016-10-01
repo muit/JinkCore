@@ -38,7 +38,8 @@ public class JinkCore : ModuleRules
 				"CoreUObject",
 				"Engine",
 				"Slate",
-				"SlateCore"
+				"SlateCore",
+                "AIModule"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

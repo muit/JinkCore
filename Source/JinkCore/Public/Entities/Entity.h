@@ -3,7 +3,12 @@
 #pragma once
 
 #include "GameFramework/Character.h"
+#include "Faction.h"
 #include "Entity.generated.h"
+
+//~~~~~ Type Declarations ~~~~~
+typedef class ABasic_Con;
+
 
 //MovementState to define different types of movements.
 UENUM(BlueprintType)
@@ -31,32 +36,44 @@ public:
 	virtual void Tick( float DeltaSeconds ) override;
 
 public:
+	/**
+	 * PROPERTIES
+	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity")
 	float Live;
-
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity")
+	FFaction Faction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Movement")
 	EMovementState MovementState;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Movement")
 	float WalkSpeed;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Movement")
 	float RunSpeed;
 
-public:
-	UFUNCTION(BlueprintCallable, Category = "Entity")
-	virtual bool IsAlive() const;
 
 	//Set Movement to Walk
 	UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
 	virtual void Walk();
-
 	//Set Movement to Run
 	UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
 	virtual void Run();
-
+	//Update Movement Speed to the movement State
 	UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
 	virtual void UpdateMovementSpeed();
 
+
+	UFUNCTION(BlueprintCallable, Category = "Entity")
+	virtual bool IsAlive() const;
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+	bool IsHostileTo(AEntity* Other);
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+	bool IsHostileToFaction(FFaction Other);
+
+	/**
+	 * HANDLERS
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+	ABasic_Con* GetAI() const { return Cast<ABasic_Con>(GetController()); }
 };

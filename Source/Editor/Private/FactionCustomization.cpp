@@ -3,6 +3,7 @@
 #include "JinkEditorPrivatePCH.h"
 #include "Editor/DetailCustomizations/Private/DetailCustomizationsPrivatePCH.h"
 
+#include "Faction.h"
 #include "JinkCore/Private/JinkCorePrivatePCH.h"
 #include "JinkCoreSettings.h"
 
@@ -69,7 +70,10 @@ FText FFactionCustomization::GetFactionNameComboBoxContentText() const
 
 	if (RowResult != FPropertyAccess::MultipleValues)
 	{
-		return FText::FromString(*ContainedValue);
+		if (!ContainedValue.IsEmpty()) {
+			return FText::FromString(*ContainedValue);
+		}
+		return FText::FromString(FACTION_None);
 	}
 	return LOCTEXT("MultipleValues", "Multiple Values");
 }
@@ -95,8 +99,8 @@ void FFactionCustomization::OnSettingsChanged()
 void FFactionCustomization::UpdateFactionNames()
 {
 	Names = GetDefault<UJinkCoreSettings>()->Factions;
-	Names.Remove("None");
-	Names.Insert("None", 0);
+	Names.Remove(FACTION_None);
+	Names.Insert(FACTION_None, 0);
 
 	FactionNames.Empty();
 	
