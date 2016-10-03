@@ -6,12 +6,13 @@
 #include "RegisterAtom.h"
 #include "MissionRow.generated.h"
 
-USTRUCT(Blueprintable)
-struct JINKCORE_API FMissionRow : public FTableRowBase
+UCLASS(Blueprintable)
+class JINKCORE_API UMissionData : public UDataAsset
 {
-	GENERATED_USTRUCT_BODY()
+	GENERATED_BODY()
 
-	FMissionRow()
+public:
+	UMissionData()
 		: Title("")
 		, Description(FText::FromString(""))
 	{}
