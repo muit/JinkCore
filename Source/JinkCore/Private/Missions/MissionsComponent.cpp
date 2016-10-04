@@ -11,8 +11,6 @@ UMissionsComponent::UMissionsComponent()
 	// off to improve performance if you don't need them.
 	bWantsBeginPlay = true;
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -34,3 +32,42 @@ void UMissionsComponent::TickComponent( float DeltaTime, ELevelTick TickType, FA
 	// ...
 }
 
+void UMissionsComponent::RegisterAtom(TAssetPtr<URegisterAtom> Atom, uint8 Amount) {
+	if (Amount <= 0)
+		return;
+
+	if (Amount == 1)
+	{
+		Atoms.AddUnique(Atom);
+
+		//CheckMissionStates();
+		return;
+	}
+	/*
+	FAtomItem AtomItem = AtomsWithAmount.;
+
+	if (AtomItem)
+	{
+		AtomItem.Atom = Atom;
+		AtomItem
+	}
+	else {
+		AtomItem.Amount += Amount;
+
+	}*/
+}
+
+void UMissionsComponent::StartMission(TAssetPtr<UMissionData> Mission) {
+	TSharedPtr<FMissionItem> MissionItem = MakeShareable(new FMissionItem(Mission));
+
+	Missions.AddUnique(MissionItem);
+}
+
+void UMissionsComponent::CompleteMission(FMissionItem& MissionItem, bool Success) {
+	if (MissionItem.State != EMissionState::MS_NOT_STARTED && Missions.Contains(MissionItem)) {
+		MissionItem.State = Success ? EMissionState::MS_SUCCESS : EMissionState::MS_FAILURE;
+		Missions.Remove(MissionItem);
+
+		CompletedMissions.AddUnique(MissionItem);
+	}
+}

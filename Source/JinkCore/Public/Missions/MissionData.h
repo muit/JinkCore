@@ -4,7 +4,7 @@
 
 #include "Object.h"
 #include "RegisterAtom.h"
-#include "MissionRow.generated.h"
+#include "MissionData.generated.h"
 
 UCLASS(Blueprintable)
 class JINKCORE_API UMissionData : public UDataAsset

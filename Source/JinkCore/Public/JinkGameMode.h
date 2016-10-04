@@ -10,6 +10,8 @@ class AJinkGameMode : public AGameMode
 
 public:
 	AJinkGameMode();
+
+	FStreamableManager AssetLoader;
 };
 
 
