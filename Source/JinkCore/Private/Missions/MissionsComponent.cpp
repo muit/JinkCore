@@ -46,11 +46,17 @@ void UMissionsComponent::RegisterAtom(TAssetPtr<URegisterAtom> Atom, uint8 Amoun
 }
 
 void UMissionsComponent::StartMission(TAssetPtr<UMissionData> Mission) {
+	if (!Mission.IsValid())
+		return;
+
 	FMissionItem MissionItem = FMissionItem();
 	MissionItem.Mission = Mission;
 	MissionItem.State = EMissionState::MS_IN_PROGRESS;
 
 	Missions.AddUnique(MissionItem);
+
+	//Call Delegate
+	OnMissionStarted.Broadcast(MissionItem.GetData());
 
 	CheckMissionState(MissionItem);
 }
@@ -62,6 +68,9 @@ void UMissionsComponent::CompleteMission(FMissionItem& MissionItem, bool Success
 		Missions.Remove(MissionItem);
 
 		CompletedMissions.AddUnique(MissionItem);
+
+		//Call Delegate
+		OnMissionCompleted.Broadcast(MissionItem.State, MissionItem.GetData());
 	}
 }
 

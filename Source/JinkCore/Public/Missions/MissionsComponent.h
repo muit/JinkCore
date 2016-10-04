@@ -64,8 +64,8 @@ public:
 };
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMissionStarted, UMissionData*, Mission);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMissionCompleted, EMissionState, State, UMissionData*, Mission);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FMissionStarted, TAssetPtr<UMissionData>, Mission);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FMissionCompleted, EMissionState, State, TAssetPtr<UMissionData>, Mission);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class JINKCORE_API UMissionsComponent : public UActorComponent
