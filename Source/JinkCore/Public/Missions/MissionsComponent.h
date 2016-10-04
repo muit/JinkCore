@@ -22,9 +22,7 @@ struct FMissionItem {
 
 public:
 
-	FMissionItem(TAssetPtr<UMissionData> Mission) {
-		this->Mission = Mission;
-	}
+	FMissionItem() : State(EMissionState::MS_NOT_STARTED) {}
 
 	UPROPERTY(EditAnywhere, Category = "Mission")
 	TAssetPtr<UMissionData> Mission;
@@ -42,14 +40,11 @@ public:
 		return Mission.Get();
 	}
 
-	FORCEINLINE bool operator==(FMissionItem& Other) const {
-		return Other.Mission == Mission;
-	}
-
-	FORCEINLINE bool operator!=(FMissionItem& Other) const{
-		return Other.Mission != Mission;
+	FORCEINLINE bool operator == (const FMissionItem &b) const {
+		return b.Mission == Mission;
 	}
 };
+
 
 USTRUCT(Blueprintable)
 struct FAtomItem {
@@ -62,6 +57,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Atom")
 	uint8 Amount;
+
+	FORCEINLINE bool operator == (const FAtomItem &b) const {
+		return b.Atom == Atom;
+	}
 };
 
 
@@ -104,6 +103,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mission")
 	void CompleteMission(FMissionItem& MissionItem, bool success);
 
+
+	UFUNCTION(BlueprintCallable, Category = "Mission")
+	void CheckMissionStates();
+
+	UFUNCTION(BlueprintCallable, Category = "Mission")
+	void CheckMissionState(FMissionItem& MissionItem);
+
+	EMissionState GetNewMissionState(FMissionItem& MissionItem);
 
 	/**
 	* HANDLERS

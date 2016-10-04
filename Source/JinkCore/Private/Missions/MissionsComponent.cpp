@@ -40,34 +40,98 @@ void UMissionsComponent::RegisterAtom(TAssetPtr<URegisterAtom> Atom, uint8 Amoun
 	{
 		Atoms.AddUnique(Atom);
 
-		//CheckMissionStates();
+		CheckMissionStates();
 		return;
 	}
-	/*
-	FAtomItem AtomItem = AtomsWithAmount.;
-
-	if (AtomItem)
-	{
-		AtomItem.Atom = Atom;
-		AtomItem
-	}
-	else {
-		AtomItem.Amount += Amount;
-
-	}*/
 }
 
 void UMissionsComponent::StartMission(TAssetPtr<UMissionData> Mission) {
-	TSharedPtr<FMissionItem> MissionItem = MakeShareable(new FMissionItem(Mission));
+	FMissionItem MissionItem = FMissionItem();
+	MissionItem.Mission = Mission;
+	MissionItem.State = EMissionState::MS_IN_PROGRESS;
 
 	Missions.AddUnique(MissionItem);
+
+	CheckMissionState(MissionItem);
 }
 
 void UMissionsComponent::CompleteMission(FMissionItem& MissionItem, bool Success) {
+
 	if (MissionItem.State != EMissionState::MS_NOT_STARTED && Missions.Contains(MissionItem)) {
 		MissionItem.State = Success ? EMissionState::MS_SUCCESS : EMissionState::MS_FAILURE;
 		Missions.Remove(MissionItem);
 
 		CompletedMissions.AddUnique(MissionItem);
 	}
+}
+
+void UMissionsComponent::CheckMissionStates()
+{
+	TArray<FMissionItem> SuccessList;
+	TArray<FMissionItem> FailureList;
+	for (auto& I : Missions)
+	{
+		EMissionState NewState = GetNewMissionState(I);
+		if (NewState == EMissionState::MS_SUCCESS) {
+			SuccessList.Add(I);
+		}
+		else if (NewState == EMissionState::MS_FAILURE) {
+			FailureList.Add(I);
+		}
+	}
+
+	for (auto& SM : SuccessList) {
+		CompleteMission(SM, true);
+	}
+
+	for (auto& SM : FailureList) {
+		CompleteMission(SM, false);
+	}
+}
+
+void UMissionsComponent::CheckMissionState(FMissionItem& MissionItem) {
+	EMissionState NewState = GetNewMissionState(MissionItem);
+	if (NewState == EMissionState::MS_SUCCESS) {
+		CompleteMission(MissionItem, true);
+	}
+	if (NewState == EMissionState::MS_FAILURE) {
+		CompleteMission(MissionItem, false);
+	}
+}
+
+EMissionState UMissionsComponent::GetNewMissionState(FMissionItem& MissionItem) {
+	if (MissionItem.State == EMissionState::MS_IN_PROGRESS) {
+		//Get Mission Info
+		if (UMissionData* Data = MissionItem.GetData()) {
+			//Check Failure. Skip if none.
+			if (Data->FailureAtoms.Num() > 0) {
+				bool HasFailed = false;
+				for (auto& SF : Data->FailureAtoms) {
+					if (Atoms.Contains(SF)) {
+						HasFailed = true;
+						break;
+					}
+				}
+				if (HasFailed) {
+					return EMissionState::MS_FAILURE;
+				}
+			}
+
+			//Check Success. Skip if none.
+			if (Data->SuccessAtoms.Num() > 0) {
+				bool IsCompleted = true;
+				for (auto& SA : Data->SuccessAtoms) {
+					if (!Atoms.Contains(SA)) {
+						IsCompleted = false;
+						break;
+					}
+				}
+
+				if (IsCompleted) {
+					return EMissionState::MS_SUCCESS;
+				}
+			}
+		}
+	}
+	return MissionItem.State;
 }

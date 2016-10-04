@@ -30,5 +30,9 @@ public:
 	*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<TAssetPtr<URegisterAtom>> ProgressAtoms;
+	TArray<TAssetPtr<URegisterAtom>> RequiredAtoms;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<TAssetPtr<URegisterAtom>> SuccessAtoms;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TArray<TAssetPtr<URegisterAtom>> FailureAtoms;
 };
