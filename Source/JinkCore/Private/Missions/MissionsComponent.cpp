@@ -53,6 +53,9 @@ void UMissionsComponent::StartMission(TAssetPtr<UMissionData> Mission) {
 	MissionItem.Mission = Mission;
 	MissionItem.State = EMissionState::MS_IN_PROGRESS;
 
+	if (CompletedMissions.Contains(MissionItem))
+		return;
+
 	Missions.AddUnique(MissionItem);
 
 	//Call Delegate
