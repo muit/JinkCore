@@ -68,6 +68,8 @@ public:
 	void EnterCombat(AEntity* _Target);
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
 	void TargetChanged(AEntity* NewTarget);
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+	void JustDied(AController * InstigatedBy, AEntity* Killer);
 
 
 	/**

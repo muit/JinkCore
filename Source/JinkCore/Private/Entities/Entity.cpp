@@ -2,6 +2,7 @@
 
 #include "JinkCorePrivatePCH.h"
 #include "Entity.h"
+#include "Basic_Con.h"
 
 
 // Sets default values
@@ -9,7 +10,8 @@ AEntity::AEntity()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	Live = 100;
+	MaxLive = 100;
+	Live = MaxLive;
 	Faction = FFaction();
 
 	MovementState = EMovementState::MS_Walk;
@@ -17,6 +19,8 @@ AEntity::AEntity()
 	RunSpeed = 400;
 
 	UpdateMovementSpeed();
+
+	OnTakeAnyDamage.AddDynamic(this, &AEntity::ReceiveAnyDamage);
 }
 
 // Called when the game starts or when spawned
@@ -80,6 +84,38 @@ bool AEntity::IsHostileTo(AEntity* Other) {
 
 bool AEntity::IsHostileToFaction(FFaction Other) {
 	return Faction.IsHostileTo(Other);
+}
+
+void AEntity::Die(AController * InstigatedBy, AEntity * Killer)
+{
+	if (!IsAlive())
+		return;
+
+	Live = 0;
+
+	JustDied(InstigatedBy, Killer);
+	if (IsPlayerControlled()) {
+	}
+	else if (ABasic_Con* AI = GetAI()) {
+		AI->JustDied(InstigatedBy, Killer);
+	}
+}
+
+void AEntity::ReceiveAnyDamage_Implementation(AActor * DamagedActor, float Damage, const class UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
+{
+	if (!IsAlive())
+		return;
+
+	Live = FMath::Clamp(Live - Damage, 0.0f, MaxLive);
+
+	if (!IsAlive()) {
+		JustDied(InstigatedBy, Cast<AEntity>(DamageCauser));
+		if (IsPlayerControlled()) {
+		}
+		else if (ABasic_Con* AI = GetAI()) {
+			AI->JustDied(InstigatedBy, Cast<AEntity>(DamageCauser));
+		}
+	}
 }
 
 

@@ -41,6 +41,8 @@ public:
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity")
 	float Live;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity")
+	float MaxLive;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity")
 	FFaction Faction;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Movement")
@@ -71,9 +73,28 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
 	bool IsHostileToFaction(FFaction Other);
 
+	UFUNCTION(BlueprintCallable, Category = "Entity")
+	void Die(AController * InstigatedBy, AEntity* Killer);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
+	void ReceiveAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
+
+
+	//EVENTS
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+	void JustDied(AController * InstigatedBy, AEntity* Killer);
+
 	/**
 	 * HANDLERS
 	 */
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
 	ABasic_Con* GetAI() const { return Cast<ABasic_Con>(GetController()); }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+	bool IsPlayer() const { return IsPlayerControlled(); }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+	bool IsAI() const { return GetAI() != NULL; }
+
 };
