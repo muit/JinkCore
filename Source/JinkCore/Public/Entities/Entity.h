@@ -4,11 +4,11 @@
 
 #include "GameFramework/Character.h"
 #include "Faction.h"
+#include "Spell.h"
 #include "Entity.generated.h"
 
 //~~~~~ Type Declarations ~~~~~
 typedef class ABasic_Con;
-
 
 //MovementState to define different types of movements.
 UENUM(BlueprintType)
@@ -75,6 +75,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Entity")
 	void Die(AController * InstigatedBy, AEntity* Killer);
+
+	UFUNCTION(BlueprintCallable, Category = "Entity")
+	ASpell* CastSpell(TSubclassOf<ASpell> SpellType, AEntity* Target, FVector Location, FRotator Rotation, float Damage = 0.0f);
+	UFUNCTION(BlueprintCallable, Category = "Entity")
+	ASpell* CastSpellAtCaster(TSubclassOf<ASpell> SpellType, AEntity* Target = NULL, float Damage = 0.0f);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
 	void ReceiveAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);

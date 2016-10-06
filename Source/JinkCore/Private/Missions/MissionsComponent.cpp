@@ -65,7 +65,6 @@ void UMissionsComponent::StartMission(TAssetPtr<UMissionData> Mission) {
 }
 
 void UMissionsComponent::CompleteMission(FMissionItem& MissionItem, bool Success) {
-
 	if (MissionItem.State != EMissionState::MS_NOT_STARTED && Missions.Contains(MissionItem)) {
 		MissionItem.State = Success ? EMissionState::MS_SUCCESS : EMissionState::MS_FAILURE;
 		Missions.Remove(MissionItem);

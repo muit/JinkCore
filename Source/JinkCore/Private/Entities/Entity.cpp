@@ -101,6 +101,21 @@ void AEntity::Die(AController * InstigatedBy, AEntity * Killer)
 	}
 }
 
+ASpell* AEntity::CastSpell(TSubclassOf<ASpell> SpellType, AEntity* Target, FVector Location, FRotator Rotation, float Damage)
+{
+	ASpell* Spell = Cast<ASpell>(GetWorld()->SpawnActor(SpellType, &Location, &Rotation));
+	if (Spell) {
+		Spell->Cast(this, Target, Damage);
+		return Spell;
+	}
+	return NULL;
+}
+
+ASpell * AEntity::CastSpellAtCaster(TSubclassOf<ASpell> SpellType, AEntity * Target, float Damage)
+{
+	return CastSpell(SpellType, Target, this->GetActorLocation(), this->GetActorRotation(), Damage);
+}
+
 void AEntity::ReceiveAnyDamage_Implementation(AActor * DamagedActor, float Damage, const class UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
 {
 	if (!IsAlive())
