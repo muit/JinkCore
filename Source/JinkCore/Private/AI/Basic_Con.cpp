@@ -35,8 +35,10 @@ void ABasic_Con::Possess(APawn* InPawn)
 void ABasic_Con::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (!GetMe())
+		return;
 
-	if (!IsInCombat())
+	if (!GetMe()->IsAlive() || !IsInCombat())
 		return;
 
 	if (bFollows) {
@@ -63,6 +65,9 @@ bool ABasic_Con::AttackStart(AEntity * Victim)
 		UE_LOG(JinkCore, Warning, TEXT("JinkCore: Me is NULL, can't start combat."));
 		return false;
 	}
+
+	if (!GetMe()->IsAlive())
+		return false;
 		
 	if (!IsInCombat()) {
 		if (IsValidTarget(Victim) && Victim != Target) {
@@ -99,6 +104,13 @@ bool ABasic_Con::IsValidTarget(AEntity * Entity)
 		return Entity != GetMe() && GetMe()->IsHostileTo(Entity);
 	}
 	return false;
+}
+
+void ABasic_Con::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
+{
+	GetMe()->GetCharacterMovement()->StopMovementImmediately();
+	Target = nullptr;
+	JustDied(InstigatedBy, Killer);
 }
 
 bool ABasic_Con::BeforeEnterCombat_Implementation(AEntity* Entity) {

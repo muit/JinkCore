@@ -20,7 +20,7 @@ AEntity::AEntity()
 
 	UpdateMovementSpeed();
 
-	OnTakeAnyDamage.AddDynamic(this, &AEntity::ReceiveAnyDamage);
+	//OnTakeAnyDamage.AddDynamic(this, &AEntity::ReceiveAnyDamage_Internal);
 }
 
 // Called when the game starts or when spawned
@@ -116,19 +116,24 @@ ASpell * AEntity::CastSpellAtCaster(TSubclassOf<ASpell> SpellType, AEntity * Tar
 	return CastSpell(SpellType, Target, this->GetActorLocation(), this->GetActorRotation(), Damage);
 }
 
+void AEntity::ReceiveAnyDamage_Internal(AActor * DamagedActor, float Damage, const class UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
+{
+	ReceiveAnyDamage(DamagedActor, Damage, DamageType, InstigatedBy, DamageCauser);
+}
 void AEntity::ReceiveAnyDamage_Implementation(AActor * DamagedActor, float Damage, const class UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
 {
 	if (!IsAlive())
 		return;
 
 	Live = FMath::Clamp(Live - Damage, 0.0f, MaxLive);
+	UE_LOG(JinkCore, Log, TEXT("JinkCore: %s Damage: %f - Live: %f"), *DamageCauser->GetName(), Damage, Live);
 
 	if (!IsAlive()) {
 		JustDied(InstigatedBy, Cast<AEntity>(DamageCauser));
 		if (IsPlayerControlled()) {
 		}
 		else if (ABasic_Con* AI = GetAI()) {
-			AI->JustDied(InstigatedBy, Cast<AEntity>(DamageCauser));
+			AI->JustDied_Internal(InstigatedBy, Cast<AEntity>(DamageCauser));
 		}
 	}
 }

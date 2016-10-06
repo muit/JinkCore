@@ -59,7 +59,7 @@ void ASpell::ApplyDamage(AEntity* OtherTarget, float Damage)
 	//If there's no OtherTarget, Use the main target.
 	if (!OtherTarget)
 		OtherTarget = _Target;
-	if (!_Target)
+	if (!OtherTarget)
 		return;
 
 	if (Damage == 0)
