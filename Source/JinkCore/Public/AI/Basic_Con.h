@@ -49,6 +49,10 @@ public:
 	AEntity* Target;
 
 
+	UPROPERTY(BlueprintReadOnly, Category = "Combat")
+	bool IsMovingToTarget;
+	bool StartsFollowing;
+
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool AttackStart(AEntity* Victim);
@@ -68,6 +72,10 @@ public:
 	void EnterCombat(AEntity* _Target);
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
 	void TargetChanged(AEntity* NewTarget);
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+	void TargetIsReached();
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+	void TargetIsGone();
 
 	void JustDied_Internal(AController * InstigatedBy, AEntity* Killer);
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")

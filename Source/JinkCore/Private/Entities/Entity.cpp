@@ -132,5 +132,8 @@ void AEntity::ReceiveDamage_Implementation(AActor * DamagedActor, float Damage, 
 	}
 }
 
-
+void AEntity::DoMeleAttack_Implementation(AEntity* Target)
+{
+	UE_LOG(JinkCore, Log, TEXT("JinkCore: %s attacked but default behaviour is been called."), *this->GetName());
+}
 

@@ -16,6 +16,8 @@ ABasic_Con::ABasic_Con(const FObjectInitializer& ObjectInitializer)
 	bFollows = true;
 	MinMeleDistance = 100.0f;
 	MaxMeleDistance = MinMeleDistance + 100.0f;
+	IsMovingToTarget = true;
+	StartsFollowing = true;
 }
 
 // Called when the game starts or when spawned
@@ -45,17 +47,28 @@ void ABasic_Con::Tick(float DeltaTime)
 		if (!IsAIMoving()) {
 			if (GetSquaredDistanceToTarget() < FMath::Pow(MaxMeleDistance, 2))
 			{
+				if (IsMovingToTarget || StartsFollowing) {
+					IsMovingToTarget = false;
+					TargetIsReached();
+				}
 				//Mele Attack
 			}
 			else
 			{
+				IsMovingToTarget = true;
+				TargetIsGone();
 				//If not moving, follow the target
 				MoveToActor(Target, MinMeleDistance);
 			}
+			StartsFollowing = false;
 		}
 	}
-	else if(IsAIMoving()) {
-		StopMovement();
+	//Stop if not following
+	else {
+		StartsFollowing = true;
+		if (IsAIMoving() && IsMovingToTarget) {
+			StopMovement();
+		}
 	}
 }
 

@@ -83,13 +83,14 @@ public:
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
 	void ReceiveDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
-
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Combat")
+	void DoMeleAttack(AEntity* Target);
 
 
 	//EVENTS
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
 	void JustDied(AController * InstigatedBy, AEntity* Killer);
-
+	
 	/**
 	 * HANDLERS
 	 */
