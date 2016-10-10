@@ -53,6 +53,8 @@ public:
 	float RunSpeed;
 
 
+	UCharacterMovementComponent* CharacterMovement;
+
 	//Set Movement to Walk
 	UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
 	virtual void Walk();
@@ -62,7 +64,10 @@ public:
 	//Update Movement Speed to the movement State
 	UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
 	virtual void UpdateMovementSpeed();
-
+	UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
+	void RotateTowards(FRotator Rotation);
+	UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
+	void RotateTowardsActor(AActor* Actor);
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
 	virtual bool IsAlive() const;

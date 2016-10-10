@@ -3,6 +3,7 @@
 #include "JinkCorePrivatePCH.h"
 #include "Entity.h"
 #include "Basic_Con.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -17,6 +18,8 @@ AEntity::AEntity()
 	MovementState = EMovementState::MS_Walk;
 	WalkSpeed = 250;
 	RunSpeed = 400;
+
+	CharacterMovement = GetCharacterMovement();
 
 	UpdateMovementSpeed();
 }
@@ -54,23 +57,39 @@ void AEntity::Run()
 
 void AEntity::UpdateMovementSpeed()
 {
-	UCharacterMovementComponent* _CharacterMovement = GetCharacterMovement();
-	if (_CharacterMovement) {
+	if (CharacterMovement) {
 		switch (MovementState) {
 		case EMovementState::MS_None:
-			_CharacterMovement->MaxWalkSpeed = 0;
+			CharacterMovement->MaxWalkSpeed = 0;
 			break;
 		case EMovementState::MS_Walk:
-			_CharacterMovement->MaxWalkSpeed = WalkSpeed;
+			CharacterMovement->MaxWalkSpeed = WalkSpeed;
 			break;
 		case EMovementState::MS_Run:
-			_CharacterMovement->MaxWalkSpeed = RunSpeed;
+			CharacterMovement->MaxWalkSpeed = RunSpeed;
 			break;
 		default:
 			//Don't change anything
 			break;
 		}
 	}
+}
+
+void AEntity::RotateTowards(FRotator Rotation)
+{
+	CharacterMovement->bUseControllerDesiredRotation = true;
+	if (Controller) {
+		Controller->SetControlRotation(Rotation);
+	}
+}
+
+void AEntity::RotateTowardsActor(AActor * Actor)
+{
+	if (Actor == nullptr)
+		return;
+
+	const FVector Direction = Actor->GetActorLocation() - this->GetActorLocation();
+	RotateTowards(Direction.ToOrientationRotator());
 }
 
 bool AEntity::IsHostileTo(AEntity* Other) {

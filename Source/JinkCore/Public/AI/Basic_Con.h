@@ -44,6 +44,8 @@ public:
 	float MinMeleDistance;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Follow")
 	float MaxMeleDistance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat|Follow")
+	bool bLookAtTargetWhileMele;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	AEntity* Target;

@@ -18,6 +18,7 @@ ABasic_Con::ABasic_Con(const FObjectInitializer& ObjectInitializer)
 	MaxMeleDistance = MinMeleDistance + 100.0f;
 	IsMovingToTarget = true;
 	StartsFollowing = true;
+	bLookAtTargetWhileMele = true;
 }
 
 // Called when the game starts or when spawned
@@ -31,6 +32,10 @@ void ABasic_Con::Possess(APawn* InPawn)
 	Super::Possess(InPawn);
 	//Setup Me
 	Me = GetMe();
+
+	if (bLookAtTargetWhileMele) {
+		Me->CharacterMovement->bUseControllerDesiredRotation = true;
+	}
 }
 
 // Called every frame
@@ -43,6 +48,8 @@ void ABasic_Con::Tick(float DeltaTime)
 	if (!GetMe()->IsAlive() || !IsInCombat())
 		return;
 
+	GetMe()->CharacterMovement->bUseControllerDesiredRotation = false;
+
 	if (bFollows) {
 		if (!IsAIMoving()) {
 			if (GetSquaredDistanceToTarget() < FMath::Pow(MaxMeleDistance, 2))
@@ -51,7 +58,11 @@ void ABasic_Con::Tick(float DeltaTime)
 					IsMovingToTarget = false;
 					TargetIsReached();
 				}
+				if (bLookAtTargetWhileMele) {
+					GetMe()->RotateTowardsActor(Target);
+				}
 				//Mele Attack
+
 			}
 			else
 			{
