@@ -50,6 +50,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat")
 	AEntity* Target;
 
+	UPROPERTY(BlueprintReadWrite, Category = "Combat")
+	FVector HomeLocation;
+
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combat")
 	bool IsMovingToTarget;
@@ -59,7 +62,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool AttackStart(AEntity* Victim);
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-	bool SetTarget(AEntity* Victim);
+	bool SetTarget(AEntity* Victim); 
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void StopCombat();
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Combat")
 	bool IsValidTarget(AEntity* Entity);
@@ -72,6 +77,8 @@ public:
 	bool BeforeEnterCombat(AEntity* _Target);
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
 	void EnterCombat(AEntity* _Target);
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+	void EndCombat(AEntity* _Target);
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
 	void TargetChanged(AEntity* NewTarget);
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")

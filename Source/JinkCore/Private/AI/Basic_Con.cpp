@@ -33,6 +33,8 @@ void ABasic_Con::Possess(APawn* InPawn)
 	//Setup Me
 	Me = GetMe();
 
+	HomeLocation = Me->GetActorLocation();
+
 	if (bLookAtTargetWhileMele) {
 		Me->CharacterMovement->bUseControllerDesiredRotation = true;
 	}
@@ -47,6 +49,11 @@ void ABasic_Con::Tick(float DeltaTime)
 
 	if (!GetMe()->IsAlive() || !IsInCombat())
 		return;
+
+	if (!Target->IsAlive()) {
+		StopCombat();
+		return;
+	}
 
 	GetMe()->CharacterMovement->bUseControllerDesiredRotation = false;
 
@@ -120,6 +127,16 @@ bool ABasic_Con::SetTarget(AEntity * Victim) {
 		return true;
 	}
 	return false;
+}
+
+void ABasic_Con::StopCombat()
+{
+	if (IsInCombat()) {
+		AEntity* OldTarget = Target;
+		Target = nullptr;
+		MoveToLocation(HomeLocation);
+		EndCombat(OldTarget);
+	}
 }
 
 bool ABasic_Con::IsValidTarget(AEntity * Entity)
