@@ -10,6 +10,9 @@
 //~~~~~ Type Declarations ~~~~~
 typedef class ABasic_Con;
 
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FJustDiedSignature, AController*, InstigatedBy, AEntity*, Killer);
+
 //MovementState to define different types of movements.
 UENUM(BlueprintType)
 enum class EMovementState : uint8
@@ -95,6 +98,8 @@ public:
 	//EVENTS
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
 	void JustDied(AController * InstigatedBy, AEntity* Killer);
+	UPROPERTY(BlueprintAssignable, Category = "Combat")
+	FJustDiedSignature JustDiedDelegate;
 	
 	/**
 	 * HANDLERS

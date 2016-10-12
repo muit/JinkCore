@@ -112,10 +112,11 @@ void AEntity::Die(AController * InstigatedBy, AEntity * Killer)
 	Live = 0;
 
 	JustDied(InstigatedBy, Killer);
+	JustDiedDelegate.Broadcast(InstigatedBy, Cast<AEntity>(Killer));
 	if (IsPlayerControlled()) {
 	}
 	else if (ABasic_Con* AI = GetAI()) {
-		AI->JustDied(InstigatedBy, Killer);
+		AI->JustDied_Internal(InstigatedBy, Killer);
 	}
 }
 
@@ -143,6 +144,7 @@ void AEntity::ReceiveDamage_Implementation(AActor * DamagedActor, float Damage, 
 
 	if (!IsAlive()) {
 		JustDied(InstigatedBy, Cast<AEntity>(DamageCauser));
+		JustDiedDelegate.Broadcast(InstigatedBy, Cast<AEntity>(DamageCauser));
 		if (IsPlayerControlled()) {
 		}
 		else if (ABasic_Con* AI = GetAI()) {
