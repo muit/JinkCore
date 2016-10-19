@@ -6,6 +6,34 @@
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "VideoSettingsLib.generated.h"
 
+/** Used by FPostProcessSettings Anti-aliasings */
+UENUM(BlueprintType)
+enum class EAntiAliasing : uint8
+{
+	AA_None UMETA(DisplayName = "None"),
+	AA_FXAA UMETA(DisplayName = "FXAA"),
+	AA_TemporalAA UMETA(DisplayName = "TemporalAA"),
+	AA_MAX,
+};
+
+UENUM(BlueprintType)
+enum class EQuality : uint8
+{
+	Q_Low      UMETA(DisplayName = "Low"),
+	Q_Medium   UMETA(DisplayName = "Medium"),
+	Q_High     UMETA(DisplayName = "High"),
+	Q_VeryHigh UMETA(DisplayName = "Very High")
+};
+
+UENUM(BlueprintType)
+enum class EViewDistance : uint8
+{
+	VD_Low    UMETA(DisplayName = "Low"),
+	VD_Medium UMETA(DisplayName = "Medium"),
+	VD_High   UMETA(DisplayName = "High")
+};
+
+
 #define MIN_SCREEN_WIDTH 1024
 #define MIN_SCREEN_HEIGHT 768
 
@@ -39,12 +67,12 @@ public:
 
 	// Get the current video quality settings
 	UFUNCTION(BlueprintCallable, Category = "Video Settings")
-	static bool GetVideoQualitySettings(int32& AntiAliasing, int32& Effects, int32& PostProcess, int32& Resolution, int32& Shadow, int32& Texture, int32& ViewDistance);
+	static bool GetVideoQualitySettings(EAntiAliasing& AntiAliasing, EQuality& Effects, EQuality& PostProcess, int32& Resolution, EQuality& Shadow, EQuality& Texture, int32& ViewDistance);
 
 	// Set the quality settings (not applied nor saved yet)
 	UFUNCTION(BlueprintCallable, Category = "Video Settings")
-	static bool SetVideoQualitySettings(const int32 AntiAliasing = 3, const int32 Effects = 3, const int32 PostProcess = 3,
-		const int32 Resolution = 100, const int32 Shadow = 3, const int32 Texture = 3, const int32 ViewDistance = 3);
+	static bool SetVideoQualitySettings(const EAntiAliasing AntiAliasing = EAntiAliasing::AA_TemporalAA, const EQuality Effects = EQuality::Q_High, const EQuality PostProcess = EQuality::Q_High,
+		const int32 Resolution = 100, const EQuality Shadow = EQuality::Q_High, const EQuality Texture = EQuality::Q_High, const int32 ViewDistance = 3);
 
 	// Check whether or not we have vertical sync enabled
 	UFUNCTION(BlueprintPure, Category = "Video Settings")

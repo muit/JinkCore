@@ -88,8 +88,8 @@ bool UVideoSettingsLib::ChangeScreenResolution(const int32 Width, const int32 He
 
 
 // Get the current video quality settings
-bool UVideoSettingsLib::GetVideoQualitySettings(int32& AntiAliasing, int32& Effects, int32& PostProcess,
-	int32& Resolution, int32& Shadow, int32& Texture, int32& ViewDistance)
+bool UVideoSettingsLib::GetVideoQualitySettings(EAntiAliasing& AntiAliasing, EQuality& Effects, EQuality& PostProcess,
+	int32& Resolution, EQuality& Shadow, EQuality& Texture, int32& ViewDistance)
 {
 	UGameUserSettings* Settings = GetGameUserSettings();
 	if (!Settings)
@@ -97,20 +97,20 @@ bool UVideoSettingsLib::GetVideoQualitySettings(int32& AntiAliasing, int32& Effe
 		return false;
 	}
 
-	AntiAliasing = Settings->ScalabilityQuality.AntiAliasingQuality;
-	Effects = Settings->ScalabilityQuality.EffectsQuality;
-	PostProcess = Settings->ScalabilityQuality.PostProcessQuality;
+	AntiAliasing = static_cast<EAntiAliasing>(Settings->ScalabilityQuality.AntiAliasingQuality);
+	Effects = static_cast<EQuality>(Settings->ScalabilityQuality.EffectsQuality);
+	PostProcess = static_cast<EQuality>(Settings->ScalabilityQuality.PostProcessQuality);
 	Resolution = Settings->ScalabilityQuality.ResolutionQuality;
-	Shadow = Settings->ScalabilityQuality.ShadowQuality;
-	Texture = Settings->ScalabilityQuality.TextureQuality;
+	Shadow = static_cast<EQuality>(Settings->ScalabilityQuality.ShadowQuality);
+	Texture = static_cast<EQuality>(Settings->ScalabilityQuality.TextureQuality);
 	ViewDistance = Settings->ScalabilityQuality.ViewDistanceQuality;
 	return true;
 }
 
 
 // Set the quality settings (not applied nor saved yet)
-bool UVideoSettingsLib::SetVideoQualitySettings(const int32 AntiAliasing, const int32 Effects, const int32 PostProcess,
-	const int32 Resolution, const int32 Shadow, const int32 Texture, const int32 ViewDistance)
+bool UVideoSettingsLib::SetVideoQualitySettings(const EAntiAliasing AntiAliasing, const EQuality Effects, const EQuality PostProcess,
+	const int32 Resolution, const EQuality Shadow, const EQuality Texture, const int32 ViewDistance)
 {
 	UGameUserSettings* Settings = GetGameUserSettings();
 	if (!Settings)
@@ -118,12 +118,12 @@ bool UVideoSettingsLib::SetVideoQualitySettings(const int32 AntiAliasing, const 
 		return false;
 	}
 
-	Settings->ScalabilityQuality.AntiAliasingQuality = AntiAliasing;
-	Settings->ScalabilityQuality.EffectsQuality = Effects;
-	Settings->ScalabilityQuality.PostProcessQuality = PostProcess;
+	Settings->ScalabilityQuality.AntiAliasingQuality = (int32)AntiAliasing;
+	Settings->ScalabilityQuality.EffectsQuality = (int32)Effects;
+	Settings->ScalabilityQuality.PostProcessQuality = (int32)PostProcess;
 	Settings->ScalabilityQuality.ResolutionQuality = Resolution;
-	Settings->ScalabilityQuality.ShadowQuality = Shadow;
-	Settings->ScalabilityQuality.TextureQuality = Texture;
+	Settings->ScalabilityQuality.ShadowQuality = (int32)Shadow;
+	Settings->ScalabilityQuality.TextureQuality = (int32)Texture;
 	Settings->ScalabilityQuality.ViewDistanceQuality = ViewDistance;
 	return true;
 }
