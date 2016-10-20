@@ -95,6 +95,65 @@ public:
 	void DoMeleAttack(AEntity* Target);
 
 
+	/** Hurt locally authoritative actors within the radius. Will only hit components that block the Visibility channel.
+	* @param Damage - The base damage to apply, i.e. the damage at the origin.
+	* @param Origin - Epicenter of the damage area.
+	* @param DamageRadius - Radius of the damage area, from Origin
+	* @param DamageTypeClass - Class that describes the damage that was done.
+	* @param DamageCauser - Actor that actually caused the damage (e.g. the grenade that exploded).  This actor will not be damaged and it will not block damage.
+	* @param bFullDamage - if true, damage not scaled based on distance from Origin
+	* @param DamagePreventionChannel - Damage will not be applied to victim if there is something between the origin and the victim which blocks traces on this channel
+	* @return true if damage was applied to at least one actor.
+	*/
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Entity|Damage", meta = (WorldContext = "WorldContextObject", AutoCreateRefTerm = "IgnoreActors"))
+	bool ApplyRadialDamage(float Damage, const FVector& Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser = NULL, bool bDoFullDamage = false, ECollisionChannel DamagePreventionChannel = ECC_Visibility);
+	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
+	bool ApplyRadialDamageCheck(float Damage, const FVector& Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel);
+
+	/** Hurt locally authoritative actors within the radius. Will only hit components that block the Visibility channel.
+	* @param Damage - The base damage to apply, i.e. the damage at the origin.
+	* @param Origin - Epicenter of the damage area.
+	* @param DamageInnerRadius - Radius of the full damage area, from Origin
+	* @param DamageOuterRadius - Radius of the minimum damage area, from Origin
+	* @param DamageFalloff - Falloff exponent of damage from DamageInnerRadius to DamageOuterRadius
+	* @param DamageTypeClass - Class that describes the damage that was done.
+	* @param IgnoreActors - Actors ignored.
+	* @param DamageCauser - Actor that actually caused the damage (e.g. the grenade that exploded)
+	* @param DamagePreventionChannel - Damage will not be applied to victim if there is something between the origin and the victim which blocks traces on this channel
+	* @return true if damage was applied to at least one actor.
+	*/
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Entity|Damage", meta = (WorldContext = "WorldContextObject", AutoCreateRefTerm = "IgnoreActors"))
+	bool ApplyRadialDamageWithFalloff(float Damage, float MinimumDamage, const FVector& Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser = NULL, ECollisionChannel DamagePreventionChannel = ECC_Visibility);
+	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
+	bool ApplyRadialDamageWithFalloffCheck(float Damage, float MinimumDamage, const FVector& Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser, ECollisionChannel DamagePreventionChannel);
+
+
+	/** Hurts the specified actor with the specified impact.
+	* @param DamagedActor - Actor that will be damaged.
+	* @param Damage - The base damage to apply.
+	* @param HitFromDirection - Direction the hit came FROM
+	* @param HitInfo - Collision or trace result that describes the hit
+	* @param EventInstigator - Controller that was responsible for causing this damage (e.g. player who shot the weapon)
+	* @param DamageTypeClass - Class that describes the damage that was done.
+	* @param DamageCauser - Actor that actually caused the damage (e.g. the grenade that exploded)
+	*/
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Entity|Damage")
+	void ApplyPointDamage(AActor* DamagedActor, float Damage, const FVector& HitFromDirection, const FHitResult& HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser = NULL);
+	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
+	bool ApplyPointDamageCheck(AActor* DamagedActor, float Damage, const FVector& HitFromDirection, const FHitResult& HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser);
+
+	/** Hurts the specified actor with generic damage.
+	* @param DamagedActor - Actor that will be damaged.
+	* @param Damage - The base damage to apply.
+	* @param DamageTypeClass - Class that describes the damage that was done.
+	* @param DamageCauser - Actor that actually caused the damage (e.g. the grenade that exploded)
+	*/
+	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Entity|Damage")
+	void ApplyDamage(AActor* DamagedActor, float Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser = NULL);
+	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
+	bool ApplyDamageCheck(AActor* DamagedActor, float Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser);
+
+
 	//EVENTS
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
 	void JustDied(AController * InstigatedBy, AEntity* Killer);

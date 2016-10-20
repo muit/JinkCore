@@ -65,6 +65,10 @@ void ASpell::ApplyDamage(AEntity* OtherTarget, float Damage)
 	if (Damage == 0)
 		Damage = _Damage;
 
-	UGameplayStatics::ApplyDamage(OtherTarget, Damage, _Caster->GetController(), this, DamageTypeClass);
+	if (_Caster) {
+		_Caster->ApplyDamage(OtherTarget, Damage, DamageTypeClass, this);
+	} else { //Apply generic Damage if there's no caster
+		UGameplayStatics::ApplyDamage(OtherTarget, Damage, NULL, this, DamageTypeClass);
+	}
 }
 
