@@ -82,7 +82,7 @@ public:
 	bool IsHostileToFaction(FFaction Other);
 
 	UFUNCTION(BlueprintCallable, Category = "Entity")
-	void Die(AController * InstigatedBy, AEntity* Killer);
+	void Die(AController * InstigatedBy = nullptr, AEntity* Killer = nullptr);
 
 	UFUNCTION(BlueprintCallable, Category = "Entity")
 	ASpell* CastSpell(TSubclassOf<ASpell> SpellType, AEntity* Target, FVector Location, FRotator Rotation, float Damage = 0.0f);
