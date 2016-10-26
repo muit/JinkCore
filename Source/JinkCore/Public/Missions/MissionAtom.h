@@ -3,17 +3,17 @@
 #pragma once
 
 #include "Engine/DataAsset.h"
-#include "RegisterAtom.generated.h"
+#include "MissionAtom.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class JINKCORE_API URegisterAtom : public UDataAsset
+class JINKCORE_API UMissionAtom : public UDataAsset
 {
     GENERATED_BODY()
     
-    URegisterAtom()
+    UMissionAtom()
 		: Name("")
 		, Amount(1)
 	{}
