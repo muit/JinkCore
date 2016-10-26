@@ -32,7 +32,7 @@ void UMissionsComponent::TickComponent( float DeltaTime, ELevelTick TickType, FA
 	// ...
 }
 
-void UMissionsComponent::RegisterAtom(TAssetPtr<URegisterAtom> Atom, uint8 Amount) {
+void UMissionsComponent::RegisterAtom(TAssetPtr<UMissionAtom> Atom, uint8 Amount) {
 	if (Amount <= 0)
 		return;
 

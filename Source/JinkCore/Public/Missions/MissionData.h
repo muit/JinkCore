@@ -3,7 +3,7 @@
 #pragma once
 
 #include "Object.h"
-#include "RegisterAtom.h"
+#include "MissionAtom.h"
 #include "MissionData.generated.h"
 
 UCLASS(Blueprintable)
@@ -30,9 +30,9 @@ public:
 	*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<TAssetPtr<URegisterAtom>> RequiredAtoms;
+	TArray<TAssetPtr<UMissionAtom>> RequiredAtoms;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<TAssetPtr<URegisterAtom>> SuccessAtoms;
+	TArray<TAssetPtr<UMissionAtom>> SuccessAtoms;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<TAssetPtr<URegisterAtom>> FailureAtoms;
+	TArray<TAssetPtr<UMissionAtom>> FailureAtoms;
 };

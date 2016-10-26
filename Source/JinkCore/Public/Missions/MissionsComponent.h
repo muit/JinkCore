@@ -53,7 +53,7 @@ struct FAtomItem {
 public:
 
 	UPROPERTY(EditAnywhere, Category = "Atom")
-	TAssetPtr<URegisterAtom> Atom;
+	TAssetPtr<UMissionAtom> Atom;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Atom")
 	uint8 Amount;
@@ -88,7 +88,7 @@ public:
 	TArray<FMissionItem> CompletedMissions;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
-	TArray<TAssetPtr<URegisterAtom>> Atoms;
+	TArray<TAssetPtr<UMissionAtom>> Atoms;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mission")
 	TArray<FAtomItem> AtomsWithAmount;
@@ -96,7 +96,7 @@ public:
 
 
 	UFUNCTION(BlueprintCallable, Category = "Mission")
-	void RegisterAtom(TAssetPtr<URegisterAtom> Atom, uint8 Amount = 1);
+	void RegisterAtom(TAssetPtr<UMissionAtom> Atom, uint8 Amount = 1);
 
 	UFUNCTION(BlueprintCallable, Category = "Mission")
 	void StartMission(TAssetPtr<UMissionData> Mission);
