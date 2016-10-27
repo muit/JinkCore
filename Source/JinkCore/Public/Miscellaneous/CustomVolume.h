@@ -38,16 +38,15 @@ class JINKCORE_API ACustomVolume : public AVolume
 	TSubclassOf<class AEntity>  EntityFilter;
 
 
+protected:
 	// FUNCTIONS
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 	virtual void NotifyActorEndOverlap(AActor* OtherActor) override;
-
-	UFUNCTION()
 	virtual void EntityEnter(AEntity* Entity);
-	UFUNCTION()
 	virtual void EntityExit(AEntity* Entity);
 
 
+public:
 	// EVENTS & DELEGATES
 	UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "EntityEnter"), Category = "Trigger")
 	void ReceiveEntityEnter(AEntity* Entity);
