@@ -18,7 +18,6 @@ ACustomVolume::ACustomVolume(const FObjectInitializer& ObjectInitializer)
 	BrushColor = Color;
 
 	EntityFilter = AEntity::StaticClass();
-	
 }
 
 void ACustomVolume::OnConstruction(const FTransform & Transform)
