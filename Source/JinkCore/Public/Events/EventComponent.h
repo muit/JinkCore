@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Components/ActorComponent.h"
+#include "EventHandler.h"
 #include "EventComponent.generated.h"
 
 
@@ -22,7 +23,7 @@ public:
 	float DefaultLength;
 
 	// Handle to manage the timer
-	FTimerHandle TimerHandle;
+	UEventHandler* EventHandler;
 
 
 	// Start the event timer
@@ -42,7 +43,7 @@ public:
 	void Restart(int Length = -1);
 
 	UFUNCTION()
-	void OnExecute();
+	void OnExecute(int Id);
 
 	// HELPERS
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Timer")
