@@ -3,15 +3,21 @@
 #pragma once
 
 #include "Miscellaneous/CustomVolume.h"
-#include "DeadVolume.generated.h"
+#include "MissionAtom.h"
+#include "AtomVolume.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class JINKCORE_API ADeadVolume : public ACustomVolume
+class JINKCORE_API AAtomVolume : public ACustomVolume
 {
 	GENERATED_UCLASS_BODY()
+	
+public:
+	// PROPERTIES
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Trigger")
+	TAssetPtr<UMissionAtom> Atom;
 
 protected:
 	UFUNCTION()
