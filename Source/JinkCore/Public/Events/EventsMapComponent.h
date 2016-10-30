@@ -4,55 +4,57 @@
 
 #include "Components/ActorComponent.h"
 #include "EventHandler.h"
-#include "EventComponent.generated.h"
+#include "EventsMapComponent.generated.h"
 
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEventExecuteSignature);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FEventsMapExecuteSignature, int, Id);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class JINKCORE_API UEventComponent : public UActorComponent
+class JINKCORE_API UEventsMapComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
 	// Sets default values for this component's properties
-	UEventComponent();
+	UEventsMapComponent();
 	
+
 	//The default length in seconds that will be used for the timer.
 	UPROPERTY(EditAnywhere, meta = (DisplayName = "Length"), Category = "Timer")
 	float DefaultLength;
 
 	// Handle to manage the timer
-	UEventHandler* EventHandler;
+	TMap<int, UEventHandler*> Events;
 
 
 	// Start the event timer
 	UFUNCTION(BlueprintCallable, Category = "Timer")
-	void Start(int Length = -1);
+	void Start(int Id, int Length = -1);
 
 	// Pause the event timer
 	UFUNCTION(BlueprintCallable, Category = "Timer")
-	void Pause();
+	void Pause(int Id);
 
 	// Resume the event timer
 	UFUNCTION(BlueprintCallable, Category = "Timer")
-	void Resume();
+	void Resume(int Id);
 
 	//Reset the event and start it.
 	UFUNCTION(BlueprintCallable, Category = "Timer")
-	void Restart(int Length = -1);
+	void Restart(int Id, int Length = -1);
 
 	UFUNCTION()
 	void OnExecute(int Id);
 
 	// HELPERS
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Timer")
-	bool IsRunning();
+	bool IsRunning(int Id);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Timer")
-	bool IsPaused();
+	bool IsPaused(int Id);
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Timer")
-	float GetLength();
+	float GetLength(int Id);
+
 
 	UPROPERTY(BlueprintAssignable, Category = "Timer")
-	FEventExecuteSignature Execute;
+	FEventsMapExecuteSignature Execute;
 };
