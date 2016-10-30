@@ -5,13 +5,12 @@
 
 UEventHandler::UEventHandler() {
 	this->Id = 0;
-}
-UEventHandler::UEventHandler(int Id) {
-	this->Id = Id;
+	bActivated = false;
 }
 
-void UEventHandler::Setup(UObject* Context) {
+void UEventHandler::Setup(UObject* Context, int Id) {
 	WorldContext = Context;
+	this->Id = Id;
 }
 
 template< class UserClass >
@@ -80,6 +79,13 @@ void UEventHandler::Restart(int Length)
 	StartInternal(Length);
 }
 
+void UEventHandler::Reset()
+{
+	//Clear the Timer
+	WorldContext->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+	bActivated = false;
+}
+
 void UEventHandler::OnExecute()
 {
 	WorldContext->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
@@ -112,6 +118,7 @@ float const UEventHandler::GetLength()
 	return WorldContext->GetWorld()->GetTimerManager().GetTimerRate(TimerHandle);
 }
 
+
 void UEventHandler::StartInternal(int Length)
 {
 	if (IsRunning() || Length < 0) {
@@ -119,6 +126,7 @@ void UEventHandler::StartInternal(int Length)
 	}
 
 	WorldContext->GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UEventHandler::OnExecute, Length, false);
+	bActivated = true;
 }
 
 

@@ -17,11 +17,12 @@ class JINKCORE_API UEventHandler : public UObject
 
 public:
 	UEventHandler();
-	UEventHandler(int Id);
-	void Setup(UObject* Context);
+	void Setup(UObject* Context, int Id = 0);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
 	int Id;
+	UPROPERTY(BlueprintReadOnly, Category = "Timer")
+	bool bActivated;
 
 
 	UObject* WorldContext;
@@ -46,6 +47,9 @@ public:
 	//Reset the event and start it.
 	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void Restart(int Length);
+	//Reset the event and start it.
+	UFUNCTION(BlueprintCallable, Category = "Timer")
+	void Reset();
 
 	//Called when the event is done.
 	UFUNCTION()
