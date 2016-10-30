@@ -74,6 +74,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
 	virtual bool IsAlive() const;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+	virtual bool LiveIsUnderPercent(float Percent) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
 	bool IsHostileTo(AEntity* Other);

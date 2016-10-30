@@ -43,6 +43,11 @@ bool AEntity::IsAlive() const
 	return Live > 0;
 }
 
+bool AEntity::LiveIsUnderPercent(float Percent) const
+{
+	return Live/MaxLive < Percent/100;
+}
+
 void AEntity::Walk()
 {
 	MovementState = EMovementState::MS_Walk;
