@@ -17,7 +17,7 @@ class JINKCORE_API UEventHandler : public UObject
 
 public:
 	UEventHandler();
-	void Setup(UObject* Context, int Id = 0);
+	void Setup(UObject* Context, int _Id = 0);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
 	int Id;

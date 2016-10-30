@@ -8,9 +8,9 @@ UEventHandler::UEventHandler() {
 	bActivated = false;
 }
 
-void UEventHandler::Setup(UObject* Context, int Id) {
+void UEventHandler::Setup(UObject* Context, int _Id) {
 	WorldContext = Context;
-	this->Id = Id;
+	Id = _Id;
 }
 
 template< class UserClass >
