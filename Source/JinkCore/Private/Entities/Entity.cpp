@@ -145,6 +145,15 @@ void AEntity::ReceiveDamage_Implementation(AActor * DamagedActor, float Damage, 
 	if (!IsAlive())
 		return;
 
+	if (AEntity* Causer = Cast<AEntity>(DamageCauser)) {
+		if (!Causer->CheckApplyAnyDamage(DamagedActor, Damage, DamageType, DamageCauser)) {
+			return;
+		}
+	}
+
+	if (!CheckReceiveDamage(DamagedActor, Damage, DamageType, DamageCauser))
+		return;
+
 	Live = FMath::Clamp(Live - Damage, 0.0f, MaxLive);
 
 	if (!IsAlive()) {
@@ -165,68 +174,73 @@ void AEntity::DoMeleAttack_Implementation(AEntity* Target)
 
 bool AEntity::ApplyRadialDamage(float Damage, const FVector & Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel)
 {
-	if (DamageCauser == NULL)
+	if (!DamageCauser)
 		DamageCauser = this;
-	const bool checkSuccess = ApplyRadialDamageCheck(Damage, Origin, DamageRadius, DamageTypeClass, IgnoreActors, DamageCauser, bDoFullDamage, DamagePreventionChannel);
+
+	const bool checkSuccess = CheckApplyRadialDamage(Damage, Origin, DamageRadius, DamageTypeClass, IgnoreActors, DamageCauser, bDoFullDamage, DamagePreventionChannel);
 	if (checkSuccess) {
 		return UGameplayStatics::ApplyRadialDamage(this, Damage, Origin, DamageRadius, DamageTypeClass, IgnoreActors, DamageCauser, GetController(), bDoFullDamage, DamagePreventionChannel);
 	}
 	return false;
 }
 
-bool AEntity::ApplyRadialDamageCheck_Implementation(float Damage, const FVector & Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel)
-{
-	return true;
-}
-
-
 bool AEntity::ApplyRadialDamageWithFalloff(float Damage, float MinimumDamage, const FVector & Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, ECollisionChannel DamagePreventionChannel)
 {
-	if (DamageCauser == NULL)
+	if (!DamageCauser)
 		DamageCauser = this;
 
-	const bool checkSuccess = ApplyRadialDamageWithFalloffCheck(Damage, MinimumDamage, Origin, DamageInnerRadius, DamageOuterRadius, DamageFalloff, DamageTypeClass, IgnoreActors, DamageCauser, DamagePreventionChannel);
+	const bool checkSuccess = CheckApplyRadialDamageWithFalloff(Damage, MinimumDamage, Origin, DamageInnerRadius, DamageOuterRadius, DamageFalloff, DamageTypeClass, IgnoreActors, DamageCauser, DamagePreventionChannel);
 	if (checkSuccess) {
 		return UGameplayStatics::ApplyRadialDamageWithFalloff(this, Damage, MinimumDamage, Origin, DamageInnerRadius, DamageOuterRadius, DamageFalloff, DamageTypeClass, IgnoreActors, DamageCauser, GetController(), DamagePreventionChannel);
 	}
 	return false;
 }
 
-bool AEntity::ApplyRadialDamageWithFalloffCheck_Implementation(float Damage, float MinimumDamage, const FVector & Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, ECollisionChannel DamagePreventionChannel)
-{
-	return true;
-}
-
-
 void AEntity::ApplyPointDamage(AActor * DamagedActor, float Damage, const FVector & HitFromDirection, const FHitResult & HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
 {
-	if (DamageCauser == NULL)
+	if (!DamagedActor)
+		return;
+
+	if (!DamageCauser)
 		DamageCauser = this;
 
-	const bool checkSuccess = ApplyPointDamageCheck(DamagedActor, Damage, HitFromDirection, HitInfo, DamageTypeClass, DamageCauser);
+	const bool checkSuccess = CheckApplyPointDamage(DamagedActor, Damage, HitFromDirection, HitInfo, DamageTypeClass, DamageCauser);
 	if (checkSuccess) {
 		UGameplayStatics::ApplyPointDamage(DamagedActor, Damage, HitFromDirection, HitInfo, GetController(), DamageCauser, DamageTypeClass);
 	}
 }
 
-bool AEntity::ApplyPointDamageCheck_Implementation(AActor * DamagedActor, float Damage, const FVector & HitFromDirection, const FHitResult & HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
-{
-	return true;
-}
-
-
 void AEntity::ApplyDamage(AActor * DamagedActor, float Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
 {
-	if (DamageCauser == NULL)
+	if (!DamagedActor)
+		return;
+
+	if (!DamageCauser)
 		DamageCauser = this;
 
-	const bool checkSuccess = ApplyDamageCheck(DamagedActor, Damage, DamageTypeClass, DamageCauser);
+	const bool checkSuccess = CheckApplyDamage(DamagedActor, Damage, DamageTypeClass, DamageCauser);
 	if (checkSuccess) {
 		UGameplayStatics::ApplyDamage(DamagedActor, Damage, GetController(), DamageCauser, DamageTypeClass);
 	}
 }
 
-bool AEntity::ApplyDamageCheck_Implementation(AActor * DamagedActor, float Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
-{
-	return true;
-}
+//APPLY CHECKS
+bool AEntity::CheckApplyRadialDamage_Implementation(float Damage, const FVector & Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel)
+{ return true; }
+
+bool AEntity::CheckApplyRadialDamageWithFalloff_Implementation(float Damage, float MinimumDamage, const FVector & Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, ECollisionChannel DamagePreventionChannel)
+{ return true; }
+
+bool AEntity::CheckApplyPointDamage_Implementation(AActor * DamagedActor, float Damage, const FVector & HitFromDirection, const FHitResult & HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
+{ return true; }
+
+bool AEntity::CheckApplyDamage_Implementation(AActor * DamagedActor, float Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
+{ return true; }
+
+bool AEntity::CheckApplyAnyDamage_Implementation(AActor * DamagedActor, float Damage, const class UDamageType * DamageType, AActor * DamageCauser)
+{ return true; }
+
+
+//RECEIVE CHECKS
+bool AEntity::CheckReceiveDamage_Implementation(AActor * DamagedActor, float Damage, const class UDamageType * DamageType, AActor * DamageCauser)
+{ return true; }
