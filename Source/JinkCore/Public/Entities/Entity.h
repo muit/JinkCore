@@ -74,6 +74,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
 	virtual bool IsAlive() const;
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+	virtual bool LiveIsUnderPercent(float Percent) const;
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
 	bool IsHostileTo(AEntity* Other);
@@ -95,6 +97,11 @@ public:
 	void DoMeleAttack(AEntity* Target);
 
 
+
+	/**********
+	* DAMAGES *
+	**********/
+
 	/** Hurt locally authoritative actors within the radius. Will only hit components that block the Visibility channel.
 	* @param Damage - The base damage to apply, i.e. the damage at the origin.
 	* @param Origin - Epicenter of the damage area.
@@ -107,9 +114,7 @@ public:
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Entity|Damage", meta = (WorldContext = "WorldContextObject", AutoCreateRefTerm = "IgnoreActors"))
 	bool ApplyRadialDamage(float Damage, const FVector& Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser = NULL, bool bDoFullDamage = false, ECollisionChannel DamagePreventionChannel = ECC_Visibility);
-	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
-	bool ApplyRadialDamageCheck(float Damage, const FVector& Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel);
-
+	
 	/** Hurt locally authoritative actors within the radius. Will only hit components that block the Visibility channel.
 	* @param Damage - The base damage to apply, i.e. the damage at the origin.
 	* @param Origin - Epicenter of the damage area.
@@ -124,9 +129,7 @@ public:
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Entity|Damage", meta = (WorldContext = "WorldContextObject", AutoCreateRefTerm = "IgnoreActors"))
 	bool ApplyRadialDamageWithFalloff(float Damage, float MinimumDamage, const FVector& Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser = NULL, ECollisionChannel DamagePreventionChannel = ECC_Visibility);
-	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
-	bool ApplyRadialDamageWithFalloffCheck(float Damage, float MinimumDamage, const FVector& Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser, ECollisionChannel DamagePreventionChannel);
-
+	
 
 	/** Hurts the specified actor with the specified impact.
 	* @param DamagedActor - Actor that will be damaged.
@@ -139,9 +142,7 @@ public:
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Entity|Damage")
 	void ApplyPointDamage(AActor* DamagedActor, float Damage, const FVector& HitFromDirection, const FHitResult& HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser = NULL);
-	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
-	bool ApplyPointDamageCheck(AActor* DamagedActor, float Damage, const FVector& HitFromDirection, const FHitResult& HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser);
-
+	
 	/** Hurts the specified actor with generic damage.
 	* @param DamagedActor - Actor that will be damaged.
 	* @param Damage - The base damage to apply.
@@ -150,8 +151,22 @@ public:
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Entity|Damage")
 	void ApplyDamage(AActor* DamagedActor, float Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser = NULL);
+	
+	// APPLY CHECKS
 	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
-	bool ApplyDamageCheck(AActor* DamagedActor, float Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser);
+	bool CheckApplyRadialDamage(float Damage, const FVector& Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel);
+	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
+	bool CheckApplyRadialDamageWithFalloff(float Damage, float MinimumDamage, const FVector& Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser, ECollisionChannel DamagePreventionChannel);
+	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
+	bool CheckApplyPointDamage(AActor* DamagedActor, float Damage, const FVector& HitFromDirection, const FHitResult& HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser);
+	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
+	bool CheckApplyDamage(AActor* DamagedActor, float Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser);
+	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
+	bool CheckApplyAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType * DamageType, AActor* DamageCauser);
+
+	// RECEIVE CHECKS
+	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
+	bool CheckReceiveDamage(AActor* DamagedActor, float Damage, const class UDamageType * DamageType, AActor* DamageCauser);
 
 
 	//EVENTS

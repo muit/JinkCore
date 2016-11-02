@@ -34,7 +34,7 @@ public:
 	// Start the event timer
 	template< class UserClass >
 	UFUNCTION(BlueprintCallable, Category = "Timer")
-	void Start(int Length, UserClass* InObj, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod);
+	void Start(float Length, UserClass* InObj, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod);
 
 	// Pause the event timer
 	UFUNCTION(BlueprintCallable, Category = "Timer")
@@ -46,7 +46,7 @@ public:
 
 	//Reset the event and start it.
 	UFUNCTION(BlueprintCallable, Category = "Timer")
-	void Restart(int Length);
+	void Restart(float Length);
 	//Reset the event and start it.
 	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void Reset();

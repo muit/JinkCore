@@ -15,7 +15,7 @@ UEventsMapComponent::UEventsMapComponent()
 	DefaultLength = 1;
 }
 
-void UEventsMapComponent::Start(int Id, int Length)
+void UEventsMapComponent::Start(int Id, float Length)
 {
 	if (Length < 0) {
 		Length = DefaultLength;
@@ -48,13 +48,22 @@ void UEventsMapComponent::Resume(int Id)
 	Event->Resume();
 }
 
-void UEventsMapComponent::Restart(int Id, int Length)
+void UEventsMapComponent::Restart(int Id, float Length)
 {
 	UEventHandler* Event = Events[Id];
 	if (!Event)
 		return;
 
 	Event->Restart(Length);
+}
+
+void UEventsMapComponent::Reset(int Id)
+{
+	UEventHandler* Event = Events[Id];
+	if (!Event)
+		return;
+
+	Event->Reset();
 }
 
 void UEventsMapComponent::OnExecute(int Id)

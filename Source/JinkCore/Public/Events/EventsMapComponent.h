@@ -29,7 +29,7 @@ public:
 
 	// Start the event timer
 	UFUNCTION(BlueprintCallable, Category = "Timer")
-	void Start(int Id, int Length = -1);
+	void Start(int Id, float Length = -1);
 
 	// Pause the event timer
 	UFUNCTION(BlueprintCallable, Category = "Timer")
@@ -41,7 +41,11 @@ public:
 
 	//Reset the event and start it.
 	UFUNCTION(BlueprintCallable, Category = "Timer")
-	void Restart(int Id, int Length = -1);
+	void Restart(int Id, float Length = -1);
+
+	//Reset The event
+	UFUNCTION(BlueprintCallable, Category = "Timer")
+	void Reset(int Id);
 
 	UFUNCTION()
 	void OnExecute(int Id);
