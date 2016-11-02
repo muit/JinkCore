@@ -18,7 +18,7 @@ UEventComponent::UEventComponent()
 	EventHandler->Setup(this);
 }
 
-void UEventComponent::Start(int Length)
+void UEventComponent::Start(float Length)
 {
 	if (Length < 0) {
 		Length = DefaultLength;
@@ -36,9 +36,14 @@ void UEventComponent::Resume()
 	EventHandler->Resume();
 }
 
-void UEventComponent::Restart(int Length)
+void UEventComponent::Restart(float Length)
 {
 	EventHandler->Restart(Length);
+}
+
+void UEventComponent::Reset()
+{
+	EventHandler->Reset();
 }
 
 void UEventComponent::OnExecute(int Id)

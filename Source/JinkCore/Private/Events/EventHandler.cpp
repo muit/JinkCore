@@ -14,7 +14,7 @@ void UEventHandler::Setup(UObject* Context, int _Id) {
 }
 
 template< class UserClass >
-void UEventHandler::Start(int Length, UserClass* InObj, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod)
+void UEventHandler::Start(float Length, UserClass* InObj, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod)
 {
 	if (!WorldContext)
 		return;
@@ -58,7 +58,7 @@ void UEventHandler::Resume()
 	}
 }
 
-void UEventHandler::Restart(int Length)
+void UEventHandler::Restart(float Length)
 {
 	if (!WorldContext)
 		return;
@@ -72,8 +72,8 @@ void UEventHandler::Restart(int Length)
 		Length = GetLength();
 	}
 
-	//Clear the Timer
-	WorldContext->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+	//Reset the Event
+	Reset();
 
 	//Start the event again
 	StartInternal(Length);
