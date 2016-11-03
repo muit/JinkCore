@@ -135,6 +135,8 @@ void ABasic_Con::StopCombat()
 		AEntity* OldTarget = Target;
 		Target = nullptr;
 		MoveToLocation(HomeLocation);
+		//Restore live
+		GetMe()->Live = GetMe()->MaxLive;
 		EndCombat(OldTarget);
 	}
 }
