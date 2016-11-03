@@ -17,7 +17,8 @@ class JINKCORE_API UEventHandler : public UObject
 
 public:
 	UEventHandler();
-	void Setup(UObject* Context, int _Id = 0);
+	template< class UserClass >
+	void Setup(UserClass* Context, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod, int _Id = 0);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
 	int Id;
@@ -25,16 +26,15 @@ public:
 	bool bActivated;
 
 
-	UObject* WorldContext;
+	UWorld* World;
 	// Handle to manage the timer
 	FTimerHandle TimerHandle;
 	//Delegate called on execution
 	FEventDelegate EventDelegate;
 
 	// Start the event timer
-	template< class UserClass >
 	UFUNCTION(BlueprintCallable, Category = "Timer")
-	void Start(float Length, UserClass* InObj, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod);
+	void Start(float Length);
 
 	// Pause the event timer
 	UFUNCTION(BlueprintCallable, Category = "Timer")

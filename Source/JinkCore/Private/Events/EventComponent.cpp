@@ -14,8 +14,8 @@ UEventComponent::UEventComponent()
 
 	DefaultLength = 1;
 
-	EventHandler = NewObject<UEventHandler>();
-	EventHandler->Setup(this);
+	EventHandler = Cast<UEventHandler>(UEventHandler::StaticClass()->GetDefaultObject());
+	EventHandler->Setup(this, &UEventComponent::OnExecute);
 }
 
 void UEventComponent::Start(float Length)
@@ -23,7 +23,7 @@ void UEventComponent::Start(float Length)
 	if (Length < 0) {
 		Length = DefaultLength;
 	}
-	EventHandler->Start(Length, this, &UEventComponent::OnExecute);
+	EventHandler->Start(Length);
 }
 
 void UEventComponent::Pause()

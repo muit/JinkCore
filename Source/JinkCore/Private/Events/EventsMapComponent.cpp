@@ -23,12 +23,12 @@ void UEventsMapComponent::Start(int Id, float Length)
 
 	if (!Events.Contains(Id) || !Events[Id]){
 		// Create and setup event
-		UEventHandler* Event = NewObject<UEventHandler>();
-		Event->Setup(this, Id);
+		UEventHandler* Event = Cast<UEventHandler>(UEventHandler::StaticClass()->GetDefaultObject());
+		Event->Setup(this, &UEventsMapComponent::OnExecute, Id);
 
 		// Add the event to the map and start it
 		Events.Add(Id, Event);
-		Event->Start(Length, this, &UEventsMapComponent::OnExecute);
+		Event->Start(Length);
 	}
 }
 

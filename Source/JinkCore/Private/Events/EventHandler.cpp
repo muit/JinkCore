@@ -8,23 +8,26 @@ UEventHandler::UEventHandler() {
 	bActivated = false;
 }
 
-void UEventHandler::Setup(UObject* Context, int _Id) {
-	WorldContext = Context;
+template< class UserClass >
+void UEventHandler::Setup(UserClass* Context, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod, int _Id) {
+	UObject* ObjContext = Cast<UObject>(Context);
+	if (ObjContext) {
+		World = ObjContext->GetWorld();
+	}
 	Id = _Id;
+
+	//SetupCallback
+	EventDelegate = FEventDelegate::CreateUObject(Context, InEventMethod);
 }
 
-template< class UserClass >
-void UEventHandler::Start(float Length, UserClass* InObj, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod)
+void UEventHandler::Start(float Length)
 {
-	if (!WorldContext)
+	if (!World)
 		return;
 
 	if (IsRunning() || Length < 0) {
 		return;
 	}
-
-	//SetupCallback
-	EventDelegate = FEventDelegate::CreateUObject(InObj, InEventMethod);
 
 	StartInternal(Length);
 }
@@ -32,35 +35,35 @@ void UEventHandler::Start(float Length, UserClass* InObj, typename FEventDelegat
 
 void UEventHandler::Pause()
 {
-	if (!WorldContext)
+	if (!World)
 		return;
 
 	if (!TimerHandle.IsValid() || !IsRunning()) {
 		return;
 	}
 
-	if (!WorldContext->GetWorld()->GetTimerManager().IsTimerPaused(TimerHandle)) {
-		WorldContext->GetWorld()->GetTimerManager().PauseTimer(TimerHandle);
+	if (!World->GetTimerManager().IsTimerPaused(TimerHandle)) {
+		World->GetTimerManager().PauseTimer(TimerHandle);
 	}
 }
 
 void UEventHandler::Resume()
 {
-	if (!WorldContext)
+	if (!World)
 		return;
 
 	if (!TimerHandle.IsValid() || !IsPaused()) {
 		return;
 	}
 
-	if (WorldContext->GetWorld()->GetTimerManager().IsTimerPaused(TimerHandle)) {
-		WorldContext->GetWorld()->GetTimerManager().UnPauseTimer(TimerHandle);
+	if (World->GetTimerManager().IsTimerPaused(TimerHandle)) {
+		World->GetTimerManager().UnPauseTimer(TimerHandle);
 	}
 }
 
 void UEventHandler::Restart(float Length)
 {
-	if (!WorldContext)
+	if (!World)
 		return;
 
 	if (!EventDelegate.IsBound()) {
@@ -82,13 +85,13 @@ void UEventHandler::Restart(float Length)
 void UEventHandler::Reset()
 {
 	//Clear the Timer
-	WorldContext->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+	World->GetTimerManager().ClearTimer(TimerHandle);
 	bActivated = false;
 }
 
 void UEventHandler::OnExecute()
 {
-	WorldContext->GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
+	World->GetTimerManager().ClearTimer(TimerHandle);
 
 	if (EventDelegate.IsBound()) {
 		EventDelegate.Execute(Id);
@@ -96,26 +99,28 @@ void UEventHandler::OnExecute()
 }
 
 bool const UEventHandler::IsRunning() {
-	if (!WorldContext || !TimerHandle.IsValid()) {
+	if (!World || !TimerHandle.IsValid()) {
 		return false;
 	}
-	return WorldContext->GetWorld()->GetTimerManager().IsTimerActive(TimerHandle);
+	//Test
+	FTimerManager& TimerManager = World->GetTimerManager();
+	return TimerManager.IsTimerActive(TimerHandle);
 }
 
 bool const UEventHandler::IsPaused()
 {
-	if (!WorldContext || !TimerHandle.IsValid()) {
+	if (!World || !TimerHandle.IsValid()) {
 		return false;
 	}
-	return WorldContext->GetWorld()->GetTimerManager().IsTimerPaused(TimerHandle);
+	return World->GetTimerManager().IsTimerPaused(TimerHandle);
 }
 
 float const UEventHandler::GetLength()
 {
-	if (!WorldContext || !TimerHandle.IsValid()) {
+	if (!World || !TimerHandle.IsValid()) {
 		return -1;
 	}
-	return WorldContext->GetWorld()->GetTimerManager().GetTimerRate(TimerHandle);
+	return World->GetTimerManager().GetTimerRate(TimerHandle);
 }
 
 
@@ -125,7 +130,7 @@ void UEventHandler::StartInternal(int Length)
 		return;
 	}
 
-	WorldContext->GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UEventHandler::OnExecute, Length, false);
+	World->GetTimerManager().SetTimer(TimerHandle, this, &UEventHandler::OnExecute, Length, false);
 	bActivated = true;
 }
 
