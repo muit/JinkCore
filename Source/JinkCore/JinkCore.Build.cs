@@ -40,6 +40,7 @@ public class JinkCore : ModuleRules
 				"Slate",
 				"SlateCore",
                 "AIModule",
+                "Settings",
                 "RHI"
 				// ... add private dependencies that you statically link with here ...	
 			}
