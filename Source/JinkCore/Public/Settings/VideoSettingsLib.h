@@ -10,27 +10,28 @@
 UENUM(BlueprintType)
 enum class EAntiAliasing : uint8
 {
-	AA_None UMETA(DisplayName = "None"),
-	AA_FXAA UMETA(DisplayName = "FXAA"),
-	AA_TemporalAA UMETA(DisplayName = "TemporalAA"),
-	AA_MAX,
+	None UMETA(DisplayName = "None"),
+	FXAA UMETA(DisplayName = "FXAA"),
+	TemporalAA UMETA(DisplayName = "TemporalAA"),
+	MAX,
 };
 
 UENUM(BlueprintType)
 enum class EQuality : uint8
 {
-	Q_Low      UMETA(DisplayName = "Low"),
-	Q_Medium   UMETA(DisplayName = "Medium"),
-	Q_High     UMETA(DisplayName = "High"),
-	Q_VeryHigh UMETA(DisplayName = "Very High")
+	Low      UMETA(DisplayName = "Low"),
+	Medium   UMETA(DisplayName = "Medium"),
+	High     UMETA(DisplayName = "High"),
+	VeryHigh UMETA(DisplayName = "Very High"),
+	None
 };
 
 UENUM(BlueprintType)
 enum class EViewDistance : uint8
 {
-	VD_Low    UMETA(DisplayName = "Low"),
-	VD_Medium UMETA(DisplayName = "Medium"),
-	VD_High   UMETA(DisplayName = "High")
+	Low    UMETA(DisplayName = "Low"),
+	Medium UMETA(DisplayName = "Medium"),
+	High   UMETA(DisplayName = "High")
 };
 
 
@@ -71,8 +72,8 @@ public:
 
 	// Set the quality settings (not applied nor saved yet)
 	UFUNCTION(BlueprintCallable, Category = "Video Settings")
-	static bool SetVideoQualitySettings(const EAntiAliasing AntiAliasing = EAntiAliasing::AA_TemporalAA, const EQuality Effects = EQuality::Q_High, const EQuality PostProcess = EQuality::Q_High,
-		const int32 Resolution = 100, const EQuality Shadow = EQuality::Q_High, const EQuality Texture = EQuality::Q_High, const int32 ViewDistance = 3);
+	static bool SetVideoQualitySettings(const EAntiAliasing AntiAliasing = EAntiAliasing::TemporalAA, const EQuality Effects = EQuality::High, const EQuality PostProcess = EQuality::High,
+		const int32 Resolution = 100, const EQuality Shadow = EQuality::High, const EQuality Texture = EQuality::High, const int32 ViewDistance = 3);
 
 	// Check whether or not we have vertical sync enabled
 	UFUNCTION(BlueprintPure, Category = "Video Settings")
@@ -89,6 +90,18 @@ public:
 	// Revert to original video settings
 	UFUNCTION(BlueprintCallable, Category = "Video Settings")
 	static bool RevertVideoMode();
+
+	// Enum Handlers
+	UFUNCTION(BlueprintPure, Category = "Video Settings")
+	static FString QToString(const EQuality Quality);
+	UFUNCTION(BlueprintPure, Category = "Video Settings")
+	static EQuality ToQuality(const FString Name);
+	
+	UFUNCTION(BlueprintPure, Category = "Video Settings")
+	static FString AAToString(const EAntiAliasing Aa);
+	UFUNCTION(BlueprintPure, Category = "Video Settings")
+	static EAntiAliasing ToAntialiasing(const FString Name);
+
 
 private:
 	// Try to get the GameUserSettings object from the engine

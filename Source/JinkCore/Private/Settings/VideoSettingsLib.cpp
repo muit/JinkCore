@@ -185,6 +185,44 @@ bool UVideoSettingsLib::RevertVideoMode()
 	return true;
 }
 
+FString UVideoSettingsLib::QToString(EQuality Quality)
+{
+	switch (Quality) {
+		case EQuality::Low:      return "Low";
+		case EQuality::Medium:   return "Medium";
+		case EQuality::High:     return "High";
+		case EQuality::VeryHigh: return "Very High";
+		default:                 return "Invalid";
+	}
+}
+
+EQuality UVideoSettingsLib::ToQuality(FString Name) {
+	if (Name == "Low")       return EQuality::Low;
+	if (Name == "Medium")    return EQuality::Medium;
+	if (Name == "High")      return EQuality::High;
+	if (Name == "Very High") return EQuality::VeryHigh;
+
+	return EQuality::None;
+}
+
+FString UVideoSettingsLib::AAToString(EAntiAliasing Aa)
+{
+	switch (Aa) {
+	case EAntiAliasing::None:       return "No Antialiasing";
+	case EAntiAliasing::FXAA:       return "FXAA";
+	case EAntiAliasing::TemporalAA: return "Temporal AA";
+	default:                        return "FXAA";//If error, return medium antialiasing (FXAA)
+	}
+}
+
+EAntiAliasing UVideoSettingsLib::ToAntialiasing(FString Name) {
+	if (Name == "No Antialiasing") return EAntiAliasing::None;
+	if (Name == "FXAA")            return EAntiAliasing::FXAA;
+	if (Name == "Temporal AA")     return EAntiAliasing::TemporalAA;
+
+	return EAntiAliasing::FXAA;
+}
+
 
 //---- PRIVATE METHODS -------------------------------------------------------------------------------
 

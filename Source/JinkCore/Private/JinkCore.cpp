@@ -78,7 +78,7 @@ void FJinkCoreModule::RegisterSettings()
 			LOCTEXT("RuntimeWDCategoryDescription", "Game configuration for the CustomSettings game module"));
 
 		// Register the settings
-		ISettingsSectionPtr SettingsSection = SettingsSection = SettingsModule->RegisterSettings("Project", "Jink Core", "General",
+		ISettingsSectionPtr SettingsSection = SettingsModule->RegisterSettings("Project", "Jink Core", "General",
 			LOCTEXT("RuntimeGeneralSettingsName", "General"),
 			LOCTEXT("RuntimeGeneralSettingsDescription", "Base configuration for the Jink core"),
 			GetMutableDefault<UJinkCoreSettings>());
