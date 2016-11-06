@@ -6,11 +6,13 @@
 // Settings
 #include "JinkCoreSettings.h"
 
+#if WITH_EDITOR
 #include "ISettingsModule.h"
 #include "ISettingsSection.h"
 #include "ISettingsContainer.h"
+#endif //WITH_EDITOR
 
-DECLARE_LOG_CATEGORY_EXTERN(JinkCore, All, All)
+DECLARE_LOG_CATEGORY_EXTERN(JinkCore, All, All);
 
 class FJinkCoreModule : public IModuleInterface
 {
@@ -29,8 +31,6 @@ public:
 	}
 
 private:
-	ISettingsSectionPtr SettingsSection;
-
 	/** Holds a delegate that is executed after the settings section has been modified. */
 	FOnModifiedSettings ModifiedSettingsDelegate;
 

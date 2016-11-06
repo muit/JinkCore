@@ -63,6 +63,7 @@ bool FJinkCoreModule::HandleSettingsSaved()
 
 void FJinkCoreModule::RegisterSettings()
 {
+#if WITH_EDITOR
 	// Registering some settings is just a matter of exposing the default UObject of
 	// your desired class, feel free to add here all those settings you want to expose
 	// to your LDs or artists.
@@ -77,7 +78,7 @@ void FJinkCoreModule::RegisterSettings()
 			LOCTEXT("RuntimeWDCategoryDescription", "Game configuration for the CustomSettings game module"));
 
 		// Register the settings
-		SettingsSection = SettingsModule->RegisterSettings("Project", "Jink Core", "General",
+		ISettingsSectionPtr SettingsSection = SettingsModule->RegisterSettings("Project", "Jink Core", "General",
 			LOCTEXT("RuntimeGeneralSettingsName", "General"),
 			LOCTEXT("RuntimeGeneralSettingsDescription", "Base configuration for the Jink core"),
 			GetMutableDefault<UJinkCoreSettings>());
@@ -94,10 +95,12 @@ void FJinkCoreModule::RegisterSettings()
 			SettingsSection->OnModified().BindRaw(this, &FJinkCoreModule::HandleSettingsSaved);
 		}
 	}
+#endif
 }
 
 void FJinkCoreModule::UnregisterSettings()
 {
+#if WITH_EDITOR
 	// Ensure to unregister all of your registered settings here, hot-reload would
 	// otherwise yield unexpected results.
 
@@ -105,6 +108,7 @@ void FJinkCoreModule::UnregisterSettings()
 	{
 		SettingsModule->UnregisterSettings("Project", "Jink Core", "General");
 	}
+#endif
 }
 
 #undef LOCTEXT_NAMESPACE
