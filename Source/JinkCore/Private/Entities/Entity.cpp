@@ -157,12 +157,22 @@ void AEntity::ReceiveDamage_Implementation(AActor * DamagedActor, float Damage, 
 	Live = FMath::Clamp(Live - Damage, 0.0f, MaxLive);
 
 	if (!IsAlive()) {
-		JustDied(InstigatedBy, Cast<AEntity>(DamageCauser));
-		JustDiedDelegate.Broadcast(InstigatedBy, Cast<AEntity>(DamageCauser));
+		AEntity* Killer = nullptr;
+		if (InstigatedBy != nullptr) {
+			//If the controller is valid the killer is the controlled entity
+			Killer = Cast<AEntity>(InstigatedBy->GetPawn());
+		}
+		if(!Killer) {
+			//If theres no killer, asume it is the damagecauser actor.
+			Killer = Cast<AEntity>(DamageCauser);
+		}
+
+		JustDied(InstigatedBy, Killer);
+		JustDiedDelegate.Broadcast(InstigatedBy, Killer);
 		if (IsPlayerControlled()) {
 		}
 		else if (ABasic_Con* AI = GetAI()) {
-			AI->JustDied_Internal(InstigatedBy, Cast<AEntity>(DamageCauser));
+			AI->JustDied_Internal(InstigatedBy, Killer);
 		}
 	}
 }
