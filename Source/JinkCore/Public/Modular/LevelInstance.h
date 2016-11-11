@@ -3,38 +3,57 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "Miscellaneous/CustomVolume.h"
 #include "LevelInstance.generated.h"
 
-UCLASS(config = Game, BlueprintType, meta = (ShortTooltip = "A level instance is an actor that loads an streaming level in runtime."))
-class JINKCORE_API ALevelInstance : public AActor
+UCLASS(meta = (ShortTooltip = "A level instance is an actor that loads an streaming level in runtime."))
+class JINKCORE_API ALevelInstance : public ACustomVolume
 {
-	GENERATED_BODY()
+	GENERATED_UCLASS_BODY()
 	
 public:
-	/**
-	* Default UObject constructor.
-	*/
-	ALevelInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
-
-	//COMPONENTS
-	UPROPERTY()
-	USceneComponent* SceneComponent;
-
+	//PROPERTIES
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LevelInstance")
 	TAssetPtr<UWorld> LevelAsset;
 
-	UPROPERTY(BlueprintReadWrite, Category = "LevelInstance")
-	ULevelStreaming* AssignedLevel;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LevelInstance|Loading")
+	bool bShouldBeLoaded;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LevelInstance|Loading")
+	bool bShouldBeVisible;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LevelInstance|Loading")
+	bool bShouldBlockOnLoad;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LevelInstance|Loading")
+	bool bInitiallyLoaded;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LevelInstance|Loading")
+	bool bInitiallyVisible;
 
-	// Called when the game starts or when spawned
+
+	UPROPERTY()
+	ULevelStreamingKismet* AssignedLevel;
+	UPROPERTY()
+	bool bRegisteredInWorld;
+	UPROPERTY(BlueprintReadOnly, Category = "LevelInstance")
+	int32 InstanceIndex;
+
+
+
 	virtual void BeginPlay() override;
-	
-	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 private:
-	bool LoadLevelInstance();
+	bool LoadLevel();
+	bool RegistryLevelInWorld();
+	void UnloadLevel();
 	
+public:
+	//Helpers
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "LevelInstance")
+	bool IsLoaded() { return AssignedLevel != nullptr; }
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "LevelInstance")
+	bool IsRegisteredInWorld() { return bRegisteredInWorld; }
+
+
 	//STATIC
-	static int32 InstanceIndex;
+	static int32 InstanceCount;
 };

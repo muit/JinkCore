@@ -14,6 +14,10 @@ public:
 	// Sets default values for this actor's properties
 	AModule();
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LevelInstance")
+	TAssetPtr<UWorld> LevelAsset;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 	

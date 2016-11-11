@@ -22,6 +22,7 @@ ACustomVolume::ACustomVolume(const FObjectInitializer& ObjectInitializer)
 
 void ACustomVolume::OnConstruction(const FTransform & Transform)
 {
+	Super::OnConstruction(Transform);
 	//Update Color On Updated
 	BrushColor = Color;
 	bSolidWhenSelected = bSolid;
