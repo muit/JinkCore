@@ -2,58 +2,70 @@
 
 #pragma once
 
-#include "GameFramework/Actor.h"
 #include "Miscellaneous/CustomVolume.h"
 #include "LevelInstance.generated.h"
 
+/**
+*
+*/
 UCLASS(meta = (ShortTooltip = "A level instance is an actor that loads an streaming level in runtime."))
 class JINKCORE_API ALevelInstance : public ACustomVolume
 {
-	GENERATED_UCLASS_BODY()
-	
+    GENERATED_UCLASS_BODY()
+
 public:
-	//PROPERTIES
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "LevelInstance")
-	TAssetPtr<UWorld> LevelAsset;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LevelInstance|Loading")
-	bool bShouldBeLoaded;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LevelInstance|Loading")
-	bool bShouldBeVisible;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LevelInstance|Loading")
-	bool bShouldBlockOnLoad;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LevelInstance|Loading")
-	bool bInitiallyLoaded;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "LevelInstance|Loading")
-	bool bInitiallyVisible;
+    //PROPERTIES
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
+    TAssetPtr<UWorld> LevelAsset;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level|Settings")
+    bool bRegisterOnBeginPlay;
 
-
-	UPROPERTY()
-	ULevelStreamingKismet* AssignedLevel;
-	UPROPERTY()
-	bool bRegisteredInWorld;
-	UPROPERTY(BlueprintReadOnly, Category = "LevelInstance")
-	int32 InstanceIndex;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level|Settings")
+    bool bShouldBeLoaded;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level|Settings")
+    bool bShouldBeVisible;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level|Settings")
+    bool bShouldBlockOnLoad;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level|Settings")
+    bool bInitiallyLoaded;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level|Settings")
+    bool bInitiallyVisible;
 
 
+    UPROPERTY()
+    ULevelStreamingKismet* AssignedLevel;
+    UPROPERTY(BlueprintReadOnly, Category = "LevelInstance")
+    int32 InstanceId;
 
-	virtual void BeginPlay() override;
+protected:
+    virtual void BeginPlay() override;
 
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-private:
-	bool LoadLevel();
-	bool RegistryLevelInWorld();
-	void UnloadLevel();
-	
 public:
-	//Helpers
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "LevelInstance")
-	bool IsLoaded() { return AssignedLevel != nullptr; }
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "LevelInstance")
-	bool IsRegisteredInWorld() { return bRegisteredInWorld; }
+    UFUNCTION(BlueprintCallable, Category = "Level")
+    bool SpawnLevel();
+    UFUNCTION(BlueprintCallable, Category = "Level")
+    bool LoadLevel();
+    UFUNCTION(BlueprintCallable, Category = "Level")
+    void SetLevelVisibility(bool NewVisibility);
+    UFUNCTION(BlueprintCallable, Category = "Level")
+    void UnloadLevel();
+    UFUNCTION(BlueprintCallable, Category = "Level")
+    void RemoveLevel();
 
 
-	//STATIC
-	static int32 InstanceCount;
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level")
+    FString GetUniqueName();
+
+    //Helpers
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level")
+    bool IsRegistered() { return AssignedLevel != nullptr; }
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level")
+    bool IsLevelLoaded() { return IsRegistered() && AssignedLevel->IsLevelLoaded(); }
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level")
+    bool IsLevelVisible() { return IsRegistered() && AssignedLevel->IsLevelVisible(); }
+
+
+    //STATIC
+    static int32 InstanceIdCount;
 };

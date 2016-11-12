@@ -3,119 +3,117 @@
 #include "JinkCorePrivatePCH.h"
 #include "LevelInstance.h"
 
-//Set instance counter to 0
-int32 ALevelInstance::InstanceCount = 0;
+int32 ALevelInstance::InstanceIdCount = 0;
 
 ALevelInstance::ALevelInstance(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
-{
+    : Super(ObjectInitializer) {
+    /** Volume Settings */
+    bSolid = true;
+    Color = FColor::Blue;
+    Color.A = 0.6f;
+    //** End Volume     */
 
-	bShouldBeLoaded = true;
-	bShouldBeVisible = true;
-	bShouldBlockOnLoad = false;
-	bInitiallyLoaded = true;
-	bInitiallyVisible = true;
 
-	InstanceIndex = -1;
+    //** Level Settings */
+    bRegisterOnBeginPlay = true;
+    bShouldBeLoaded = true;
+    bShouldBeVisible = true;
+    bShouldBlockOnLoad = false;
+    bInitiallyLoaded = true;
+    bInitiallyVisible = true;
+    //** End Level      */
 
-	AssignedLevel = nullptr;
-	bRegisteredInWorld = false;
+    InstanceId = -1;
+    AssignedLevel = nullptr;
 }
+
 
 void ALevelInstance::BeginPlay()
 {
-	Super::BeginPlay();
-	LoadLevel();
-	RegistryLevelInWorld();
+    Super::BeginPlay();
+    if (bRegisterOnBeginPlay) {
+        SpawnLevel();
+    }
 }
 
-void ALevelInstance::EndPlay(const EEndPlayReason::Type EndPlayReason)
+bool ALevelInstance::SpawnLevel()
 {
-	Super::EndPlay(EndPlayReason);
-	UnloadLevel();
+    if (IsRegistered() || LevelAsset.IsNull())
+        return false;
+
+    UWorld* const World = GEngine->GetWorldFromContextObject(this, false);
+    if (!World) {
+        return false;
+    }
+
+    // Check whether requested map exists, this could be very slow if LevelName is a short package name
+    FString LevelName = LevelAsset.GetLongPackageName();
+    FString LongPackageName = FPackageName::FilenameToLongPackageName(LevelName);
+
+    // Create Unique Name for sub-level package
+    const FString ShortPackageName = FPackageName::GetShortName(LongPackageName);
+    const FString PackagePath = FPackageName::GetLongPackagePath(LongPackageName);
+    FString UniqueLevelPackageName = PackagePath + TEXT("/") + World->StreamingLevelsPrefix + ShortPackageName;
+    UniqueLevelPackageName += TEXT("_LevelInstance_") + FString::FromInt(InstanceIdCount);
+    // Increment Id counter
+    InstanceId = InstanceIdCount;
+    InstanceIdCount++;
+
+    // Setup streaming level object that will load specified map
+    ULevelStreamingKismet* StreamingLevel = NewObject<ULevelStreamingKismet>(World, ULevelStreamingKismet::StaticClass(), NAME_None, RF_Transient, NULL);
+    StreamingLevel->SetWorldAssetByPackageName(FName(*UniqueLevelPackageName));
+    StreamingLevel->LevelColor = FColor::MakeRandomColor();
+    StreamingLevel->bShouldBeLoaded = bShouldBeLoaded;
+    StreamingLevel->bShouldBeVisible = bShouldBeVisible;
+    StreamingLevel->bShouldBlockOnLoad = bShouldBlockOnLoad;
+    StreamingLevel->bInitiallyLoaded = bInitiallyLoaded;
+    StreamingLevel->bInitiallyVisible = bInitiallyVisible;
+
+    // Transform
+    StreamingLevel->LevelTransform = GetActorTransform();
+    // Map to Load
+    StreamingLevel->PackageNameToLoad = FName(*LongPackageName);
+
+    // Add the new level to world.
+    World->StreamingLevels.Add(StreamingLevel);
+
+    //Save level reference
+    AssignedLevel = StreamingLevel;
+    return true;
 }
 
 bool ALevelInstance::LoadLevel()
 {
-	if (LevelAsset.IsNull())
-		return false;
-
-	UWorld* const World = GetWorld();
-	if (!World)
-		return false;
-
-	ULevelStreamingKismet* StreamingLevel = NewObject<ULevelStreamingKismet>((UObject*)GetTransientPackage(), ULevelStreamingKismet::StaticClass());
-	if (!StreamingLevel)
-	{
-		return false;
-	}
-
-	//Full Name
-	FString FullPackageName = LevelAsset.GetLongPackageName();
-	//Long Package Name
-	FString LongLevelPackageName = FPackageName::FilenameToLongPackageName(FullPackageName);
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	// Ensure unique names to gain ability to have multiple instances of same level.
-	// Use the InstanceIndex as a counter
-	FString UniqueLevelPackageName = LongLevelPackageName + "_" + FString::FromInt(InstanceCount);
-	// Increment counter
-	InstanceIndex = InstanceCount;
-	InstanceCount++;
-	//Set the level
-	StreamingLevel->SetWorldAssetByPackageName(FName(*UniqueLevelPackageName));
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-	StreamingLevel->PackageNameToLoad = FName(*FullPackageName);
-
-	if (!FPackageName::DoesPackageExist(StreamingLevel->PackageNameToLoad.ToString(), NULL, &FullPackageName)) {
-		return false;
-	}
-
-
-
-	//Map package to load
-	StreamingLevel->PackageNameToLoad = FName(*LongLevelPackageName);
-
-	AssignedLevel = StreamingLevel;
-	bRegisteredInWorld = false;
-
-	UE_LOG(JinkCore, Warning, TEXT("JinkCore: Loaded Instanced Level"));
-	return true;
+    if (!IsRegistered())
+        return false;
+    AssignedLevel->bShouldBeLoaded = true;
+    return true;
 }
 
-bool ALevelInstance::RegistryLevelInWorld()
+void ALevelInstance::SetLevelVisibility(bool NewVisibility)
 {
-	if (UWorld* World = GetWorld()) {
-		if (IsLoaded() && !IsRegisteredInWorld()) {
-			if (World->IsPlayInEditor()) {
-				FWorldContext WorldContext = GEngine->GetWorldContextFromWorldChecked(World);
-				AssignedLevel->RenameForPIE(WorldContext.PIEInstance);
-			}
-
-			//Setup the level
-			AssignedLevel->LevelColor = FColor::MakeRandomColor();
-			AssignedLevel->bShouldBeLoaded = bShouldBeLoaded;
-			AssignedLevel->bShouldBeVisible = bShouldBeVisible;
-			AssignedLevel->bShouldBlockOnLoad = bShouldBlockOnLoad;
-			AssignedLevel->bInitiallyLoaded = bInitiallyLoaded;
-			AssignedLevel->bInitiallyVisible = bInitiallyVisible;
-
-			//Apply Transform
-			AssignedLevel->LevelTransform = GetActorTransform();
-
-			//Registry the level
-			World->StreamingLevels.Add(AssignedLevel);
-			bRegisteredInWorld = true;
-			return true;
-		}
-	}
-	return false;
+    if (IsRegistered()) {
+        AssignedLevel->bShouldBeVisible = NewVisibility;
+    }
 }
 
-void ALevelInstance::UnloadLevel() {
-	if (UWorld* World = GetWorld()) {
-		World->StreamingLevels.Remove(AssignedLevel);
-		UE_LOG(JinkCore, Warning, TEXT("JinkCore: Registered Instanced Level"));
-	}
+void ALevelInstance::UnloadLevel()
+{
+    if (IsRegistered()) {
+        AssignedLevel->bShouldBeLoaded = false;
+    }
+}
+
+void ALevelInstance::RemoveLevel() {
+    if (IsRegistered()) {
+
+    }
+}
+
+FString ALevelInstance::GetUniqueName()
+{
+    if (!IsRegistered()) {
+        return TEXT("None");
+    }
+    return TEXT("");
 }
