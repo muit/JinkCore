@@ -1,16 +1,17 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 
-#include "SQCompositeNode.h"
-#include "SQTaskNode.h"
-#include "Engine/Blueprint.h"
+#include "SelectionQueryTypes.h"
+#include "Engine/DataAsset.h"
 #include "SelectionQuery.generated.h"
 
-class USQCompositeNode;
-class USQDecorator;
+#if WITH_EDITORONLY_DATA
+class UEdGraph;
+#endif // WITH_EDITORONLY_DATA
+
 
 UCLASS(BlueprintType)
-class JINKCORE_API USelectionQuery : public UObject
+class JINKCORE_API USelectionQuery : public UDataAsset
 {
 	GENERATED_UCLASS_BODY()
 
@@ -19,25 +20,25 @@ class JINKCORE_API USelectionQuery : public UObject
 	USQCompositeNode* RootNode;
 
 #if WITH_EDITORONLY_DATA
-
-	/** Graph for Behavior Tree */
+	/** Graph for query */
 	UPROPERTY()
-	class UEdGraph*	SQGraph;
-
-	/** Info about the graphs we last edited */
-	UPROPERTY()
-	TArray<FEditedDocumentInfo> LastEditedDocuments;
-
+	UEdGraph*	EdGraph;
 #endif
 
-	/** root level decorators, used by subtrees */
-	UPROPERTY()
-	TArray<USQDecorator*> RootDecorators;
+protected:
+	friend class USelectionQueryManager;
 
-	/** logic operators for root level decorators, used by subtrees  */
 	UPROPERTY()
-	TArray<FSQDecoratorLogic> RootDecoratorOps;
+	FName QueryName;
 
-	/** memory size required for instance of this tree */
-	uint16 InstanceMemorySize;
+public:
+	virtual  void PostInitProperties() override;
+
+	/** QueryName patching up */
+	virtual void PostLoad() override;
+#if WITH_EDITOR
+	virtual void PostDuplicate(bool bDuplicateForPIE) override;
+#endif // WITH_EDITOR
+
+	FName GetQueryName() const { return QueryName; }
 };
