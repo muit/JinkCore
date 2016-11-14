@@ -1,6 +1,6 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
-#include "JinkCoreEditorPrivatePCH.h"
+#include "SelectionQueryEditorPrivatePCH.h"
 #include "GraphEditorActions.h"
 #include "ScopedTransaction.h"
 #include "EdGraphUtilities.h"
@@ -18,8 +18,8 @@
  
 #define LOCTEXT_NAMESPACE "SelectionQueryEditor"
 
-const FName FSelectionQueryEditor::EQSUpdateGraphTabId( TEXT( "SelectionQueryEditor_UpdateGraph" ) );
-const FName FSelectionQueryEditor::EQSPropertiesTabId( TEXT( "SelectionQueryEditor_Properties" ) );
+const FName FSelectionQueryEditor::SQUpdateGraphTabId( TEXT( "SelectionQueryEditor_UpdateGraph" ) );
+const FName FSelectionQueryEditor::SQPropertiesTabId( TEXT( "SelectionQueryEditor_Properties" ) );
 
 void FSelectionQueryEditor::RegisterTabSpawners(const TSharedRef<class FTabManager>& InTabManager)
 {
@@ -28,12 +28,12 @@ void FSelectionQueryEditor::RegisterTabSpawners(const TSharedRef<class FTabManag
 
 	FAssetEditorToolkit::RegisterTabSpawners(InTabManager);
 
-	InTabManager->RegisterTabSpawner( EQSUpdateGraphTabId, FOnSpawnTab::CreateSP(this, &FSelectionQueryEditor::SpawnTab_UpdateGraph) )
+	InTabManager->RegisterTabSpawner( SQUpdateGraphTabId, FOnSpawnTab::CreateSP(this, &FSelectionQueryEditor::SpawnTab_UpdateGraph) )
 		.SetDisplayName( NSLOCTEXT("SelectionQueryEditor", "Graph", "Graph") )
 		.SetGroup(WorkspaceMenuCategoryRef)
 		.SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "GraphEditor.EventGraph_16x"));
 
-	InTabManager->RegisterTabSpawner( EQSPropertiesTabId, FOnSpawnTab::CreateSP(this, &FSelectionQueryEditor::SpawnTab_Properties) )
+	InTabManager->RegisterTabSpawner( SQPropertiesTabId, FOnSpawnTab::CreateSP(this, &FSelectionQueryEditor::SpawnTab_Properties) )
 		.SetDisplayName( NSLOCTEXT("SelectionQueryEditor", "PropertiesTab", "Details" ) )
 		.SetGroup(WorkspaceMenuCategoryRef)
 		.SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "LevelEditor.Tabs.Details"));
@@ -43,8 +43,8 @@ void FSelectionQueryEditor::UnregisterTabSpawners(const TSharedRef<class FTabMan
 {
 	FAssetEditorToolkit::UnregisterTabSpawners(InTabManager);
 
-	InTabManager->UnregisterTabSpawner( EQSPropertiesTabId );
-	InTabManager->UnregisterTabSpawner( EQSUpdateGraphTabId );
+	InTabManager->UnregisterTabSpawner( SQPropertiesTabId );
+	InTabManager->UnregisterTabSpawner( SQUpdateGraphTabId );
 }
 
 void FSelectionQueryEditor::InitSelectionQueryEditor( const EToolkitMode::Type Mode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, USelectionQuery* InScript )
@@ -71,13 +71,13 @@ void FSelectionQueryEditor::InitSelectionQueryEditor( const EToolkitMode::Type M
 			(
 				FTabManager::NewStack()
 				->SetSizeCoefficient(0.7f)
-				->AddTab( EQSUpdateGraphTabId, ETabState::OpenedTab )
+				->AddTab( SQUpdateGraphTabId, ETabState::OpenedTab )
 			)
 			->Split
 			(
 				FTabManager::NewStack()
 				->SetSizeCoefficient(0.3f)
-				->AddTab( EQSPropertiesTabId, ETabState::OpenedTab )
+				->AddTab( SQPropertiesTabId, ETabState::OpenedTab )
 			)
 		)
 	);
@@ -96,8 +96,8 @@ void FSelectionQueryEditor::InitSelectionQueryEditor( const EToolkitMode::Type M
 	if (UpdateGraphEditor.IsValid() && UpdateGraphEditor->GetCurrentGraph() != NULL)
 	{
 		//let's find root node
-		USelectionQueryGraph* EQSGraph = Cast<USelectionQueryGraph>(UpdateGraphEditor->GetCurrentGraph());
-		EQSGraph->UpdateAsset();
+		USelectionQueryGraph* SQGraph = Cast<USelectionQueryGraph>(UpdateGraphEditor->GetCurrentGraph());
+		SQGraph->UpdateAsset();
 	}
 }
 
@@ -130,7 +130,7 @@ TSharedRef<SGraphEditor> FSelectionQueryEditor::CreateGraphEditorWidget(UEdGraph
 	
 	// Create the appearance info
 	FGraphAppearanceInfo AppearanceInfo;
-	AppearanceInfo.CornerText = NSLOCTEXT("SelectionQueryEditor", "AppearanceCornerText", "ENVIRONMENT QUERY");
+	AppearanceInfo.CornerText = NSLOCTEXT("SelectionQueryEditor", "AppearanceCornerText", "SELECTION QUERY");
 
 	SGraphEditor::FGraphEditorEvents InEvents;
 	InEvents.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateSP(this, &FSelectionQueryEditor::OnSelectedNodesChanged);
@@ -166,7 +166,7 @@ TSharedRef<SGraphEditor> FSelectionQueryEditor::CreateGraphEditorWidget(UEdGraph
 
 TSharedRef<SDockTab> FSelectionQueryEditor::SpawnTab_UpdateGraph( const FSpawnTabArgs& Args )
 {
-	check( Args.GetTabId().TabType == EQSUpdateGraphTabId );
+	check( Args.GetTabId().TabType == SQUpdateGraphTabId );
 	USelectionQueryGraph* MyGraph = Cast<USelectionQueryGraph>(Query->EdGraph);
 	if (Query->EdGraph == NULL)
 	{
@@ -199,7 +199,7 @@ TSharedRef<SDockTab> FSelectionQueryEditor::SpawnTab_UpdateGraph( const FSpawnTa
 
 TSharedRef<SDockTab> FSelectionQueryEditor::SpawnTab_Properties(const FSpawnTabArgs& Args)
 {
-	check( Args.GetTabId() == EQSPropertiesTabId );
+	check( Args.GetTabId() == SQPropertiesTabId );
 
 	CreateInternalWidgets();
 

@@ -6,15 +6,16 @@
 #include "Toolkits/AssetEditorToolkit.h"
 #include "AIGraphEditor.h"
 
+//class USelectionQuery;
+
 class FSelectionQueryEditor : public ISelectionQueryEditor, public FAIGraphEditor
 {
-
 public:
 
 	virtual void RegisterTabSpawners(const TSharedRef<class FTabManager>& TabManager) override;
 	virtual void UnregisterTabSpawners(const TSharedRef<class FTabManager>& TabManager) override;
 
-	void InitSelectionQueryEditor( const EToolkitMode::Type Mode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, UEnvQuery* Script );
+	void InitSelectionQueryEditor( const EToolkitMode::Type Mode, const TSharedPtr< class IToolkitHost >& InitToolkitHost, USelectionQuery* Script );
 
 	//~ Begin IToolkit Interface
 	virtual FName GetToolkitFName() const override;
@@ -57,6 +58,6 @@ private:
 	uint32 SelectedNodesCount;
 
 	/**	Graph editor tab */
-	static const FName EQSUpdateGraphTabId;
-	static const FName EQSPropertiesTabId;
+	static const FName SQUpdateGraphTabId;
+	static const FName SQPropertiesTabId;
 };

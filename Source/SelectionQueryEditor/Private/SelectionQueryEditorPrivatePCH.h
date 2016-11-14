@@ -4,11 +4,8 @@
 
 #include "UnrealEd.h"
 
-#include "SelectionQuery/EnvQuery.h"
-#include "SelectionQuery/EnvQueryGenerator.h"
-#include "SelectionQuery/EnvQueryOption.h"
-#include "SelectionQuery/EnvQueryTest.h"
-#include "SelectionQuery/EnvQueryManager.h"
+#include "AI/SelectionQuery/SelectionQuery.h"
+#include "AI/SelectionQuery/SelectionQueryManager.h"
 
 #include "GraphEditor.h"
 #include "SNodePanel.h"
