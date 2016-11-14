@@ -7,13 +7,13 @@ USelectionQuery::USelectionQuery(const FObjectInitializer& ObjectInitializer) : 
 {
 }
 
-void UEnvQuery::PostInitProperties()
+void USelectionQuery::PostInitProperties()
 {
 	Super::PostInitProperties();
 	QueryName = GetFName();
 }
 
-void UEnvQuery::PostLoad()
+void USelectionQuery::PostLoad()
 {
 	Super::PostLoad();
 
@@ -24,7 +24,7 @@ void UEnvQuery::PostLoad()
 }
 
 #if WITH_EDITOR
-void UEnvQuery::PostDuplicate(bool bDuplicateForPIE)
+void USelectionQuery::PostDuplicate(bool bDuplicateForPIE)
 {
 	if (bDuplicateForPIE == false)
 	{

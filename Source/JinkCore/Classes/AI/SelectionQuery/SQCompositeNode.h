@@ -19,7 +19,7 @@ struct FSQCompositeChild
 	USQCompositeNode* ChildComposite;
 
 	UPROPERTY()
-	USQTaskNode* ChildTask;
+	USQItemNode* ChildItem;
 };
 
 UCLASS(Abstract)

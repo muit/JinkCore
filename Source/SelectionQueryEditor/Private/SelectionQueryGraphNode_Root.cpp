@@ -9,7 +9,7 @@ USelectionQueryGraphNode_Root::USelectionQueryGraphNode_Root(const FObjectInitia
 
 void USelectionQueryGraphNode_Root::AllocateDefaultPins()
 {
-	UEdGraphPin* Outputs = CreatePin(EGPD_Output, TEXT("Transition"), TEXT(""), NULL, false, false, TEXT("In"));
+	CreatePin(EGPD_Output, TEXT("Transition"), TEXT(""), NULL, false, false, TEXT("In"));
 }
 
 FText USelectionQueryGraphNode_Root::GetNodeTitle(ENodeTitleType::Type TitleType) const
@@ -17,31 +17,7 @@ FText USelectionQueryGraphNode_Root::GetNodeTitle(ENodeTitleType::Type TitleType
 	return NSLOCTEXT("SelectionQueryEditor", "Root", "ROOT");
 }
 
-void USelectionQueryGraphNode_Root::LogDebugMessage(const FString& Message)
+FName USelectionQueryGraphNode_Root::GetNameIcon() const
 {
-	if (DebugMessages.Num() == 0)
-	{
-		bHasDebugError = false;
-	}
-
-	// store only 1 error message, discard everything after it
-	if (!bHasDebugError)
-	{
-		DebugMessages.Add(Message);
-	}
-}
-
-void USelectionQueryGraphNode_Root::LogDebugError(const FString& Message)
-{
-	if (DebugMessages.Num() == 0)
-	{
-		bHasDebugError = false;
-	}
-
-	// store only 1 error message, discard everything after it
-	if (!bHasDebugError)
-	{
-		DebugMessages.Add(Message);
-		bHasDebugError = true;
-	}
+	return FName("BTEditor.Graph.BTNode.Root.Icon");
 }

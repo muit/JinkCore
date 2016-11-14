@@ -3,9 +3,9 @@
 #include "SelectionQueryEditorPrivatePCH.h"
 #include "EdGraphSchema_SelectionQuery.h"
 #include "Toolkits/ToolkitManager.h"
-#include "SelectionQuery/SelQueryGenerator.h"
-#include "SelectionQuery/Generators/SelQueryGenerator_Composite.h"
-#include "SelectionQuery/SelQueryTest.h"
+
+#include "AI/SelectionQuery/SelQueryGenerator.h"
+#include "AI/SelectionQuery/Generators/SelQueryGenerator_Composite.h"
 
 #define LOCTEXT_NAMESPACE "SelectionQueryEditor"
 
@@ -55,11 +55,6 @@ void UEdGraphSchema_SelectionQuery::GetGraphContextActions(FGraphContextMenuBuil
 
 void UEdGraphSchema_SelectionQuery::GetSubNodeClasses(int32 SubNodeFlags, TArray<FGraphNodeClassData>& ClassData, UClass*& GraphNodeClass) const
 {
-	FSelectionQueryEditorModule& EditorModule = FModuleManager::GetModuleChecked<FSelectionQueryEditorModule>(TEXT("SelectionQueryEditor"));
-	FGraphNodeClassHelper* ClassCache = EditorModule.GetClassCache().Get();
-
-	ClassCache->GatherClasses(USelQueryTest::StaticClass(), ClassData);
-	GraphNodeClass = USelectionQueryGraphNode_Test::StaticClass();
 }
 
 const FPinConnectionResponse UEdGraphSchema_SelectionQuery::CanCreateConnection(const UEdGraphPin* PinA, const UEdGraphPin* PinB) const
@@ -111,12 +106,12 @@ const FPinConnectionResponse UEdGraphSchema_SelectionQuery::CanMergeNodes(const 
 		return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, TEXT("Both are the same node"));
 	}
 
-	const bool bNodeAIsTest = NodeA->IsA(USelectionQueryGraphNode_Test::StaticClass());
-	const bool bNodeAIsOption = NodeA->IsA(USelectionQueryGraphNode_Option::StaticClass());
-	const bool bNodeBIsTest = NodeB->IsA(USelectionQueryGraphNode_Test::StaticClass());
-	const bool bNodeBIsOption = NodeB->IsA(USelectionQueryGraphNode_Option::StaticClass());
+	const bool bNodeAIsItem = NodeA->IsA(USelectionQueryGraphNode_Item::StaticClass());
+	const bool bNodeAIsComposite = NodeA->IsA(USelectionQueryGraphNode_Composite::StaticClass());
+	const bool bNodeBIsItem = NodeB->IsA(USelectionQueryGraphNode_Item::StaticClass());
+	const bool bNodeBIsComposite = NodeB->IsA(USelectionQueryGraphNode_Composite::StaticClass());
 
-	if (bNodeAIsTest && (bNodeBIsOption || bNodeBIsTest))
+	if (bNodeAIsComposite && (bNodeBIsItem || bNodeBIsComposite))
 	{
 		return FPinConnectionResponse(CONNECT_RESPONSE_MAKE, TEXT(""));
 	}
@@ -129,7 +124,7 @@ int32 UEdGraphSchema_SelectionQuery::GetNodeSelectionCount(const UEdGraph* Graph
 	if (Graph)
 	{
 		TSharedPtr<ISelectionQueryEditor> SelQueryEditor;
-		if (USelQuery* QueryAsset = Cast<USelQuery>(Graph->GetOuter()))
+		if (USelectionQuery* QueryAsset = Cast<USelectionQuery>(Graph->GetOuter()))
 		{
 			TSharedPtr< IToolkit > QueryAssetEditor = FToolkitManager::Get().FindEditorForAsset(QueryAsset);
 			if (QueryAssetEditor.IsValid())

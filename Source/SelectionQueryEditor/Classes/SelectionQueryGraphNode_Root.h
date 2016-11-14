@@ -13,10 +13,13 @@ class USelectionQueryGraphNode_Root : public USelectionQueryGraphNode
 	UPROPERTY()
 	bool bHasDebugError;
 
-	void LogDebugMessage(const FString& Message);
-	void LogDebugError(const FString& Message);
-
 	virtual void AllocateDefaultPins() override;
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
+	/** gets icon resource name for title bar */
+	virtual FName GetNameIcon() const override;
+
+	virtual bool CanDuplicateNode() const override { return false; }
+	virtual bool CanUserDeleteNode() const override { return false; }
 	virtual bool HasErrors() const override { return false; }
+	virtual bool RefreshNodeClass() override { return false; }
 };

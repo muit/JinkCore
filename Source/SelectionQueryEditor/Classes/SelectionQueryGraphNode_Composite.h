@@ -1,10 +1,10 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #pragma once
-#include "EnvironmentQueryGraphNode_Option.generated.h"
+#include "SelectionQueryGraphNode_Composite.generated.h"
 
 UCLASS()
-class UEnvironmentQueryGraphNode_Option : public UEnvironmentQueryGraphNode
+class USelectionQueryGraphNode_Composite : public USelectionQueryGraphNode
 {
 	GENERATED_UCLASS_BODY()
 

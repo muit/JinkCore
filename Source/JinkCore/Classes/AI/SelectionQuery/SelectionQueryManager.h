@@ -11,32 +11,32 @@ class USQCompositeNode;
 
 /** wrapper for easy query execution */
 USTRUCT()
-struct JINKCORE_API FSelQueryRequest
+struct JINKCORE_API FSQRequest
 {
 	GENERATED_USTRUCT_BODY()
 
-	FSelQueryRequest() : QueryTemplate(NULL), Owner(NULL), World(NULL) {}
+	FSQRequest() : QueryTemplate(NULL), Owner(NULL), World(NULL) {}
 
 	// basic constructor: owner will be taken from finish delegate bindings
-	FSelQueryRequest(const USelectionQuery* Query) : QueryTemplate(Query), Owner(NULL), World(NULL) {}
+	FSQRequest(const USelectionQuery* Query) : QueryTemplate(Query), Owner(NULL), World(NULL) {}
 
 	// use when owner is different from finish delegate binding
-	FSelQueryRequest(const USelectionQuery* Query, UObject* RequestOwner) : QueryTemplate(Query), Owner(RequestOwner), World(NULL) {}
+	FSQRequest(const USelectionQuery* Query, UObject* RequestOwner) : QueryTemplate(Query), Owner(RequestOwner), World(NULL) {}
 
 	// set world (for accessing query manager) when owner can't provide it
-	FORCEINLINE FSelQueryRequest& SetWorldOverride(UWorld* InWorld) { World = InWorld; return *this; }
+	FORCEINLINE FSQRequest& SetWorldOverride(UWorld* InWorld) { World = InWorld; return *this; }
 
 	template< class UserClass >	
-	FORCEINLINE int32 Execute(ESelQueryRunMode::Type Mode, UserClass* InObj, typename FQueryFinishedSignature::TUObjectMethodDelegate< UserClass >::FMethodPtr InMethod)
+	FORCEINLINE int32 Execute(ESQRunMode::Type Mode, UserClass* InObj, typename FQueryFinishedSignature::TUObjectMethodDelegate< UserClass >::FMethodPtr InMethod)
 	{
 		return Execute(Mode, FQueryFinishedSignature::CreateUObject(InObj, InMethod));
 	}
 	template< class UserClass >	
-	FORCEINLINE int32 Execute(ESelQueryRunMode::Type Mode, UserClass* InObj, typename FQueryFinishedSignature::TUObjectMethodDelegate_Const< UserClass >::FMethodPtr InMethod)
+	FORCEINLINE int32 Execute(ESQRunMode::Type Mode, UserClass* InObj, typename FQueryFinishedSignature::TUObjectMethodDelegate_Const< UserClass >::FMethodPtr InMethod)
 	{
 		return Execute(Mode, FQueryFinishedSignature::CreateUObject(InObj, InMethod));
 	}
-	int32 Execute(ESelQueryRunMode::Type RunMode, FQueryFinishedSignature const& FinishDelegate);
+	int32 Execute(ESQRunMode::Type RunMode, FQueryFinishedSignature const& FinishDelegate);
 
 protected:
 	/** query to run */
@@ -76,7 +76,7 @@ class JINKCORE_API USelectionQueryManager : public UObject, public FTickableGame
 	virtual TStatId GetStatId() const override;
 
 	/** execute query */
-	int32 RunQuery(const FSelQueryRequest& Request, ESelQueryRunMode::Type RunMode, FQueryFinishedSignature const& FinishDelegate);
+	int32 RunQuery(const FSQRequest& Request, ESQRunMode::Type RunMode, FQueryFinishedSignature const& FinishDelegate);
 	int32 RunQuery(const TSharedPtr<FSelQueryInstance>& QueryInstance, FQueryFinishedSignature const& FinishDelegate);
 
 	/** Removed all active queries asked by Querier. No "on finished" notifications are being sent, call this function when
@@ -91,11 +91,11 @@ class JINKCORE_API USelectionQueryManager : public UObject, public FTickableGame
 	/** alternative way to run queries. Do not use for anything other than testing
 	*  or when you know exactly what you're doing! Bypasses all EQS perf controlling
 	*  and time slicing mechanics. */
-	TSharedPtr<FSelQueryResult> RunInstantQuery(const FSelQueryRequest& Request, ESelQueryRunMode::Type RunMode);
+	TSharedPtr<FSelQueryResult> RunInstantQuery(const FSQRequest& Request, ESQRunMode::Type RunMode);
 	void RunInstantQuery(const TSharedPtr<FSelQueryInstance>& QueryInstance);
 
 	/** Creates a query instance configured for execution */
-	TSharedPtr<FSelQueryInstance> PrepareQueryInstance(const FSelQueryRequest& Request, ESelQueryRunMode::Type RunMode);
+	TSharedPtr<FSelQueryInstance> PrepareQueryInstance(const FSQRequest& Request, ESQRunMode::Type RunMode);
 
 	/** finds USelectionQuery matching QueryName by first looking at instantiated queries (from InstanceCache)
 	 *	falling back to looking up all USelectionQuery and testing their name */
@@ -126,7 +126,7 @@ class JINKCORE_API USelectionQueryManager : public UObject, public FTickableGame
 	static USelectionQueryManager* GetCurrent(const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintCallable, Category = "AI|Selection Query", meta = (WorldContext = "WorldContext", AdvancedDisplay = "WrapperClass"))
-	static USelQueryInstanceBlueprintWrapper* RunSelectionQuery(UObject* WorldContext, USelectionQuery* QueryTemplate, UObject* Querier, TEnumAsByte<EEnvQueryRunMode::Type> RunMode, TSubclassOf<USelQueryInstanceBlueprintWrapper> WrapperClass);
+	static USelQueryInstanceBlueprintWrapper* RunSelectionQuery(UObject* WorldContext, USelectionQuery* QueryTemplate, UObject* Querier, TEnumAsByte<ESQRunMode::Type> RunMode, TSubclassOf<USelQueryInstanceBlueprintWrapper> WrapperClass);
 
 	void RegisterActiveWrapper(USelQueryInstanceBlueprintWrapper& Wrapper);
 	void UnregisterActiveWrapper(USelQueryInstanceBlueprintWrapper& Wrapper);
@@ -164,7 +164,7 @@ protected:
 	int32 NextQueryID;
 
 	/** create new instance, using cached data is possible */
-	TSharedPtr<FSelQueryInstance> CreateQueryInstance(const USelectionQuery* Template, ESelQueryRunMode::Type RunMode);
+	TSharedPtr<FSelQueryInstance> CreateQueryInstance(const USelectionQuery* Template, ESQRunMode::Type RunMode);
 
 	/** whether we update EQS queries based on:
 	    running a test on one query and move to the next (breadth) - default behavior,

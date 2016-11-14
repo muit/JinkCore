@@ -32,9 +32,9 @@ bool USelectionQueryManager::bAllowSQTimeSlicing = true;
 #endif
 
 //////////////////////////////////////////////////////////////////////////
-// FSelQueryRequest
+// FSQRequest
 
-int32 FSelQueryRequest::Execute(ESelQueryRunMode::Type RunMode, FQueryFinishedSignature const& FinishDelegate)
+int32 FSQRequest::Execute(ESQRunMode::Type RunMode, FQueryFinishedSignature const& FinishDelegate)
 {
     if (Owner == NULL)
     {
@@ -114,7 +114,7 @@ TStatId USelectionQueryManager::GetStatId() const
     RETURN_QUICK_DECLARE_CYCLE_STAT(USelectionQueryManager, STATGROUP_Tickables);
 }
 
-int32 USelectionQueryManager::RunQuery(const FSelQueryRequest& Request, ESelQueryRunMode::Type RunMode, FQueryFinishedSignature const& FinishDelegate)
+int32 USelectionQueryManager::RunQuery(const FSQRequest& Request, ESQRunMode::Type RunMode, FQueryFinishedSignature const& FinishDelegate)
 {
     TSharedPtr<FSelQueryInstance> QueryInstance = PrepareQueryInstance(Request, RunMode);
     return RunQuery(QueryInstance, FinishDelegate);
@@ -134,7 +134,7 @@ int32 USelectionQueryManager::RunQuery(const TSharedPtr<FSelQueryInstance>& Quer
     return QueryInstance->QueryID;
 }
 
-TSharedPtr<FSelQueryResult> USelectionQueryManager::RunInstantQuery(const FSelQueryRequest& Request, ESelQueryRunMode::Type RunMode)
+TSharedPtr<FSelQueryResult> USelectionQueryManager::RunInstantQuery(const FSQRequest& Request, ESQRunMode::Type RunMode)
 {
     TSharedPtr<FSelQueryInstance> QueryInstance = PrepareQueryInstance(Request, RunMode);
     if (!QueryInstance.IsValid())
@@ -193,7 +193,7 @@ void USelectionQueryManager::RemoveAllQueriesByQuerier(const UObject& Querier, b
     }
 }
 
-TSharedPtr<FSelQueryInstance> USelectionQueryManager::PrepareQueryInstance(const FSelQueryRequest& Request, ESelQueryRunMode::Type RunMode)
+TSharedPtr<FSelQueryInstance> USelectionQueryManager::PrepareQueryInstance(const FSQRequest& Request, ESQRunMode::Type RunMode)
 {
     TSharedPtr<FSelQueryInstance> QueryInstance = CreateQueryInstance(Request.QueryTemplate, RunMode);
     if (!QueryInstance.IsValid())
@@ -558,7 +558,7 @@ USelectionQuery* USelectionQueryManager::FindQueryTemplate(const FString& QueryN
     return NULL;
 }
 
-TSharedPtr<FSelQueryInstance> USelectionQueryManager::CreateQueryInstance(const USelectionQuery* Template, ESelQueryRunMode::Type RunMode)
+TSharedPtr<FSelQueryInstance> USelectionQueryManager::CreateQueryInstance(const USelectionQuery* Template, ESQRunMode::Type RunMode)
 {
     if (Template == nullptr || Template->Options.Num() == 0)
     {
@@ -656,19 +656,19 @@ TSharedPtr<FSelQueryInstance> USelectionQueryManager::CreateQueryInstance(const 
             {
                 switch (RunMode)
                 {
-                case ESelQueryRunMode::SingleResult:
+                case ESQRunMode::SingleResult:
                     SortedTests.Sort(SelQueryTestSort::FSingleResult(HighestCost));
                     break;
 
-                case ESelQueryRunMode::RandomBest5Pct:
-                case ESelQueryRunMode::RandomBest25Pct:
-                case ESelQueryRunMode::AllMatching:
+                case ESQRunMode::RandomBest5Pct:
+                case ESQRunMode::RandomBest25Pct:
+                case ESQRunMode::AllMatching:
                     SortedTests.Sort(SelQueryTestSort::FAllMatching());
                     break;
 
                 default:
                 {
-                    UEnum* RunModeEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("ESelQueryRunMode"));
+                    UEnum* RunModeEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("ESQRunMode"));
                     UE_LOG(LogEQS, Warning, TEXT("Query [%s] can't be sorted for RunMode: %d [%s]"),
                         *GetNameSafe(LocalTemplate), (int32)RunMode, RunModeEnum ? *RunModeEnum->GetEnumName(RunMode) : TEXT("??"));
                 }
@@ -754,7 +754,7 @@ float USelectionQueryManager::FindNamedParam(int32 QueryId, FName ParamName) con
 //----------------------------------------------------------------------//
 // BP functions and related functionality 
 //----------------------------------------------------------------------//
-USelectionQueryInstanceBlueprintWrapper* USelectionQueryManager::RunEQSQuery(UObject* WorldContext, USelectionQuery* QueryTemplate, UObject* Querier, TEnumAsByte<ESelQueryRunMode::Type> RunMode, TSubclassOf<USelectionQueryInstanceBlueprintWrapper> WrapperClass)
+USelectionQueryInstanceBlueprintWrapper* USelectionQueryManager::RunEQSQuery(UObject* WorldContext, USelectionQuery* QueryTemplate, UObject* Querier, TEnumAsByte<ESQRunMode::Type> RunMode, TSubclassOf<USelectionQueryInstanceBlueprintWrapper> WrapperClass)
 {
     if (QueryTemplate == nullptr || Querier == nullptr)
     {
@@ -788,7 +788,7 @@ USelectionQueryInstanceBlueprintWrapper* USelectionQueryManager::RunEQSQuery(UOb
             QueryInstanceWrapper = NewObject<USelectionQueryInstanceBlueprintWrapper>(EQSManager, (UClass*)(WrapperClass) ? (UClass*)WrapperClass : USelectionQueryInstanceBlueprintWrapper::StaticClass());
             check(QueryInstanceWrapper);
 
-            FSelQueryRequest QueryRequest(QueryTemplate, Querier);
+            FSQRequest QueryRequest(QueryTemplate, Querier);
             // @todo named params still missing support
             //QueryRequest.SetNamedParams(QueryParams);
             QueryInstanceWrapper->RunQuery(RunMode, QueryRequest);
