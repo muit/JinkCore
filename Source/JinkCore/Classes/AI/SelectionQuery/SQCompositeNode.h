@@ -1,12 +1,12 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 
-#include "SelectionQuery/SelectionQueryTypes.h"
-#include "SelectionQuery/SQNode.h"
+#include "AI/SelectionQuery/SelectionQueryTypes.h"
+#include "AI/SelectionQuery/SQNode.h"
 #include "SQCompositeNode.generated.h"
 
 class USQNode;
-class USQTaskNode;
+class USQItemNode;
 class USQCompositeNode;
 
 USTRUCT()
@@ -14,12 +14,15 @@ struct FSQCompositeChild
 {
 	GENERATED_USTRUCT_BODY()
 
+public:
 	/** child node */
 	UPROPERTY()
 	USQCompositeNode* ChildComposite;
 
 	UPROPERTY()
 	USQItemNode* ChildItem;
+
+    bool ChildIsComposite();
 };
 
 UCLASS(Abstract)
@@ -39,23 +42,28 @@ class JINKCORE_API USQCompositeNode : public USQNode
 	int32 GetChildrenNum() const;
 
 
-	virtual void GenerateItems(FEnvQueryInstance& QueryInstance) const { checkNoEntry(); }
+	virtual void GenerateItems(FSelectionQueryInstance& QueryInstance) const { checkNoEntry(); }
 
 	virtual void PostLoad() override;
 	void UpdateNodeVersion() override;
-};};
+};
 
 
 //////////////////////////////////////////////////////////////////////////
 // Inlines
 
+FORCEINLINE bool FSQCompositeChild::ChildIsComposite() { 
+    return ChildComposite;
+}
+
 FORCEINLINE USQNode* USQCompositeNode::GetChildNode(int32 Index) const
 {
-	return Children.IsValidIndex(Index) ?
-		(Children[Index].ChildComposite ?
-			(USQNode*)Children[Index].ChildComposite :
-			(USQNode*)Children[Index].ChildTask) :
-		nullptr;
+    if (Children.IsValidIndex(Index))
+    {
+        FSQCompositeChild Child = Children[Index];
+        return Child.ChildIsComposite() ? Child.ChildComposite : Child.ChildTask;
+    }
+    return nullptr;
 }
 
 FORCEINLINE int32 USQCompositeNode::GetChildrenNum() const

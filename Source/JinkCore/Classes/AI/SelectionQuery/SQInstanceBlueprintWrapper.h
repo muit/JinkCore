@@ -14,7 +14,7 @@ class JINKCORE_API USQInstanceBlueprintWrapper : public UObject, public ISQResul
 	GENERATED_BODY()
 
 public:
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSQDoneSignature, USQInstanceBlueprintWrapper*, QueryInstance, ESelQueryStatus::Type, QueryStatus);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSQDoneSignature, USQInstanceBlueprintWrapper*, QueryInstance, ESQStatus::Type, QueryStatus);
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Selection Query")

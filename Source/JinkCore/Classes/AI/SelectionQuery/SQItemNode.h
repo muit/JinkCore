@@ -14,12 +14,13 @@ class JINKCORE_API USQItemNode : public USQNode
 {
 	GENERATED_UCLASS_BODY()
 
+public:
 	UPROPERTY(EditDefaultsOnly, Category=Option)
 	FString OptionName;
 
 	/** type of generated items */
 	UPROPERTY()
-	FString ItemValue;
+	TSubclassOf<UObject> ItemValue;
 
 	virtual FString GetItem() const { TEXT("None"); }
 

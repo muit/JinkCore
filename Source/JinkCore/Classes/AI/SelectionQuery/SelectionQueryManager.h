@@ -8,6 +8,7 @@ class UWorld;
 class USelectionQuery;
 class USelectionQueryManager;
 class USQCompositeNode;
+class USQInstanceBlueprintWrapper;
 
 /** wrapper for easy query execution */
 USTRUCT()
@@ -54,6 +55,22 @@ protected:
 	friend USelectionQueryManager;
 };
 
+
+/** cache of instances with sorted tests */
+USTRUCT()
+struct FSQInstanceCache
+{
+    GENERATED_USTRUCT_BODY()
+
+    /** query template, duplicated in manager's world */
+    UPROPERTY()
+    USelectionQuery* Template;
+
+    /** instance to duplicate */
+    FSelectionQueryInstance Instance;
+};
+
+
 UCLASS(config = Game, defaultconfig)
 class JINKCORE_API USelectionQueryManager : public UObject, public FTickableGameObject
 {
@@ -91,18 +108,15 @@ class JINKCORE_API USelectionQueryManager : public UObject, public FTickableGame
 	/** alternative way to run queries. Do not use for anything other than testing
 	*  or when you know exactly what you're doing! Bypasses all EQS perf controlling
 	*  and time slicing mechanics. */
-	TSharedPtr<FSelQueryResult> RunInstantQuery(const FSQRequest& Request, ESQRunMode::Type RunMode);
-	void RunInstantQuery(const TSharedPtr<FSelQueryInstance>& QueryInstance);
+	TSharedPtr<FSQResult> RunInstantQuery(const FSQRequest& Request, ESQRunMode::Type RunMode);
+	void RunInstantQuery(const TSharedPtr<FSelectionQueryInstance>& QueryInstance);
 
 	/** Creates a query instance configured for execution */
-	TSharedPtr<FSelQueryInstance> PrepareQueryInstance(const FSQRequest& Request, ESQRunMode::Type RunMode);
+	TSharedPtr<FSelectionQueryInstance> PrepareQueryInstance(const FSQRequest& Request, ESQRunMode::Type RunMode);
 
 	/** finds USelectionQuery matching QueryName by first looking at instantiated queries (from InstanceCache)
 	 *	falling back to looking up all USelectionQuery and testing their name */
 	USelectionQuery* FindQueryTemplate(const FString& QueryName) const;
-
-	/** creates local context object */
-	USelectionQueryContext* PrepareLocalContext(TSubclassOf<USelectionQueryContext> ContextClass);
 
 	/** execute query */
 	bool AbortQuery(int32 RequestID);
@@ -114,57 +128,47 @@ class JINKCORE_API USelectionQueryManager : public UObject, public FTickableGame
 	virtual void FinishDestroy() override;
 
 	/** add information for data providers about query instance run independently */
-	void RegisterExternalQuery(const TSharedPtr<FSelQueryInstance>& QueryInstance);
+	void RegisterExternalQuery(const TSharedPtr<FSelectionQueryInstance>& QueryInstance);
 
 	/** clear information about query instance run independently */
-	void UnregisterExternalQuery(const TSharedPtr<FSelQueryInstance>& QueryInstance);
-
-	/** list of all known item types */
-	static TArray<TSubclassOf<USelectionQueryItemType> > RegisteredItemTypes;
+	void UnregisterExternalQuery(const TSharedPtr<FSelectionQueryInstance>& QueryInstance);
 
 	static USelectionQueryManager* GetCurrent(UWorld* World);
 	static USelectionQueryManager* GetCurrent(const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintCallable, Category = "AI|Selection Query", meta = (WorldContext = "WorldContext", AdvancedDisplay = "WrapperClass"))
-	static USelQueryInstanceBlueprintWrapper* RunSelectionQuery(UObject* WorldContext, USelectionQuery* QueryTemplate, UObject* Querier, TEnumAsByte<ESQRunMode::Type> RunMode, TSubclassOf<USelQueryInstanceBlueprintWrapper> WrapperClass);
+	static USQInstanceBlueprintWrapper* RunSelectionQuery(UObject* WorldContext, USelectionQuery* QueryTemplate, UObject* Querier, TEnumAsByte<ESQRunMode::Type> RunMode, TSubclassOf<USQInstanceBlueprintWrapper> WrapperClass);
 
-	void RegisterActiveWrapper(USelQueryInstanceBlueprintWrapper& Wrapper);
-	void UnregisterActiveWrapper(USelQueryInstanceBlueprintWrapper& Wrapper);
+	void RegisterActiveWrapper(USQInstanceBlueprintWrapper& Wrapper);
+	void UnregisterActiveWrapper(USQInstanceBlueprintWrapper& Wrapper);
 
 	static void SetAllowTimeSlicing(bool bAllowTimeSlicing);
 
 protected:
 	friend USelQueryInstanceBlueprintWrapper;
-	TSharedPtr<FSelQueryInstance> FindQueryInstance(const int32 QueryID);
+	TSharedPtr<FSelectionQueryInstance> FindQueryInstance(const int32 QueryID);
 
 	/** currently running queries */
-	TArray<TSharedPtr<FSelQueryInstance> > RunningQueries;
+	TArray<TSharedPtr<FSelectionQueryInstance> > RunningQueries;
 
 	/** count of queries aborted since last update, to be removed. */
 	int32 NumRunningQueriesAbortedSinceLastUpdate;
 
 	/** queries run independently from manager, mapped here for data providers */
-	TMap<int32, TWeakPtr<FEnvQueryInstance>> ExternalQueries;
+	TMap<int32, TWeakPtr<FSelectionQueryInstance>> ExternalQueries;
 
 	/** cache of instances */
 	UPROPERTY(transient)
-	TArray<FEnvQueryInstanceCache> InstanceCache;
-
-	/** local cache of context objects for managing BP based objects */
-	UPROPERTY(transient)
-	TArray<UEnvQueryContext*> LocalContexts;
+	TArray<FSQInstanceCache> InstanceCache;
 
 	UPROPERTY()
-	TArray<UEnvQueryInstanceBlueprintWrapper*> GCShieldedWrappers;
-
-	/** local contexts mapped by class names */
-	TMap<FName, UEnvQueryContext*> LocalContextMap;
+	TArray<USQInstanceBlueprintWrapper*> GCShieldedWrappers;
 
 	/** next ID for running query */
 	int32 NextQueryID;
 
 	/** create new instance, using cached data is possible */
-	TSharedPtr<FSelQueryInstance> CreateQueryInstance(const USelectionQuery* Template, ESQRunMode::Type RunMode);
+	TSharedPtr<FSelectionQueryInstance> CreateQueryInstance(const USelectionQuery* Template, ESQRunMode::Type RunMode);
 
 	/** whether we update EQS queries based on:
 	    running a test on one query and move to the next (breadth) - default behavior,
