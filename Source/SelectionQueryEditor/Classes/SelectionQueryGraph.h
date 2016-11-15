@@ -4,9 +4,8 @@
 #include "AIGraph.h"
 #include "SelectionQueryGraph.generated.h"
 
-class UEnvQueryOption;
-class UEnvQueryTest;
-class UEnvironmentQueryGraphNode;
+class USQComposerNode;
+class USelectionQueryGraphNode;
 
 UCLASS()
 class USelectionQueryGraph : public UAIGraph
@@ -34,5 +33,5 @@ protected:
 	virtual void OnNodeInstanceRemoved(UObject* NodeInstance) override;
 	virtual void OnNodesPasted(const FString& ImportStr) override;
 
-	void SpawnMissingSubNodes(USelQueryOption* Option, TSet<USelQueryTest*> ExistingTests, USelectionQueryGraphNode* OptionNode);
+	//void SpawnMissingSubNodes(USQCompositeNode* Composite, TSet<USelQueryTest*> ExistingTests, USelectionQueryGraphNode* CompositeNode);
 };

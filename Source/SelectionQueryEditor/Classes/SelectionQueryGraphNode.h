@@ -10,7 +10,7 @@ class USelectionQueryGraphNode : public UAIGraphNode
 {
 	GENERATED_UCLASS_BODY()
 
-	virtual class UEnvironmentQueryGraph* GetEnvironmentQueryGraph();
+	virtual class USelectionQueryGraph* GetSelectionQueryGraph();
 
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
 	virtual FText GetDescription() const override;

@@ -1,6 +1,5 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #include "SelectionQueryEditorPrivatePCH.h"
-#include "SelectionQueryEditorModule.h"
 
 //////////////////////////////////////////////////////////////////////////
 // SelectionQueryGraph
@@ -46,67 +45,36 @@ void USelectionQueryGraph::UpdateAsset(int32 UpdateFlags)
 		}
 	}
 
-	USelectionQuery* Query = Cast<USeelctionQuery>(GetOuter());
-	Query->GetOptionsMutable().Reset();
+	USelectionQuery* SelQuery = Cast<USelectionQuery>(GetOuter());
+	SelQuery->GetOptionsMutable().Reset();
+    //Check that Root is connected to something
 	if (RootNode && RootNode->Pins.Num() > 0 && RootNode->Pins[0]->LinkedTo.Num() > 0)
 	{
-		UEdGraphPin* MyPin = RootNode->Pins[0];
+		UEdGraphPin* Out = RootNode->Pins[0];
 
 		// sort connections so that they're organized the same as user can see in the editor
-		MyPin->LinkedTo.Sort(FCompareNodeXLocation());
+		Out->LinkedTo.Sort(FCompareNodeXLocation());
 
-		for (int32 Idx = 0; Idx < MyPin->LinkedTo.Num(); Idx++)
+		for (int32 Idx = 0; Idx < Out->LinkedTo.Num(); Idx++)
 		{
-			USelectionQueryGraphNode_Option* OptionNode = Cast<USelectionQueryGraphNode_Option>(MyPin->LinkedTo[Idx]->GetOwningNode());
-			if (OptionNode)
+			USelectionQueryGraphNode_Composite* CompositeNode = Cast<USelectionQueryGraphNode_Composite>(Out->LinkedTo[Idx]->GetOwningNode());
+			if (CompositeNode)
 			{
-				OptionNode->UpdateNodeData();
+				CompositeNode->UpdateNodeData();
 
-				USelQueryOption* OptionInstance = Cast<USelQueryOption>(OptionNode->NodeInstance);
-				if (OptionInstance && OptionInstance->Generator)
+				USQCompositeNode* CompositeInstance = Cast<USQCompositeNode>(CompositeNode->NodeInstance);
+				if (CompositeInstance)
 				{
-					OptionInstance->Tests.Reset();
-
-					for (int32 TestIdx = 0; TestIdx < OptionNode->SubNodes.Num(); TestIdx++)
-					{
-						UAIGraphNode* SubNode = OptionNode->SubNodes[TestIdx];
-						if (SubNode == nullptr)
-						{
-							continue;
-						}
-
-						SubNode->ParentNode = OptionNode;
-
-						USelectionQueryGraphNode_Test* TestNode = Cast<USelectionQueryGraphNode_Test>(SubNode);
-						if (TestNode && TestNode->bTestEnabled)
-						{
-							USelQueryTest* TestInstance = Cast<USelQueryTest>(TestNode->NodeInstance);
-							if (TestInstance)
-							{
-								OptionInstance->Tests.Add(TestInstance);
-							}
-						}
-					}
-
-					Query->GetOptionsMutable().Add(OptionInstance);
+					SelQuery->GetOptionsMutable().Add(CompositeInstance);
 				}
-				
-				// FORT-16508 tracking BEGIN: log invalid option
-				if (OptionInstance && OptionInstance->Generator == nullptr)
+                //ERROR Tracking
+				else if (CompositeInstance == nullptr)
 				{
-					FString DebugMessage = FString::Printf(TEXT("[%s] UpdateAsset found option instance [pin:%d] without a generator! tests:%d"),
-						FPlatformTime::StrTimestamp(), Idx, OptionNode->SubNodes.Num());
+					FString DebugMessage = FString::Printf(TEXT("[%s] UpdateAsset found cmposite node [pin:%d] without an instance!"),
+						FPlatformTime::StrTimestamp(), Idx);
 
 					RootNode->LogDebugMessage(DebugMessage);
 				}
-				else if (OptionInstance == nullptr)
-				{
-					FString DebugMessage = FString::Printf(TEXT("[%s] UpdateAsset found option node [pin:%d] without an instance! tests:%d"),
-						FPlatformTime::StrTimestamp(), Idx, OptionNode->SubNodes.Num());
-
-					RootNode->LogDebugMessage(DebugMessage);
-				}
-				// FORT-16508 tracking END
 			}
 		}
 	}
@@ -118,30 +86,18 @@ void USelectionQueryGraph::UpdateAsset(int32 UpdateFlags)
 	{
 		for (int32 Idx = 0; Idx < Nodes.Num(); Idx++)
 		{
-			USelectionQueryGraphNode_Option* OptionNode = Cast<USelectionQueryGraphNode_Option>(Nodes[Idx]);
-			if (OptionNode)
+            USelectionQueryGraphNode_Composite* CompositeNode = Cast<USelectionQueryGraphNode_Composite>(Nodes[Idx]);
+			if (CompositeNode)
 			{
-				USelQueryOption* OptionInstance = Cast<USelQueryOption>(OptionNode->NodeInstance);
-				if (OptionNode->NodeInstance == nullptr || OptionInstance == nullptr || OptionInstance->HasAnyFlags(RF_Transient))
+				USQCompositeNode* CompositeInstance = Cast<USQCompositeNode>(CompositeNode->NodeInstance);
+				if (CompositeNode->NodeInstance == nullptr || CompositeInstance == nullptr || CompositeInstance->HasAnyFlags(RF_Transient))
 				{
 					FString DebugMessage = FString::Printf(TEXT("[%s] found corrupted node after RemoveOrphanedNodes! type:instance option:%s instance:%d transient:%d tests:%d"),
 						FPlatformTime::StrTimestamp(),
-						*GetNameSafe(OptionNode),
-						OptionNode->NodeInstance ? (OptionInstance ? 1 : -1) : 0,
-						OptionNode->NodeInstance ? (OptionNode->HasAnyFlags(RF_Transient) ? 1 : 0) : -1,
-						OptionNode->SubNodes.Num());					
-
-					RootNode->LogDebugError(DebugMessage);
-				}
-
-				if (OptionInstance && (OptionInstance->Generator == nullptr || OptionInstance->Generator->HasAnyFlags(RF_Transient)))
-				{
-					FString DebugMessage = FString::Printf(TEXT("[%s] found corrupted node after RemoveOrphanedNodes! type:generator option:%s instance:%d transient:%d tests:%d"),
-						FPlatformTime::StrTimestamp(),
-						*GetNameSafe(OptionNode),
-						OptionNode->NodeInstance ? 1 : 0,
-						OptionNode->NodeInstance ? (OptionNode->HasAnyFlags(RF_Transient) ? 1 : 0) : -1,
-						OptionNode->SubNodes.Num());
+						*GetNameSafe(CompositeNode),
+                        CompositeNode->NodeInstance ? (CompositeInstance ? 1 : -1) : 0,
+                        CompositeNode->NodeInstance ? (CompositeNode->HasAnyFlags(RF_Transient) ? 1 : 0) : -1,
+                        CompositeNode->SubNodes.Num());
 
 					RootNode->LogDebugError(DebugMessage);
 				}
@@ -175,43 +131,43 @@ void USelectionQueryGraph::CalculateAllWeights()
 {
 	for (int32 Idx = 0; Idx < Nodes.Num(); Idx++)
 	{
-		USelectionQueryGraphNode_Option* OptionNode = Cast<USelectionQueryGraphNode_Option>(Nodes[Idx]);
-		if (OptionNode)
+        USelectionQueryGraphNode_Composite* CompositeNode = Cast<USelectionQueryGraphNode_Composite>(Nodes[Idx]);
+		if (CompositeNode)
 		{
-			OptionNode->CalculateWeights();
+            CompositeNode->CalculateWeights();
 		}
 	}
 }
 
 void USelectionQueryGraph::MarkVersion()
 {
-	GraphVersion = EQSGraphVersion::Latest;
+	GraphVersion = SQGraphVersion::Latest;
 }
 
 void USelectionQueryGraph::UpdateVersion()
 {
-	if (GraphVersion == EQSGraphVersion::Latest)
+	if (GraphVersion == SQGraphVersion::Latest)
 	{
 		return;
 	}
 
 	// convert to nested nodes
-	if (GraphVersion < EQSGraphVersion::NestedNodes)
+	if (GraphVersion < SQGraphVersion::NestedNodes)
 	{
 		UpdateVersion_NestedNodes();
 	}
 
-	if (GraphVersion < EQSGraphVersion::CopyPasteOutersBug)
+	if (GraphVersion < SQGraphVersion::CopyPasteOutersBug)
 	{
 		UpdateVersion_FixupOuters();
 	}
 
-	if (GraphVersion < EQSGraphVersion::BlueprintClasses)
+	if (GraphVersion < SQGraphVersion::BlueprintClasses)
 	{
 		UpdateVersion_CollectClassData();
 	}
 
-	GraphVersion = EQSGraphVersion::Latest;
+	GraphVersion = SQGraphVersion::Latest;
 	Modify();
 }
 
@@ -219,37 +175,13 @@ void USelectionQueryGraph::UpdateVersion_NestedNodes()
 {
 	for (int32 Idx = 0; Idx < Nodes.Num(); Idx++)
 	{
-		USelectionQueryGraphNode_Option* OptionNode = Cast<USelectionQueryGraphNode_Option>(Nodes[Idx]);
-		if (OptionNode)
+		USelectionQueryGraphNode_Composite* CompositeNode = Cast<USelectionQueryGraphNode_Composite>(Nodes[Idx]);
+		if (CompositeNode)
 		{
-			USelectionQueryGraphNode* Node = OptionNode;
+			USelectionQueryGraphNode* Node = CompositeNode;
 			while (Node)
 			{
-				USelectionQueryGraphNode* NextNode = NULL;
-				for (int32 iPin = 0; iPin < Node->Pins.Num(); iPin++)
-				{
-					UEdGraphPin* TestPin = Node->Pins[iPin];
-					if (TestPin && TestPin->Direction == EGPD_Output)
-					{
-						for (int32 iLink = 0; iLink < TestPin->LinkedTo.Num(); iLink++)
-						{
-							UEdGraphPin* LinkedTo = TestPin->LinkedTo[iLink];
-							USelectionQueryGraphNode_Test* LinkedTest = LinkedTo ? Cast<USelectionQueryGraphNode_Test>(LinkedTo->GetOwningNode()) : NULL;
-							if (LinkedTest)
-							{
-								LinkedTest->ParentNode = OptionNode;
-								OptionNode->SubNodes.Add(LinkedTest);
-
-								NextNode = LinkedTest;
-								break;
-							}
-						}
-
-						break;
-					}
-				}
-
-				Node = NextNode;
+                //HERE: Update nested nodes
 			}
 		}
 	}
@@ -264,11 +196,11 @@ void USelectionQueryGraph::UpdateVersion_NestedNodes()
 			continue;
 		}
 
-		USelectionQueryGraphNode_Option* OptionNode = Cast<USelectionQueryGraphNode_Option>(Nodes[Idx]);
-		if (OptionNode && OptionNode->Pins.IsValidIndex(1))
+		USelectionQueryGraphNode_Composite* CompositeNode = Cast<USelectionQueryGraphNode_Composite>(Nodes[Idx]);
+		if (CompositeNode && CompositeNode->Pins.IsValidIndex(1))
 		{
-			OptionNode->Pins[1]->MarkPendingKill();
-			OptionNode->Pins.RemoveAt(1);
+            CompositeNode->Pins[1]->MarkPendingKill();
+            CompositeNode->Pins.RemoveAt(1);
 		}
 	}
 }
@@ -297,10 +229,10 @@ void USelectionQueryGraph::CollectAllNodeInstances(TSet<UObject*>& NodeInstances
 	for (int32 Idx = 0; Idx < Nodes.Num(); Idx++)
 	{
 		USelectionQueryGraphNode* MyNode = Cast<USelectionQueryGraphNode>(Nodes[Idx]);
-		USelQueryOption* OptionInstance = MyNode ? Cast<USelQueryOption>(MyNode->NodeInstance) : nullptr;
-		if (OptionInstance && OptionInstance->Generator)
+		USQCompositeNode* CompositeInstance = MyNode ? Cast<USQCompositeNode>(MyNode->NodeInstance) : nullptr;
+		if (CompositeInstance)
 		{
-			NodeInstances.Add(OptionInstance->Generator);
+			NodeInstances.Add(CompositeInstance);
 		}
 	}
 }
@@ -347,10 +279,10 @@ void USelectionQueryGraph::UpdateDeprecatedGeneratorClasses()
 	for (int32 Idx = 0; Idx < Nodes.Num(); Idx++)
 	{
 		USelectionQueryGraphNode* MyNode = Cast<USelectionQueryGraphNode>(Nodes[Idx]);
-		USelQueryOption* OptionInstance = MyNode ? Cast<USelQueryOption>(MyNode->NodeInstance) : nullptr;
-		if (OptionInstance && OptionInstance->Generator)
+		USQCompositeNode* CompositeInstance = MyNode ? Cast<USQCompositeNode>(MyNode->NodeInstance) : nullptr;
+		if (CompositeInstance)
 		{
-			MyNode->ErrorMessage = FGraphNodeClassHelper::GetDeprecationMessage(OptionInstance->Generator->GetClass());
+			MyNode->ErrorMessage = FGraphNodeClassHelper::GetDeprecationMessage(CompositeInstance->GetClass());
 		}
 	}
 }
@@ -363,36 +295,19 @@ void USelectionQueryGraph::SpawnMissingNodes()
 		return;
 	}
 
-	TSet<USelQueryTest*> ExistingTests;
-	TSet<USelQueryOption*> ExistingNodes;
-	TArray<USelQueryOption*> OptionsCopy = QueryOwner->GetOptions();
+	TSet<USQCompositeNode*> ExistingNodes;
+	TArray<USQCompositeNode*> CompositesCopy = QueryOwner->GetOptions();
 
 	UAIGraphNode* MyRootNode = nullptr;
 	for (int32 Idx = 0; Idx < Nodes.Num(); Idx++)
 	{
 		USelectionQueryGraphNode* MyNode = Cast<USelectionQueryGraphNode>(Nodes[Idx]);
-		USelQueryOption* OptionInstance = MyNode ? Cast<USelQueryOption>(MyNode->NodeInstance) : nullptr;
-		if (OptionInstance && OptionInstance->Generator)
+		USQCompositeNode* CompositeInstance = MyNode ? Cast<USQCompositeNode>(MyNode->NodeInstance) : nullptr;
+		if (CompositeInstance)
 		{
-			ExistingNodes.Add(OptionInstance);
+			ExistingNodes.Add(CompositeInstance);
 
-			ExistingTests.Empty(ExistingTests.Num());
-			for (int32 SubIdx = 0; SubIdx < MyNode->SubNodes.Num(); SubIdx++)
-			{
-				USelectionQueryGraphNode* MySubNode = Cast<USelectionQueryGraphNode>(MyNode->SubNodes[SubIdx]);
-				USelQueryTest* TestInstance = MySubNode ? Cast<USelQueryTest>(MySubNode->NodeInstance) : nullptr;
-				if (TestInstance)
-				{
-					ExistingTests.Add(TestInstance);
-				}
-				else
-				{
-					MyNode->RemoveSubNode(MySubNode);
-					SubIdx--;
-				}
-			}
-
-			SpawnMissingSubNodes(OptionInstance, ExistingTests, MyNode);
+			//SpawnMissingSubNodes(CompositeInstance, ExistingTests, MyNode);
 		}
 
 		USelectionQueryGraphNode_Root* RootNode = Cast<USelectionQueryGraphNode_Root>(Nodes[Idx]);
@@ -405,17 +320,17 @@ void USelectionQueryGraph::SpawnMissingNodes()
 	UEdGraphPin* RootOutPin = MyRootNode ? FindGraphNodePin(MyRootNode, EGPD_Output) : nullptr;
 	ExistingTests.Empty(0);
 
-	for (int32 Idx = 0; Idx < OptionsCopy.Num(); Idx++)
+	for (int32 Idx = 0; Idx < CompositesCopy.Num(); Idx++)
 	{
-		USelQueryOption* OptionInstance = OptionsCopy[Idx];
-		if (ExistingNodes.Contains(OptionInstance) || OptionInstance == nullptr || OptionInstance->Generator == nullptr)
+		USQCompositeNode* CompositeInstance = CompositesCopy[Idx];
+		if (ExistingNodes.Contains(CompositeInstance) || CompositeInstance == nullptr)
 		{
 			continue;
 		}
 
-		FGraphNodeCreator<USelectionQueryGraphNode_Option> NodeBuilder(*this);
-		USelectionQueryGraphNode_Option* MyNode = NodeBuilder.CreateNode();
-		UAIGraphNode::UpdateNodeClassDataFrom(OptionInstance->Generator->GetClass(), MyNode->ClassData);
+		FGraphNodeCreator<USelectionQueryGraphNode_Composite> NodeBuilder(*this);
+		USelectionQueryGraphNode_Composite* MyNode = NodeBuilder.CreateNode();
+		UAIGraphNode::UpdateNodeClassDataFrom(CompositeInstance->GetClass(), MyNode->ClassData);
 		MyNode->ErrorMessage = MyNode->ClassData.GetDeprecatedMessage();
 		NodeBuilder.Finalize();
 
@@ -425,8 +340,8 @@ void USelectionQueryGraph::SpawnMissingNodes()
 			MyNode->NodePosY = MyRootNode->NodePosY + 100;
 		}
 
-		MyNode->NodeInstance = OptionInstance;
-		SpawnMissingSubNodes(OptionInstance, ExistingTests, MyNode);
+		MyNode->NodeInstance = CompositeInstance;
+		//SpawnMissingSubNodes(CompositeInstance, ExistingTests, MyNode);
 
 		UEdGraphPin* SpawnedInPin = FindGraphNodePin(MyNode, EGPD_Input);
 		if (RootOutPin && SpawnedInPin)
@@ -436,6 +351,7 @@ void USelectionQueryGraph::SpawnMissingNodes()
 	}
 }
 
+/*
 void USelectionQueryGraph::SpawnMissingSubNodes(USelQueryOption* Option, TSet<USelQueryTest*> ExistingTests, USelectionQueryGraphNode* OptionNode)
 {
 	TArray<USelQueryTest*> TestsCopy = Option->Tests;
@@ -453,4 +369,4 @@ void USelectionQueryGraph::SpawnMissingSubNodes(USelQueryOption* Option, TSet<US
 		OptionNode->AddSubNode(TestNode, this);
 		TestNode->NodeInstance = TestsCopy[SubIdx];
 	}
-}
+}*/

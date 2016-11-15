@@ -1,11 +1,9 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #include "SelectionQueryEditorPrivatePCH.h"
-#include "EdGraphSchema_SelectionQuery.h"
 #include "Toolkits/ToolkitManager.h"
 
-#include "AI/SelectionQuery/SelQueryGenerator.h"
-#include "AI/SelectionQuery/Generators/SelQueryGenerator_Composite.h"
+#include "AI/SelectionQuery/SQCompositeNode.h"
 
 #define LOCTEXT_NAMESPACE "SelectionQueryEditor"
 

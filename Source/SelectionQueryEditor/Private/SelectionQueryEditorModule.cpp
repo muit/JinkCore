@@ -10,8 +10,9 @@
 #include "Toolkits/ToolkitManager.h"
 #include "SGraphNode_SelectionQuery.h"
 #include "EdGraphUtilities.h"
+#include "Classes/SelectionQueryGraphNode.h"
 
-#include "SelectionQuery/Generators/SelQueryGenerator_BlueprintBase.h"
+#include "AI/SelectionQuery/SQNode.h"
 
 
 IMPLEMENT_MODULE( FSelectionQueryEditorModule, SelectionQueryEditor );
@@ -98,8 +99,8 @@ TSharedRef<ISelectionQueryEditor> FSelectionQueryEditorModule::CreateSelectionQu
 {
 	if (!ClassCache.IsValid())
 	{
-		ClassCache = MakeShareable(new FGraphNodeClassHelper(USelQueryNode::StaticClass()));
-		FGraphNodeClassHelper::AddObservedBlueprintClasses(USelQueryGenerator_BlueprintBase::StaticClass());
+		ClassCache = MakeShareable(new FGraphNodeClassHelper(USQNode::StaticClass()));
+		FGraphNodeClassHelper::AddObservedBlueprintClasses(USQComposite_BlueprintBase::StaticClass());
 		ClassCache->UpdateAvailableBlueprintClasses();
 	}
 

@@ -15,7 +15,7 @@
 #include "Classes/EdGraphSchema_SelectionQuery.h"
 #include "Classes/SelectionQueryGraph.h"
 #include "Classes/SelectionQueryGraphNode.h"
-#include "Classes/SelectionQueryGraphNode_Option.h"
+#include "Classes/SelectionQueryGraphNode_Composite.h"
 #include "Classes/SelectionQueryGraphNode_Root.h"
 #include "Classes/SelectionQueryGraphNode_Test.h"
 
@@ -24,5 +24,5 @@
 #include "SelectionQueryEditorModule.h"
 #include "SelectionQueryEditor.h"
 
-#include "GraphEditorCommon.h"
+#include "Private/GraphEditorCommon.h"
 #include "ConnectionDrawingPolicy.h"

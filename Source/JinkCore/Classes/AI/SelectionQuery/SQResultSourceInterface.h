@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include "EQSQueryResultSourceInterface.generated.h"
+#include "SQResultSourceInterface.generated.h"
 
 UINTERFACE(MinimalAPI, meta=(CannotImplementInterfaceInBlueprint))
-class UEQSQueryResultSourceInterface : public UInterface
+class USQResultSourceInterface : public UInterface
 {
 	GENERATED_UINTERFACE_BODY()
 };
@@ -14,8 +14,8 @@ class IEQSQueryResultSourceInterface
 {
 	GENERATED_IINTERFACE_BODY()
 
-	virtual const struct FEnvQueryResult* GetQueryResult() const { return NULL; }
-	virtual const struct FEnvQueryInstance* GetQueryInstance() const { return NULL; }
+	virtual const struct FSQResult* GetQueryResult() const { return NULL; }
+	virtual const struct FSelectionQueryInstance* GetQueryInstance() const { return NULL; }
 
 	// debugging
 	virtual bool GetShouldDebugDrawLabels() const { return true; }
