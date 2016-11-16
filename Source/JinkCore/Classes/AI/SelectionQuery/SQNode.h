@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "SelectionQueryComponent.h"
 #include "SelectionQueryTypes.h"
 #include "GameplayTaskOwnerInterface.h"
 #include "Tasks/AITask.h"

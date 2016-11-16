@@ -26,4 +26,4 @@ public:
 
 	virtual void PostLoad() override;
 	void UpdateNodeVersion() override;
-}
+};

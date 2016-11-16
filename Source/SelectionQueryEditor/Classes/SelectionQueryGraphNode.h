@@ -15,5 +15,8 @@ class USelectionQueryGraphNode : public UAIGraphNode
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
 	virtual FText GetDescription() const override;
 
+    /** gets icon resource name for title bar */
+    virtual FName GetNameIcon() const;
+
 	virtual bool CanCreateUnderSpecifiedSchema(const UEdGraphSchema* DesiredSchema) const override;
 };

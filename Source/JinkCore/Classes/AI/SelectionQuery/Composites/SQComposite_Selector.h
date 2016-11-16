@@ -1,7 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 
-#include "AI/SelectionQuery/BTCompositeNode.h"
+#include "AI/SelectionQuery/SQCompositeNode.h"
 #include "SQComposite_Selector.generated.h"
 
 /** 
@@ -14,7 +14,7 @@ class JINKCORE_API USQComposite_Selector: public USQCompositeNode
 {
 	GENERATED_UCLASS_BODY()
 
-	int32 GetNextChildHandler(struct FSelectionQuerySearchData& SearchData, int32 PrevChild, ESQNodeResult::Type LastResult) const;
+	int32 GetNextChildHandler(struct FSelectionQuerySearchData& SearchData, int32 PrevChild) const;
 
 #if WITH_EDITOR
 	virtual FName GetNodeIconName() const override;

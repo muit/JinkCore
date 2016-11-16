@@ -1,8 +1,8 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 
-#include "AI/SelectionQuery/SelectionQueryTypes.h"
-#include "AI/SelectionQuery/SQNode.h"
+#include "SelectionQueryTypes.h"
+#include "SQNode.h"
 #include "SQCompositeNode.generated.h"
 
 class USQNode;
@@ -61,7 +61,7 @@ FORCEINLINE USQNode* USQCompositeNode::GetChildNode(int32 Index) const
     if (Children.IsValidIndex(Index))
     {
         FSQCompositeChild Child = Children[Index];
-        return Child.ChildIsComposite() ? Child.ChildComposite : Child.ChildTask;
+        return Child.ChildIsComposite() ? (USQNode*)Child.ChildComposite : (USQNode*)Child.ChildItem;
     }
     return nullptr;
 }

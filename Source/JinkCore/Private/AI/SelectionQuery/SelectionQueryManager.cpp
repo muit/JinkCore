@@ -34,7 +34,7 @@ bool USelectionQueryManager::bAllowSQTimeSlicing = true;
 //////////////////////////////////////////////////////////////////////////
 // FSQRequest
 
-int32 FSQRequest::Execute(ESQRunMode::Type RunMode, FQueryFinishedSignature const& FinishDelegate)
+int32 FSQRequest::Execute(ESQRunMode RunMode, FQueryFinishedSignature const& FinishDelegate)
 {
     if (Owner == NULL)
     {
@@ -114,7 +114,7 @@ TStatId USelectionQueryManager::GetStatId() const
     RETURN_QUICK_DECLARE_CYCLE_STAT(USelectionQueryManager, STATGROUP_Tickables);
 }
 
-int32 USelectionQueryManager::RunQuery(const FSQRequest& Request, ESQRunMode::Type RunMode, FQueryFinishedSignature const& FinishDelegate)
+int32 USelectionQueryManager::RunQuery(const FSQRequest& Request, ESQRunMode RunMode, FQueryFinishedSignature const& FinishDelegate)
 {
     TSharedPtr<FSelQueryInstance> QueryInstance = PrepareQueryInstance(Request, RunMode);
     return RunQuery(QueryInstance, FinishDelegate);
@@ -134,7 +134,7 @@ int32 USelectionQueryManager::RunQuery(const TSharedPtr<FSelQueryInstance>& Quer
     return QueryInstance->QueryID;
 }
 
-TSharedPtr<FSelQueryResult> USelectionQueryManager::RunInstantQuery(const FSQRequest& Request, ESQRunMode::Type RunMode)
+TSharedPtr<FSelQueryResult> USelectionQueryManager::RunInstantQuery(const FSQRequest& Request, ESQRunMode RunMode)
 {
     TSharedPtr<FSelQueryInstance> QueryInstance = PrepareQueryInstance(Request, RunMode);
     if (!QueryInstance.IsValid())
@@ -193,7 +193,7 @@ void USelectionQueryManager::RemoveAllQueriesByQuerier(const UObject& Querier, b
     }
 }
 
-TSharedPtr<FSelQueryInstance> USelectionQueryManager::PrepareQueryInstance(const FSQRequest& Request, ESQRunMode::Type RunMode)
+TSharedPtr<FSelQueryInstance> USelectionQueryManager::PrepareQueryInstance(const FSQRequest& Request, ESQRunMode RunMode)
 {
     TSharedPtr<FSelQueryInstance> QueryInstance = CreateQueryInstance(Request.QueryTemplate, RunMode);
     if (!QueryInstance.IsValid())
@@ -558,7 +558,7 @@ USelectionQuery* USelectionQueryManager::FindQueryTemplate(const FString& QueryN
     return NULL;
 }
 
-TSharedPtr<FSelQueryInstance> USelectionQueryManager::CreateQueryInstance(const USelectionQuery* Template, ESQRunMode::Type RunMode)
+TSharedPtr<FSelQueryInstance> USelectionQueryManager::CreateQueryInstance(const USelectionQuery* Template, ESQRunMode RunMode)
 {
     if (Template == nullptr || Template->Options.Num() == 0)
     {
@@ -659,9 +659,6 @@ TSharedPtr<FSelQueryInstance> USelectionQueryManager::CreateQueryInstance(const 
                 case ESQRunMode::SingleResult:
                     SortedTests.Sort(SelQueryTestSort::FSingleResult(HighestCost));
                     break;
-
-                case ESQRunMode::RandomBest5Pct:
-                case ESQRunMode::RandomBest25Pct:
                 case ESQRunMode::AllMatching:
                     SortedTests.Sort(SelQueryTestSort::FAllMatching());
                     break;
@@ -669,7 +666,7 @@ TSharedPtr<FSelQueryInstance> USelectionQueryManager::CreateQueryInstance(const 
                 default:
                 {
                     UEnum* RunModeEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("ESQRunMode"));
-                    UE_LOG(LogEQS, Warning, TEXT("Query [%s] can't be sorted for RunMode: %d [%s]"),
+                    UE_LOG(LogSelectionQuery, Warning, TEXT("Query [%s] can't be sorted for RunMode: %d [%s]"),
                         *GetNameSafe(LocalTemplate), (int32)RunMode, RunModeEnum ? *RunModeEnum->GetEnumName(RunMode) : TEXT("??"));
                 }
                 }
@@ -689,7 +686,7 @@ TSharedPtr<FSelQueryInstance> USelectionQueryManager::CreateQueryInstance(const 
     return NewInstance;
 }
 
-void USelectionQueryManager::CreateOptionInstance(USelectionQueryOption* OptionTemplate, const TArray<USelectionQueryTest*>& SortedTests, FSelQueryInstance& Instance)
+void USelectionQueryManager::CreateOptionInstance(USelectionQueryOption* OptionTemplate, const TArray<USelectionQueryTest*>& SortedTests, FSelectionQueryInstance& Instance)
 {
     FSelQueryOptionInstance OptionInstance;
     OptionInstance.Generator = OptionTemplate->Generator;
@@ -707,19 +704,6 @@ void USelectionQueryManager::CreateOptionInstance(USelectionQueryOption* OptionT
     const int32 AddedIdx = Instance.Options.Add(OptionInstance);
 
     INC_MEMORY_STAT_BY(STAT_AI_EQS_InstanceMemory, Instance.Options.GetAllocatedSize() + Instance.Options[AddedIdx].GetAllocatedSize());
-}
-
-USelectionQueryContext* USelectionQueryManager::PrepareLocalContext(TSubclassOf<USelectionQueryContext> ContextClass)
-{
-    USelectionQueryContext* LocalContext = LocalContextMap.FindRef(ContextClass->GetFName());
-    if (LocalContext == NULL)
-    {
-        LocalContext = (USelectionQueryContext*)StaticDuplicateObject(ContextClass.GetDefaultObject(), this);
-        LocalContexts.Add(LocalContext);
-        LocalContextMap.Add(ContextClass->GetFName(), LocalContext);
-    }
-
-    return LocalContext;
 }
 
 float USelectionQueryManager::FindNamedParam(int32 QueryId, FName ParamName) const

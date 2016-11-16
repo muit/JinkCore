@@ -1,11 +1,11 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #pragma once
-#include "SelectionQueryGraphNode_Task.generated.h"
+#include "SelectionQueryGraphNode_Item.generated.h"
 
 
 UCLASS()
-class USelectionQueryGraphNode_Task : public USelectionQueryGraphNode
+class USelectionQueryGraphNode_Item : public USelectionQueryGraphNode
 {
 	GENERATED_UCLASS_BODY()
 

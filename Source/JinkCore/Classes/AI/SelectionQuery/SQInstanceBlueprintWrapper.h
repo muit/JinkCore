@@ -3,30 +3,31 @@
 #pragma once
 
 #include "SelectionQueryTypes.h"
-#include "AI/SelectionQuery/EQSQueryResultSourceInterface.h"
+#include "AI/SelectionQuery/SQResultSourceInterface.h"
 #include "SQInstanceBlueprintWrapper.generated.h"
 
 struct FSQRequest;
 
-UCLASS(BlueprintType, meta = (DisplayName = "Selection Query Instance"))
+UCLASS(BlueprintType, meta=(DisplayName="Selection Query Instance"))
 class JINKCORE_API USQInstanceBlueprintWrapper : public UObject, public ISQResultSourceInterface
 {
 	GENERATED_BODY()
 
 public:
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSQDoneSignature, USQInstanceBlueprintWrapper*, QueryInstance, ESQStatus::Type, QueryStatus);
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FSQDoneSignature, USQInstanceBlueprintWrapper*, QueryInstance, ESQStatus, QueryStatus);
 
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "Selection Query")
 	int32 QueryID;
 
-	ESQRunMode::Type RunMode;
+	ESQRunMode RunMode;
 
 	TSharedPtr<FSQResult> QueryResult;
 	TSharedPtr<FSelectionQueryInstance> QueryInstance;
 
+    /*
 	UPROPERTY(BlueprintReadOnly, Category = "Selection Query")
-	TSubclassOf<UEnvQueryItemType> ItemType;
+	TSubclassOf<USQItemType> ItemType;*/
 
 	/** index of query option, that generated items */
 	UPROPERTY(BlueprintReadOnly, Category = "Selection Query")
@@ -38,7 +39,7 @@ protected:
 public:
 	USQInstanceBlueprintWrapper(const FObjectInitializer& ObjectInitializer);
 	
-	void RunQuery(const ESQRunMode::Type InRunMode, FSQRequest& QueryRequest);
+	void RunQuery(const ESQRunMode InRunMode, FSQRequest& QueryRequest);
 
 	UFUNCTION(BlueprintPure, Category = "AI|Selection Query")
 	float GetItemScore(int32 ItemIndex);

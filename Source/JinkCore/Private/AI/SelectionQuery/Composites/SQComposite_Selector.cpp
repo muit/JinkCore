@@ -1,7 +1,7 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
-#include "BehaviorTree/Composites/SQComposite_Selector.h"
+#include "AI/SelectionQuery/Composites/SQComposite_Selector.h"
 
 USQComposite_Selector::USQComposite_Selector(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -10,7 +10,7 @@ USQComposite_Selector::USQComposite_Selector(const FObjectInitializer& ObjectIni
 	OnNextChild.BindUObject(this, &USQComposite_Selector::GetNextChildHandler);
 }
 
-int32 USQComposite_Selector::GetNextChildHandler(FBehaviorTreeSearchData& SearchData, int32 PrevChild, ESQNodeResult::Type LastResult) const
+int32 USQComposite_Selector::GetNextChildHandler(FBehaviorTreeSearchData& SearchData, int32 PrevChild) const
 {
 	// success = quit
 	int32 NextChildIdx = SQSpecialChild::ReturnToParent;

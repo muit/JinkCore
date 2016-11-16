@@ -10,7 +10,7 @@ class USQResultSourceInterface : public UInterface
 	GENERATED_UINTERFACE_BODY()
 };
 
-class IEQSQueryResultSourceInterface
+class ISQResultSourceInterface
 {
 	GENERATED_IINTERFACE_BODY()
 

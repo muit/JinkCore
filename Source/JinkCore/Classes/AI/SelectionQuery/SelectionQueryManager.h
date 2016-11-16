@@ -28,16 +28,16 @@ struct JINKCORE_API FSQRequest
 	FORCEINLINE FSQRequest& SetWorldOverride(UWorld* InWorld) { World = InWorld; return *this; }
 
 	template< class UserClass >	
-	FORCEINLINE int32 Execute(ESQRunMode::Type Mode, UserClass* InObj, typename FQueryFinishedSignature::TUObjectMethodDelegate< UserClass >::FMethodPtr InMethod)
+	FORCEINLINE int32 Execute(ESQRunMode Mode, UserClass* InObj, typename FQueryFinishedSignature::TUObjectMethodDelegate< UserClass >::FMethodPtr InMethod)
 	{
 		return Execute(Mode, FQueryFinishedSignature::CreateUObject(InObj, InMethod));
 	}
 	template< class UserClass >	
-	FORCEINLINE int32 Execute(ESQRunMode::Type Mode, UserClass* InObj, typename FQueryFinishedSignature::TUObjectMethodDelegate_Const< UserClass >::FMethodPtr InMethod)
+	FORCEINLINE int32 Execute(ESQRunMode Mode, UserClass* InObj, typename FQueryFinishedSignature::TUObjectMethodDelegate_Const< UserClass >::FMethodPtr InMethod)
 	{
 		return Execute(Mode, FQueryFinishedSignature::CreateUObject(InObj, InMethod));
 	}
-	int32 Execute(ESQRunMode::Type RunMode, FQueryFinishedSignature const& FinishDelegate);
+	int32 Execute(ESQRunMode RunMode, FQueryFinishedSignature const& FinishDelegate);
 
 protected:
 	/** query to run */
@@ -93,8 +93,8 @@ class JINKCORE_API USelectionQueryManager : public UObject, public FTickableGame
 	virtual TStatId GetStatId() const override;
 
 	/** execute query */
-	int32 RunQuery(const FSQRequest& Request, ESQRunMode::Type RunMode, FQueryFinishedSignature const& FinishDelegate);
-	int32 RunQuery(const TSharedPtr<FSelQueryInstance>& QueryInstance, FQueryFinishedSignature const& FinishDelegate);
+	int32 RunQuery(const FSQRequest& Request, ESQRunMode RunMode, FQueryFinishedSignature const& FinishDelegate);
+	int32 RunQuery(const TSharedPtr<FSelectionQueryInstance>& QueryInstance, FQueryFinishedSignature const& FinishDelegate);
 
 	/** Removed all active queries asked by Querier. No "on finished" notifications are being sent, call this function when
 	 *	you no longer care about Querier's queries, like when he's "dead" */
@@ -108,11 +108,11 @@ class JINKCORE_API USelectionQueryManager : public UObject, public FTickableGame
 	/** alternative way to run queries. Do not use for anything other than testing
 	*  or when you know exactly what you're doing! Bypasses all EQS perf controlling
 	*  and time slicing mechanics. */
-	TSharedPtr<FSQResult> RunInstantQuery(const FSQRequest& Request, ESQRunMode::Type RunMode);
+	TSharedPtr<FSQResult> RunInstantQuery(const FSQRequest& Request, ESQRunMode RunMode);
 	void RunInstantQuery(const TSharedPtr<FSelectionQueryInstance>& QueryInstance);
 
 	/** Creates a query instance configured for execution */
-	TSharedPtr<FSelectionQueryInstance> PrepareQueryInstance(const FSQRequest& Request, ESQRunMode::Type RunMode);
+	TSharedPtr<FSelectionQueryInstance> PrepareQueryInstance(const FSQRequest& Request, ESQRunMode RunMode);
 
 	/** finds USelectionQuery matching QueryName by first looking at instantiated queries (from InstanceCache)
 	 *	falling back to looking up all USelectionQuery and testing their name */
@@ -137,7 +137,7 @@ class JINKCORE_API USelectionQueryManager : public UObject, public FTickableGame
 	static USelectionQueryManager* GetCurrent(const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintCallable, Category = "AI|Selection Query", meta = (WorldContext = "WorldContext", AdvancedDisplay = "WrapperClass"))
-	static USQInstanceBlueprintWrapper* RunSelectionQuery(UObject* WorldContext, USelectionQuery* QueryTemplate, UObject* Querier, TEnumAsByte<ESQRunMode::Type> RunMode, TSubclassOf<USQInstanceBlueprintWrapper> WrapperClass);
+	static USQInstanceBlueprintWrapper* RunSelectionQuery(UObject* WorldContext, USelectionQuery* QueryTemplate, UObject* Querier, TEnumAsByte<ESQRunMode> RunMode, TSubclassOf<USQInstanceBlueprintWrapper> WrapperClass);
 
 	void RegisterActiveWrapper(USQInstanceBlueprintWrapper& Wrapper);
 	void UnregisterActiveWrapper(USQInstanceBlueprintWrapper& Wrapper);
@@ -145,7 +145,7 @@ class JINKCORE_API USelectionQueryManager : public UObject, public FTickableGame
 	static void SetAllowTimeSlicing(bool bAllowTimeSlicing);
 
 protected:
-	friend USelQueryInstanceBlueprintWrapper;
+	friend USQInstanceBlueprintWrapper;
 	TSharedPtr<FSelectionQueryInstance> FindQueryInstance(const int32 QueryID);
 
 	/** currently running queries */
@@ -168,7 +168,7 @@ protected:
 	int32 NextQueryID;
 
 	/** create new instance, using cached data is possible */
-	TSharedPtr<FSelectionQueryInstance> CreateQueryInstance(const USelectionQuery* Template, ESQRunMode::Type RunMode);
+	TSharedPtr<FSelectionQueryInstance> CreateQueryInstance(const USelectionQuery* Template, ESQRunMode RunMode);
 
 	/** whether we update EQS queries based on:
 	    running a test on one query and move to the next (breadth) - default behavior,

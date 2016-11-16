@@ -21,6 +21,12 @@ USelectionQueryGraph* USelectionQueryGraphNode::GetSelectionQueryGraph()
 	return CastChecked<USelectionQueryGraph>(GetGraph());
 }
 
+FName UBehaviorTreeGraphNode::GetNameIcon() const
+{
+    USQNode* SQNodeInstance = Cast<USQNode>(NodeInstance);
+    return BTNodeInstance != nullptr ? SQNodeInstance->GetNodeIconName() : FName("BTEditor.Graph.BTNode.Icon");
+}
+
 bool USelectionQueryGraphNode::CanCreateUnderSpecifiedSchema(const UEdGraphSchema* DesiredSchema) const
 {
 	return DesiredSchema->GetClass()->IsChildOf(UEdGraphSchema_SelectionQuery::StaticClass());

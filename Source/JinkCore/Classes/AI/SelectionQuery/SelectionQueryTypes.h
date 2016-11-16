@@ -15,26 +15,20 @@ struct FSQOptionInstance;
 struct FSQItemDetails;
 
 UENUM()
-namespace ESQStatus
+enum class ESQStatus : uint8
 {
-    enum Type
-    {
-        Processing,
-        Success,
-        Failed,
-        Aborted,
-        OwnerLost
-    };
-}
+    Processing,
+    Success,
+    Failed,
+    Aborted,
+    OwnerLost
+};
 
 UENUM()
-namespace ESQRunMode
+enum class ESQRunMode : uint8
 {
-    enum Type
-    {
-        SingleResult	UMETA(Tooltip = "Pick one random item", DisplayName = "Single Item")
-    };
-}
+    SingleResult UMETA(Tooltip = "Pick one random item", DisplayName = "Single Item")
+};
 
 //////////////////////////////////////////////////////////////////////////
 // Returned results
@@ -51,7 +45,7 @@ protected:
 
 private:
     /** query status */
-    ESQStatus::Type Status;
+    ESQStatus Status;
 
 public:
 
@@ -73,7 +67,7 @@ public:
 	void GetAllAsLocations(TArray<FVector>& OutLocations) const;
 
 	FSQResult() : Status(ESQStatus::Processing) {}
-	FSQResult(const ESQStatus::Type& InStatus) : Status(InStatus) {}
+	FSQResult(const ESQStatus& InStatus) : Status(InStatus) {}
 
 	FORCEINLINE bool IsFinished() const { return Status != ESQStatus::Processing; }
 	FORCEINLINE bool IsAborted() const { return Status == ESQStatus::Aborted; }
@@ -82,7 +76,7 @@ public:
 	FORCEINLINE void MarkAsFinishedWithoutIssues() { Status = ESQStatus::Success; }
 	FORCEINLINE void MarkAsOwnerLost() { Status = ESQStatus::OwnerLost; }
 
-	FORCEINLINE ESQStatus::Type GetRawStatus() const { return Status; }
+	FORCEINLINE ESQStatus GetRawStatus() const { return Status; }
 };
 
 
@@ -101,7 +95,6 @@ public:
 	static float SkippedItemValue;
 
 	static FText GetShortTypeName(const UObject* Ob);
-	static FText DescribeContext(TSubclassOf<USQContext> ContextClass);
 };
 
 
@@ -168,7 +161,7 @@ private:
 
 public:
     /** run mode */
-    ESQRunMode::Type Mode;
+    ESQRunMode Mode;
 
     FSelectionQueryInstance();
     FSelectionQueryInstance(const FSelectionQueryInstance& Other);
