@@ -14,8 +14,6 @@ class JINKCORE_API USQComposite_Selector: public USQCompositeNode
 {
 	GENERATED_UCLASS_BODY()
 
-	int32 GetNextChildHandler(struct FSelectionQuerySearchData& SearchData, int32 PrevChild) const;
-
 #if WITH_EDITOR
 	virtual FName GetNodeIconName() const override;
 #endif

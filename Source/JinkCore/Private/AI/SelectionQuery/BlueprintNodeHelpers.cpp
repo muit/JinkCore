@@ -3,9 +3,6 @@
 #include "JinkCorePrivatePCH.h"
 #include "BlueprintNodeHelpers.h"
 
-JINKCORE_API DECLARE_LOG_CATEGORY_EXTERN(LogSelectionQuery, Display, All);
-
-
 namespace BlueprintNodeHelpers
 {
 	uint16 GetPropertiesMemorySize(const TArray<UProperty*>& PropertyData)
@@ -52,7 +49,7 @@ namespace BlueprintNodeHelpers
 
 	void CollectPropertyData(const UObject* Ob, const UClass* StopAtClass, TArray<UProperty*>& PropertyData)
 	{
-		UE_LOG(LogSelectionQuery, Verbose, TEXT("Looking for runtime properties of class: %s"), *GetNameSafe(Ob->GetClass()));
+		//UE_LOG(LogSelectionQuery, Verbose, TEXT("Looking for runtime properties of class: %s"), *GetNameSafe(Ob->GetClass()));
 
 		PropertyData.Reset();
 		for (UProperty* TestProperty = Ob->GetClass()->PropertyLink; TestProperty; TestProperty = TestProperty->PropertyLinkNext)
@@ -73,7 +70,7 @@ namespace BlueprintNodeHelpers
 			// serialize only simple types
 			if (CanUsePropertyType(TestProperty))
 			{
-				UE_LOG(LogSelectionQuery, Verbose, TEXT("> name: '%s'"), *GetNameSafe(TestProperty));
+				//UE_LOG(LogSelectionQuery, Verbose, TEXT("> name: '%s'"), *GetNameSafe(TestProperty));
 				PropertyData.Add(TestProperty);
 			}
 		}

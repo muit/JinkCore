@@ -13,20 +13,6 @@
 extern UNREALED_API UEditorEngine* GEditor;
 #endif // WITH_EDITOR
 
-
-DEFINE_STAT(STAT_AI_SQ_Tick);
-DEFINE_STAT(STAT_AI_SQ_TickWork);
-DEFINE_STAT(STAT_AI_SQ_TickNotifies);
-DEFINE_STAT(STAT_AI_SQ_TickQueryRemovals);
-DEFINE_STAT(STAT_AI_SQ_LoadTime);
-DEFINE_STAT(STAT_AI_SQ_ExecuteOneStep);
-DEFINE_STAT(STAT_AI_SQ_GeneratorTime);
-DEFINE_STAT(STAT_AI_SQ_TestTime);
-DEFINE_STAT(STAT_AI_SQ_NumInstances);
-DEFINE_STAT(STAT_AI_SQ_NumItems);
-DEFINE_STAT(STAT_AI_SQ_InstanceMemory);
-DEFINE_STAT(STAT_AI_SQ_AvgInstanceResponseTime);
-
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
 bool USelectionQueryManager::bAllowSQTimeSlicing = true;
 #endif
@@ -116,11 +102,11 @@ TStatId USelectionQueryManager::GetStatId() const
 
 int32 USelectionQueryManager::RunQuery(const FSQRequest& Request, ESQRunMode RunMode, FQueryFinishedSignature const& FinishDelegate)
 {
-    TSharedPtr<FSelQueryInstance> QueryInstance = PrepareQueryInstance(Request, RunMode);
+    TSharedPtr<FSelectionQueryInstance> QueryInstance = PrepareQueryInstance(Request, RunMode);
     return RunQuery(QueryInstance, FinishDelegate);
 }
 
-int32 USelectionQueryManager::RunQuery(const TSharedPtr<FSelQueryInstance>& QueryInstance, FQueryFinishedSignature const& FinishDelegate)
+int32 USelectionQueryManager::RunQuery(const TSharedPtr<FSelectionQueryInstance>& QueryInstance, FQueryFinishedSignature const& FinishDelegate)
 {
     if (QueryInstance.IsValid() == false)
     {
@@ -134,9 +120,9 @@ int32 USelectionQueryManager::RunQuery(const TSharedPtr<FSelQueryInstance>& Quer
     return QueryInstance->QueryID;
 }
 
-TSharedPtr<FSelQueryResult> USelectionQueryManager::RunInstantQuery(const FSQRequest& Request, ESQRunMode RunMode)
+TSharedPtr<FSQResult> USelectionQueryManager::RunInstantQuery(const FSQRequest& Request, ESQRunMode RunMode)
 {
-    TSharedPtr<FSelQueryInstance> QueryInstance = PrepareQueryInstance(Request, RunMode);
+    TSharedPtr<FSelectionQueryInstance> QueryInstance = PrepareQueryInstance(Request, RunMode);
     if (!QueryInstance.IsValid())
     {
         return NULL;
@@ -147,7 +133,7 @@ TSharedPtr<FSelQueryResult> USelectionQueryManager::RunInstantQuery(const FSQReq
     return QueryInstance;
 }
 
-void USelectionQueryManager::RunInstantQuery(const TSharedPtr<FSelQueryInstance>& QueryInstance)
+void USelectionQueryManager::RunInstantQuery(const TSharedPtr<FSelectionQueryInstance>& QueryInstance)
 {
     if (!ensure(QueryInstance.IsValid()))
     {
@@ -174,7 +160,7 @@ void USelectionQueryManager::RemoveAllQueriesByQuerier(const UObject& Querier, b
 {
     for (int32 QueryIndex = RunningQueries.Num() - 1; QueryIndex >= 0; --QueryIndex)
     {
-        const TSharedPtr<FSelQueryInstance>& QueryInstance = RunningQueries[QueryIndex];
+        const TSharedPtr<FSelectionQueryInstance>& QueryInstance = RunningQueries[QueryIndex];
         if (QueryInstance.IsValid() == false || QueryInstance->Owner.IsValid() == false || QueryInstance->Owner.Get() == &Querier)
         {
             if (QueryInstance->IsFinished() == false)
@@ -193,9 +179,9 @@ void USelectionQueryManager::RemoveAllQueriesByQuerier(const UObject& Querier, b
     }
 }
 
-TSharedPtr<FSelQueryInstance> USelectionQueryManager::PrepareQueryInstance(const FSQRequest& Request, ESQRunMode RunMode)
+TSharedPtr<FSelectionQueryInstance> USelectionQueryManager::PrepareQueryInstance(const FSQRequest& Request, ESQRunMode RunMode)
 {
-    TSharedPtr<FSelQueryInstance> QueryInstance = CreateQueryInstance(Request.QueryTemplate, RunMode);
+    TSharedPtr<FSelectionQueryInstance> QueryInstance = CreateQueryInstance(Request.QueryTemplate, RunMode);
     if (!QueryInstance.IsValid())
     {
         return NULL;
@@ -220,7 +206,7 @@ bool USelectionQueryManager::AbortQuery(int32 RequestID)
 {
     for (int32 QueryIndex = 0; QueryIndex < RunningQueries.Num(); QueryIndex++)
     {
-        TSharedPtr<FSelQueryInstance>& QueryInstance = RunningQueries[QueryIndex];
+        TSharedPtr<FSelectionQueryInstance>& QueryInstance = RunningQueries[QueryIndex];
         if (QueryInstance->QueryID == RequestID &&
             QueryInstance->IsFinished() == false)
         {
@@ -261,7 +247,7 @@ void USelectionQueryManager::Tick(float DeltaTime)
             const double StartTime = FPlatformTime::Seconds();
             double QuerierHandlingDuration = 0.0;
 
-            const TSharedPtr<FSelQueryInstance>& QueryInstance = RunningQueries[Index];
+            const TSharedPtr<FSelectionQueryInstance>& QueryInstance = RunningQueries[Index];
 
             if (QueryInstance->IsFinished())
             {
@@ -358,7 +344,7 @@ void USelectionQueryManager::Tick(float DeltaTime)
             {
                 for (int32 Index = RunningQueries.Num() - 1, FinishedQueriesCounter = NumQueriesFinished; Index >= 0 && FinishedQueriesCounter > 0; --Index)
                 {
-                    TSharedPtr<FSelQueryInstance>& QueryInstance = RunningQueries[Index];
+                    TSharedPtr<FSelectionQueryInstance>& QueryInstance = RunningQueries[Index];
 
                     if (QueryInstance->IsFinished())
                     {
@@ -374,7 +360,7 @@ void USelectionQueryManager::Tick(float DeltaTime)
             {
                 for (int32 Index = 0; Index < NumQueriesFinished; ++Index)
                 {
-                    TSharedPtr<FSelQueryInstance>& QueryInstance = RunningQueries[Index];
+                    TSharedPtr<FSelectionQueryInstance>& QueryInstance = RunningQueries[Index];
                     ensure(QueryInstance->IsFinished());
 
                     FinishedQueriesTotalTime += FPlatformTime::Seconds() - QueryInstance->GetQueryStartTime();
@@ -418,7 +404,7 @@ void USelectionQueryManager::LogQueryCountWarning() const
 {
     UE_LOG(LogEQS, Warning, TEXT("The number of EQS queries has reached (%d) the warning threshold (%d).  Logging queries."), RunningQueries.Num(), QueryCountWarningThreshold);
 
-    for (const TSharedPtr<FSelQueryInstance>& RunningQuery : RunningQueries)
+    for (const TSharedPtr<FSelectionQueryInstance>& RunningQuery : RunningQueries)
     {
         if (RunningQuery.IsValid())
         {
@@ -437,12 +423,12 @@ void USelectionQueryManager::OnWorldCleanup()
     if (RunningQueries.Num() > 0)
     {
         // @todo investigate if this is even needed. We should be fine with just removing all queries
-        TArray<TSharedPtr<FSelQueryInstance> > RunningQueriesCopy = RunningQueries;
+        TArray<TSharedPtr<FSelectionQueryInstance> > RunningQueriesCopy = RunningQueries;
         RunningQueries.Reset();
 
         for (int32 Index = 0; Index < RunningQueriesCopy.Num(); Index++)
         {
-            TSharedPtr<FSelQueryInstance>& QueryInstance = RunningQueriesCopy[Index];
+            TSharedPtr<FSelectionQueryInstance>& QueryInstance = RunningQueriesCopy[Index];
             if (QueryInstance->IsFinished() == false)
             {
                 QueryInstance->MarkAsFailed();
@@ -454,7 +440,7 @@ void USelectionQueryManager::OnWorldCleanup()
     GCShieldedWrappers.Reset();
 }
 
-void USelectionQueryManager::RegisterExternalQuery(const TSharedPtr<FSelQueryInstance>& QueryInstance)
+void USelectionQueryManager::RegisterExternalQuery(const TSharedPtr<FSelectionQueryInstance>& QueryInstance)
 {
     if (QueryInstance.IsValid())
     {
@@ -462,7 +448,7 @@ void USelectionQueryManager::RegisterExternalQuery(const TSharedPtr<FSelQueryIns
     }
 }
 
-void USelectionQueryManager::UnregisterExternalQuery(const TSharedPtr<FSelQueryInstance>& QueryInstance)
+void USelectionQueryManager::UnregisterExternalQuery(const TSharedPtr<FSelectionQueryInstance>& QueryInstance)
 {
     if (QueryInstance.IsValid())
     {
@@ -558,7 +544,7 @@ USelectionQuery* USelectionQueryManager::FindQueryTemplate(const FString& QueryN
     return NULL;
 }
 
-TSharedPtr<FSelQueryInstance> USelectionQueryManager::CreateQueryInstance(const USelectionQuery* Template, ESQRunMode RunMode)
+TSharedPtr<FSelectionQueryInstance> USelectionQueryManager::CreateQueryInstance(const USelectionQuery* Template, ESQRunMode RunMode)
 {
     if (Template == nullptr || Template->Options.Num() == 0)
     {
@@ -567,7 +553,7 @@ TSharedPtr<FSelQueryInstance> USelectionQueryManager::CreateQueryInstance(const 
     }
 
     // try to find entry in cache
-    FSelQueryInstance* InstanceTemplate = NULL;
+    FSelectionQueryInstance* InstanceTemplate = NULL;
     for (int32 InstanceIndex = 0; InstanceIndex < InstanceCache.Num(); InstanceIndex++)
     {
         if (InstanceCache[InstanceIndex].Template->GetFName() == Template->GetFName() &&
@@ -588,7 +574,7 @@ TSharedPtr<FSelQueryInstance> USelectionQueryManager::CreateQueryInstance(const 
 
         {
             // memory stat tracking: temporary variable will exist only inside this section
-            FSelQueryInstanceCache NewCacheEntry;
+            FSelectionQueryInstanceCache NewCacheEntry;
             NewCacheEntry.Template = LocalTemplate;
             NewCacheEntry.Instance.UniqueName = LocalTemplate->GetFName();
             NewCacheEntry.Instance.QueryName = LocalTemplate->GetQueryName().ToString();
@@ -682,7 +668,7 @@ TSharedPtr<FSelQueryInstance> USelectionQueryManager::CreateQueryInstance(const 
     }
 
     // create new instance
-    TSharedPtr<FSelQueryInstance> NewInstance(new FSelQueryInstance(*InstanceTemplate));
+    TSharedPtr<FSelectionQueryInstance> NewInstance(new FSelectionQueryInstance(*InstanceTemplate));
     return NewInstance;
 }
 
@@ -710,10 +696,10 @@ float USelectionQueryManager::FindNamedParam(int32 QueryId, FName ParamName) con
 {
     float ParamValue = 0.0f;
 
-    const TWeakPtr<FSelQueryInstance>* QueryInstancePtr = ExternalQueries.Find(QueryId);
+    const TWeakPtr<FSelectionQueryInstance>* QueryInstancePtr = ExternalQueries.Find(QueryId);
     if (QueryInstancePtr)
     {
-        TSharedPtr<FSelQueryInstance> QueryInstance = (*QueryInstancePtr).Pin();
+        TSharedPtr<FSelectionQueryInstance> QueryInstance = (*QueryInstancePtr).Pin();
         if (QueryInstance.IsValid())
         {
             ParamValue = QueryInstance->NamedParams.FindRef(ParamName);
@@ -723,7 +709,7 @@ float USelectionQueryManager::FindNamedParam(int32 QueryId, FName ParamName) con
     {
         for (int32 QueryIndex = 0; QueryIndex < RunningQueries.Num(); QueryIndex++)
         {
-            const TSharedPtr<FSelQueryInstance>& QueryInstance = RunningQueries[QueryIndex];
+            const TSharedPtr<FSelectionQueryInstance>& QueryInstance = RunningQueries[QueryIndex];
             if (QueryInstance->QueryID == QueryId)
             {
                 ParamValue = QueryInstance->NamedParams.FindRef(ParamName);
@@ -792,7 +778,7 @@ void USelectionQueryManager::UnregisterActiveWrapper(USelectionQueryInstanceBlue
     GCShieldedWrappers.RemoveSingleSwap(&Wrapper, /*bAllowShrinking=*/false);
 }
 
-TSharedPtr<FSelQueryInstance> USelectionQueryManager::FindQueryInstance(const int32 QueryID)
+TSharedPtr<FSelectionQueryInstance> USelectionQueryManager::FindQueryInstance(const int32 QueryID)
 {
     if (QueryID != INDEX_NONE)
     {

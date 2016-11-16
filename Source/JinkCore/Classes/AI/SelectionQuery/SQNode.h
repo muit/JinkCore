@@ -21,12 +21,35 @@ class JINKCORE_API USQNode : public UObject
 	UPROPERTY()
 	int32 VerNum;
 
-	virtual void UpdateNodeVersion();
+	/** node name */
+	UPROPERTY(Category = Description, EditAnywhere)
+	FString NodeName;
 
-	virtual FText GetDescriptionTitle() const;
-	virtual FText GetDescriptionDetails() const;
+private:
+	/** parent node */
+	UPROPERTY()
+	UBTCompositeNode* ParentNode;
+
+	/** depth in tree */
+	uint8 GraphDepth;
+
+public:
+	/** @return string containing description of this node with all setup values */
+	virtual FString GetStaticDescription() const;
 
 #if WITH_EDITOR
+
 	virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
-#endif //WITH_EDITOR
+
+	/** Get the name of the icon used to display this node in the editor */
+	virtual FName GetNodeIconName() const;
+
+	/** Get whether this node is using a blueprint for its logic */
+	virtual bool UsesBlueprint() const;
+#endif
+
+	virtual void UpdateNodeVersion();
+
+	/** @return name of node */
+	FString GetNodeName() const;
 };
