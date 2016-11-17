@@ -149,21 +149,5 @@ namespace BlueprintNodeHelpers
 			}
 		}
 	}
-
-	//----------------------------------------------------------------------//
-	// DEPRECATED
-	//----------------------------------------------------------------------//
-	void AbortLatentActions(UActorComponent* OwnerOb, const UObject* Ob)
-	{
-		if (OwnerOb && Ob)
-		{
-			AbortLatentActions(OwnerOb, Ob);
-		}
-	}
-
-	bool HasBlueprintFunction(FName FuncName, const UObject* Object, const UClass* StopAtClass)
-	{
-		return Object && StopAtClass && HasBlueprintFunction(FuncName, *Object, *StopAtClass);
-	}
 }
 

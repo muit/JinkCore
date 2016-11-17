@@ -22,7 +22,7 @@ public:
 	UPROPERTY()
 	TSubclassOf<UObject> ItemValue;
 
-	virtual FString GetItem() const { TEXT("None"); }
+	virtual FString GetItem() const { return TEXT("None"); }
 
 	virtual void PostLoad() override;
 	void UpdateNodeVersion() override;

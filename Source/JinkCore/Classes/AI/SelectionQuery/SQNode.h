@@ -7,8 +7,6 @@
 #include "Tasks/AITask.h"
 #include "SQNode.generated.h"
 
-JINKCORE_API DECLARE_LOG_CATEGORY_EXTERN(LogSelectionQuery, Display, All);
-
 class USelectionQuery;
 class USQCompositeNode;
 

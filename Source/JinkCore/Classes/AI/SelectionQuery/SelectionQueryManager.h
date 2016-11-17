@@ -7,7 +7,6 @@ class UObject;
 class UWorld;
 class USelectionQuery;
 class USelectionQueryManager;
-class USQCompositeNode;
 class USQInstanceBlueprintWrapper;
 
 /** wrapper for easy query execution */
@@ -137,7 +136,7 @@ class JINKCORE_API USelectionQueryManager : public UObject, public FTickableGame
 	static USelectionQueryManager* GetCurrent(const UObject* WorldContextObject);
 
 	UFUNCTION(BlueprintCallable, Category = "AI|Selection Query", meta = (WorldContext = "WorldContext", AdvancedDisplay = "WrapperClass"))
-	static USQInstanceBlueprintWrapper* RunSelectionQuery(UObject* WorldContext, USelectionQuery* QueryTemplate, UObject* Querier, TEnumAsByte<ESQRunMode> RunMode, TSubclassOf<USQInstanceBlueprintWrapper> WrapperClass);
+	static USQInstanceBlueprintWrapper* RunQuery(UObject* WorldContext, USelectionQuery* QueryTemplate, UObject* Querier, TEnumAsByte<ESQRunMode> RunMode, TSubclassOf<USQInstanceBlueprintWrapper> WrapperClass);
 
 	void RegisterActiveWrapper(USQInstanceBlueprintWrapper& Wrapper);
 	void UnregisterActiveWrapper(USQInstanceBlueprintWrapper& Wrapper);
@@ -184,13 +183,9 @@ protected:
 	UPROPERTY(config)
 	double QueryCountWarningInterval;
 
-private:
-
-	/** create and bind delegates in instance */
-	void CreateOptionInstance(USelQueryOption* OptionTemplate, const TArray<UEnvQueryTest*>& SortedTests, FEnvQueryInstance& Instance);
-
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-	static bool bAllowEQSTimeSlicing;
+private:
+	static bool bAllowSQTimeSlicing;
 
 	mutable double LastQueryCountWarningThresholdTime;
 

@@ -12,7 +12,9 @@
 #include "ISettingsContainer.h"
 #endif //WITH_EDITOR
 
+//Declare Logs
 DECLARE_LOG_CATEGORY_EXTERN(JinkCore, All, All);
+JINKCORE_API DECLARE_LOG_CATEGORY_EXTERN(LogSelectionQuery, Display, All);
 
 class USelectionQueryManager;
 

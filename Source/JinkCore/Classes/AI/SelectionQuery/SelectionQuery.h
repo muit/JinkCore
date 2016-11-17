@@ -5,6 +5,8 @@
 #include "Engine/DataAsset.h"
 #include "SelectionQuery.generated.h"
 
+class USQCompositeNode;
+
 #if WITH_EDITORONLY_DATA
 class UEdGraph;
 #endif // WITH_EDITORONLY_DATA

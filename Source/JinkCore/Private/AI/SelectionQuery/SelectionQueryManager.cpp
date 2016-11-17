@@ -3,6 +3,7 @@
 #include "JinkCorePrivatePCH.h"
 #include "AI/SelectionQuery/SelectionQuery.h"
 #include "AI/SelectionQuery/SelectionQueryManager.h"
+#include "AI/SelectionQuery/SQInstanceBlueprintWrapper.h"
 #include "JinkGameMode.h"
 
 #if WITH_EDITOR
@@ -12,10 +13,6 @@
 
 extern UNREALED_API UEditorEngine* GEditor;
 #endif // WITH_EDITOR
-
-#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-bool USelectionQueryManager::bAllowSQTimeSlicing = true;
-#endif
 
 //////////////////////////////////////////////////////////////////////////
 // FSQRequest
@@ -27,7 +24,7 @@ int32 FSQRequest::Execute(ESQRunMode RunMode, FQueryFinishedSignature const& Fin
         Owner = FinishDelegate.GetUObject();
         if (Owner == NULL)
         {
-            UE_LOG(LogSelectionQuery, Warning, TEXT("Unknown owner of request: %s"), *GetNameSafe(QueryTemplate));
+            //UE_LOG(LogSelectionQuery, Warning, TEXT("Unknown owner of request: %s"), *GetNameSafe(QueryTemplate));
             return INDEX_NONE;
         }
     }
@@ -37,7 +34,7 @@ int32 FSQRequest::Execute(ESQRunMode RunMode, FQueryFinishedSignature const& Fin
         World = GEngine->GetWorldFromContextObject(Owner);
         if (World == NULL)
         {
-            UE_LOG(LogSelectionQuery, Warning, TEXT("Unable to access world with owner: %s"), *GetNameSafe(Owner));
+            //UE_LOG(LogSelectionQuery, Warning, TEXT("Unable to access world with owner: %s"), *GetNameSafe(Owner));
             return INDEX_NONE;
         }
     }
@@ -45,7 +42,7 @@ int32 FSQRequest::Execute(ESQRunMode RunMode, FQueryFinishedSignature const& Fin
     USelectionQueryManager* SelQueryManager = USelectionQueryManager::GetCurrent(World);
     if (SelQueryManager == NULL) 
     {
-        UE_LOG(LogSelectionQuery, Warning, TEXT("Missing Selection Query manager!"));
+        //UE_LOG(LogSelectionQuery, Warning, TEXT("Missing Selection Query manager!"));
         return INDEX_NONE;
     }
 
@@ -56,12 +53,9 @@ int32 FSQRequest::Execute(ESQRunMode RunMode, FQueryFinishedSignature const& Fin
 //////////////////////////////////////////////////////////////////////////
 // USelectionQueryManager
 
-TArray<TSubclassOf<USelectionQueryItemType> > USelectionQueryManager::RegisteredItemTypes;
-
 USelectionQueryManager::USelectionQueryManager(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
     NextQueryID = 0;
-    MaxAllowedTestingTime = 0.01;
     bTestQueriesUsingBreadth = true;
     NumRunningQueriesAbortedSinceLastUpdate = 0;
 
@@ -85,14 +79,17 @@ void USelectionQueryManager::FinishDestroy()
 
 USelectionQueryManager* USelectionQueryManager::GetCurrent(UWorld* World)
 {
-    AJinkGameMode* GM = Cast<AJinkGameMode(World->GetGameMode())
+    if (!World) {
+        return NULL;
+    }
+    AJinkGameMode* GM = Cast<AJinkGameMode>(World->GetAuthGameMode());
     return GM ? GM->GetSelectionQueryManager() : NULL;
 }
 
 USelectionQueryManager* USelectionQueryManager::GetCurrent(const UObject* WorldContextObject)
 {
     UWorld* World = GEngine->GetWorldFromContextObject(WorldContextObject, false);
-    return /*AISys ? AISys->GetSelectionQueryManager() : */NULL;
+    return GetCurrent(World);
 }
 
 TStatId USelectionQueryManager::GetStatId() const
@@ -148,12 +145,6 @@ void USelectionQueryManager::RunInstantQuery(const TSharedPtr<FSelectionQueryIns
     }
 
     UnregisterExternalQuery(QueryInstance);
-
-    UE_VLOG_EQS(*QueryInstance.Get(), LogEQS, All);
-
-#if USE_EQS_DEBUGGER
-    EQSDebugger.StoreQuery(GetWorld(), QueryInstance);
-#endif // USE_EQS_DEBUGGER
 }
 
 void USelectionQueryManager::RemoveAllQueriesByQuerier(const UObject& Querier, bool bExecuteFinishDelegate)
@@ -190,13 +181,6 @@ TSharedPtr<FSelectionQueryInstance> USelectionQueryManager::PrepareQueryInstance
     QueryInstance->World = Cast<UWorld>(GetOuter());
     QueryInstance->Owner = Request.Owner;
 
-    DEC_MEMORY_STAT_BY(STAT_AI_EQS_InstanceMemory, QueryInstance->NamedParams.GetAllocatedSize());
-
-    // @TODO: interface for providing default named params (like custom ranges in AI)
-    QueryInstance->NamedParams = Request.NamedParams;
-
-    INC_MEMORY_STAT_BY(STAT_AI_EQS_InstanceMemory, QueryInstance->NamedParams.GetAllocatedSize());
-
     QueryInstance->QueryID = NextQueryID++;
 
     return QueryInstance;
@@ -229,20 +213,13 @@ void USelectionQueryManager::Tick(float DeltaTime)
     CheckQueryCount();
 #endif
 
-    SCOPE_CYCLE_COUNTER(STAT_AI_EQS_Tick);
-    SET_DWORD_STAT(STAT_AI_EQS_NumInstances, RunningQueries.Num());
-
-    double TimeLeft = MaxAllowedTestingTime;
-
     int32 QueriesFinishedDuringUpdate = 0;
     const double ExecutionTimeWarningSeconds = 0.25;
 
     {
-        SCOPE_CYCLE_COUNTER(STAT_AI_EQS_TickWork);
-
         const int32 NumRunningQueries = RunningQueries.Num();
         int32 Index = 0;
-        while ((TimeLeft > 0.0) && (Index < NumRunningQueries) && (QueriesFinishedDuringUpdate < NumRunningQueries))
+        while (/*(TimeLeft > 0.0) && */(Index < NumRunningQueries) && (QueriesFinishedDuringUpdate < NumRunningQueries))
         {
             const double StartTime = FPlatformTime::Seconds();
             double QuerierHandlingDuration = 0.0;
@@ -257,7 +234,7 @@ void USelectionQueryManager::Tick(float DeltaTime)
             else
             {
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-                if (!bAllowEQSTimeSlicing)
+                if (!bAllowSQTimeSlicing)
                 {
                     // Passing in -1 causes QueryInstance to set its Deadline to -1, which in turn causes it to 
                     // never fail based on time input.  (In fact, it's odd that we use FLT_MAX in RunInstantQuery(),
@@ -275,20 +252,15 @@ void USelectionQueryManager::Tick(float DeltaTime)
                     // Always log that we executed total execution time at the end of the query.
                     if (QueryInstance->GetTotalExecutionTime() > ExecutionTimeWarningSeconds)
                     {
-                        UE_LOG(LogEQS, Warning, TEXT("Finished query %s over execution time warning. %s"), *QueryInstance->QueryName, *QueryInstance->GetExecutionTimeDescription());
+                        UE_LOG(LogSelectionQuery, Warning, TEXT("Finished query %s over execution time warning. %s"), *QueryInstance->QueryName, *QueryInstance->GetExecutionTimeDescription());
                     }
 
                     // Now, handle the response to the query finishing, but calculate the time from that to remove from
                     // the time spent for time-slicing purposes, because that's NOT the EQS manager doing work.
                     {
-                        SCOPE_CYCLE_COUNTER(STAT_AI_EQS_TickNotifies);
                         double QuerierHandlingStartTime = FPlatformTime::Seconds();
 
-                        UE_VLOG_EQS(*QueryInstance.Get(), LogEQS, All);
-
-#if USE_EQS_DEBUGGER
-                        EQSDebugger.StoreQuery(GetWorld(), QueryInstance);
-#endif // USE_EQS_DEBUGGER
+                        //UE_VLOG_SQ(*QueryInstance.Get(), LogSelectionQuery, All);
 
                         QueryInstance->FinishDelegate.ExecuteIfBound(QueryInstance);
 
@@ -307,7 +279,7 @@ void USelectionQueryManager::Tick(float DeltaTime)
 
                 if (!QueryInstance->HasLoggedTimeLimitWarning() && (QueryInstance->GetTotalExecutionTime() > ExecutionTimeWarningSeconds))
                 {
-                    UE_LOG(LogEQS, Warning, TEXT("Query %s over execution time warning. %s"), *QueryInstance->QueryName, *QueryInstance->GetExecutionTimeDescription());
+                    UE_LOG(LogSelectionQuery, Warning, TEXT("Query %s over execution time warning. %s"), *QueryInstance->QueryName, *QueryInstance->GetExecutionTimeDescription());
                     QueryInstance->SetHasLoggedTimeLimitWarning();
                 }
             }
@@ -319,7 +291,7 @@ void USelectionQueryManager::Tick(float DeltaTime)
             }
 
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-            if (bAllowEQSTimeSlicing) // if Time slicing is enabled...
+            if (bAllowSQTimeSlicing) // if Time slicing is enabled...
 #endif
             {	// Don't include the querier handling as part of the total time spent by EQS for time-slicing purposes.
                 TimeLeft -= ((FPlatformTime::Seconds() - StartTime) - QuerierHandlingDuration);
@@ -333,8 +305,6 @@ void USelectionQueryManager::Tick(float DeltaTime)
 
         if (NumQueriesFinished > 0)
         {
-            SCOPE_CYCLE_COUNTER(STAT_AI_EQS_TickQueryRemovals);
-
             // When using breadth testing we don't know when a particular query will finish,
             // or if we have queries that were aborted since the last update we don't know which ones were aborted,
             // so we have to go through all the queries.
@@ -379,8 +349,6 @@ void USelectionQueryManager::Tick(float DeltaTime)
             // Convert to ms from seconds
             InstanceAverageResponseTime = FinishedQueriesTotalTime / (double)NumQueriesFinished * 1000.0;
         }
-
-        SET_FLOAT_STAT(STAT_AI_EQS_AvgInstanceResponseTime, InstanceAverageResponseTime);
     }
 }
 
@@ -402,17 +370,17 @@ void USelectionQueryManager::CheckQueryCount() const
 
 void USelectionQueryManager::LogQueryCountWarning() const
 {
-    UE_LOG(LogEQS, Warning, TEXT("The number of EQS queries has reached (%d) the warning threshold (%d).  Logging queries."), RunningQueries.Num(), QueryCountWarningThreshold);
+    UE_LOG(LogSelectionQuery, Warning, TEXT("The number of selection queries has reached (%d) the warning threshold (%d).  Logging queries."), RunningQueries.Num(), QueryCountWarningThreshold);
 
     for (const TSharedPtr<FSelectionQueryInstance>& RunningQuery : RunningQueries)
     {
         if (RunningQuery.IsValid())
         {
-            UE_LOG(LogEQS, Warning, TEXT("Query: %s - Owner: %s"), *RunningQuery->QueryName, RunningQuery->Owner.IsValid() ? *RunningQuery->Owner->GetName() : TEXT("Invalid"));
+            UE_LOG(LogSelectionQuery, Warning, TEXT("Query: %s - Owner: %s"), *RunningQuery->QueryName, RunningQuery->Owner.IsValid() ? *RunningQuery->Owner->GetName() : TEXT("Invalid"));
         }
         else
         {
-            UE_LOG(LogEQS, Warning, TEXT("Invalid query found in list!"));
+            UE_LOG(LogSelectionQuery, Warning, TEXT("Invalid query found in list!"));
         }
     }
 }
@@ -456,71 +424,6 @@ void USelectionQueryManager::UnregisterExternalQuery(const TSharedPtr<FSelection
     }
 }
 
-namespace SelQueryTestSort
-{
-    struct FAllMatching
-    {
-        FORCEINLINE bool operator()(const USelectionQueryTest& TestA, const USelectionQueryTest& TestB) const
-        {
-            // cheaper tests go first
-            if (TestB.Cost > TestA.Cost)
-            {
-                return true;
-            }
-
-            // conditions go first
-            const bool bConditionA = (TestA.TestPurpose != ESelTestPurpose::Score); // Is Test A Filtering?
-            const bool bConditionB = (TestB.TestPurpose != ESelTestPurpose::Score); // Is Test B Filtering?
-            if (bConditionA && !bConditionB)
-            {
-                return true;
-            }
-
-            // keep connection order (sort stability)
-            return (TestB.TestOrder > TestA.TestOrder);
-        }
-    };
-
-    struct FSingleResult
-    {
-        FSingleResult(ESelTestCost::Type InHighestCost) : HighestCost(InHighestCost) {}
-
-        FORCEINLINE bool operator()(const USelectionQueryTest& TestA, const USelectionQueryTest& TestB) const
-        {
-            // cheaper tests go first
-            if (TestB.Cost > TestA.Cost)
-            {
-                return true;
-            }
-
-            const bool bConditionA = (TestA.TestPurpose != ESelTestPurpose::Score); // Is Test A Filtering?
-            const bool bConditionB = (TestB.TestPurpose != ESelTestPurpose::Score); // Is Test B Filtering?
-            if (TestA.Cost == HighestCost)
-            {
-                // highest cost: weights go first, conditions later (first match will return result)
-                if (!bConditionA && bConditionB)
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                // lower costs: conditions go first to reduce amount of items
-                if (bConditionA && !bConditionB)
-                {
-                    return true;
-                }
-            }
-
-            // keep connection order (sort stability)
-            return (TestB.TestOrder > TestA.TestOrder);
-        }
-
-    protected:
-        TEnumAsByte<ESelTestCost::Type> HighestCost;
-    };
-}
-
 USelectionQuery* USelectionQueryManager::FindQueryTemplate(const FString& QueryName) const
 {
     for (int32 InstanceIndex = 0; InstanceIndex < InstanceCache.Num(); InstanceIndex++)
@@ -546,9 +449,9 @@ USelectionQuery* USelectionQueryManager::FindQueryTemplate(const FString& QueryN
 
 TSharedPtr<FSelectionQueryInstance> USelectionQueryManager::CreateQueryInstance(const USelectionQuery* Template, ESQRunMode RunMode)
 {
-    if (Template == nullptr || Template->Options.Num() == 0)
+    if (Template == nullptr)
     {
-        UE_CLOG(Template != nullptr && Template->Options.Num() == 0, LogEQS, Warning, TEXT("Query [%s] doesn't have any valid options!"), *Template->GetName());
+        UE_LOG(LogSelectionQuery, Warning, TEXT("Query [%s] doesn't have a valid template!"), *Template->GetName());
         return nullptr;
     }
 
@@ -567,14 +470,12 @@ TSharedPtr<FSelectionQueryInstance> USelectionQueryManager::CreateQueryInstance(
     // and create one if can't be found
     if (InstanceTemplate == NULL)
     {
-        SCOPE_CYCLE_COUNTER(STAT_AI_EQS_LoadTime);
-
         // duplicate template in manager's world for BP based nodes
         USelectionQuery* LocalTemplate = (USelectionQuery*)StaticDuplicateObject(Template, this, TEXT("None"));
 
         {
             // memory stat tracking: temporary variable will exist only inside this section
-            FSelectionQueryInstanceCache NewCacheEntry;
+            FSQInstanceCache NewCacheEntry;
             NewCacheEntry.Template = LocalTemplate;
             NewCacheEntry.Instance.UniqueName = LocalTemplate->GetFName();
             NewCacheEntry.Instance.QueryName = LocalTemplate->GetQueryName().ToString();
@@ -583,88 +484,6 @@ TSharedPtr<FSelectionQueryInstance> USelectionQueryManager::CreateQueryInstance(
             const int32 Idx = InstanceCache.Add(NewCacheEntry);
             InstanceTemplate = &InstanceCache[Idx].Instance;
         }
-
-        // NOTE: We must iterate over this from 0->Num because we are copying the options from the template into the
-        // instance, and order matters!  Since we also may need to remove invalid or null options, we must decrement
-        // the iteration pointer when doing so to avoid problems.
-        for (int32 OptionIndex = 0; OptionIndex < LocalTemplate->Options.Num(); ++OptionIndex)
-        {
-            USelectionQueryOption* MyOption = LocalTemplate->Options[OptionIndex];
-            if (MyOption == nullptr ||
-                MyOption->Generator == nullptr ||
-                MyOption->Generator->ItemType == nullptr)
-            {
-                UE_LOG(LogEQS, Error, TEXT("Trying to spawn a query with broken Template (generator:%s itemType:%s): %s, option %d"),
-                    MyOption ? (MyOption->Generator ? TEXT("ok") : TEXT("MISSING")) : TEXT("N/A"),
-                    (MyOption && MyOption->Generator) ? (MyOption->Generator->ItemType ? TEXT("ok") : TEXT("MISSING")) : TEXT("N/A"),
-                    *GetNameSafe(LocalTemplate), OptionIndex);
-
-                LocalTemplate->Options.RemoveAt(OptionIndex, 1, false);
-                --OptionIndex; // See note at top of for loop.  We cannot iterate backwards here.
-                continue;
-            }
-
-            USelectionQueryOption* LocalOption = (USelectionQueryOption*)StaticDuplicateObject(MyOption, this);
-            USelectionQueryGenerator* LocalGenerator = (USelectionQueryGenerator*)StaticDuplicateObject(MyOption->Generator, this);
-            LocalTemplate->Options[OptionIndex] = LocalOption;
-            LocalOption->Generator = LocalGenerator;
-
-            ESelTestCost::Type HighestCost(ESelTestCost::Low);
-            TArray<USelectionQueryTest*> SortedTests = MyOption->Tests;
-            TSubclassOf<USelectionQueryItemType> GeneratedType = MyOption->Generator->ItemType;
-            for (int32 TestIndex = SortedTests.Num() - 1; TestIndex >= 0; TestIndex--)
-            {
-                USelectionQueryTest* TestOb = SortedTests[TestIndex];
-                if (TestOb == NULL || !TestOb->IsSupportedItem(GeneratedType))
-                {
-                    UE_LOG(LogEQS, Warning, TEXT("Query [%s] can't use test [%s] in option %d [%s], removing it"),
-                        *GetNameSafe(LocalTemplate), *GetNameSafe(TestOb), OptionIndex, *MyOption->Generator->OptionName);
-
-                    SortedTests.RemoveAt(TestIndex, 1, false);
-                }
-                else if (HighestCost < TestOb->Cost)
-                {
-                    HighestCost = TestOb->Cost;
-                }
-            }
-
-            LocalOption->Tests.Reset(SortedTests.Num());
-            for (int32 TestIdx = 0; TestIdx < SortedTests.Num(); TestIdx++)
-            {
-                USelectionQueryTest* LocalTest = (USelectionQueryTest*)StaticDuplicateObject(SortedTests[TestIdx], this);
-                LocalOption->Tests.Add(LocalTest);
-            }
-
-            // use locally referenced duplicates
-            SortedTests = LocalOption->Tests;
-
-            if (SortedTests.Num() && LocalGenerator->bAutoSortTests)
-            {
-                switch (RunMode)
-                {
-                case ESQRunMode::SingleResult:
-                    SortedTests.Sort(SelQueryTestSort::FSingleResult(HighestCost));
-                    break;
-                case ESQRunMode::AllMatching:
-                    SortedTests.Sort(SelQueryTestSort::FAllMatching());
-                    break;
-
-                default:
-                {
-                    UEnum* RunModeEnum = FindObject<UEnum>(ANY_PACKAGE, TEXT("ESQRunMode"));
-                    UE_LOG(LogSelectionQuery, Warning, TEXT("Query [%s] can't be sorted for RunMode: %d [%s]"),
-                        *GetNameSafe(LocalTemplate), (int32)RunMode, RunModeEnum ? *RunModeEnum->GetEnumName(RunMode) : TEXT("??"));
-                }
-                }
-            }
-
-            CreateOptionInstance(LocalOption, SortedTests, *InstanceTemplate);
-        }
-    }
-
-    if (InstanceTemplate->Options.Num() == 0)
-    {
-        return nullptr;
     }
 
     // create new instance
@@ -672,74 +491,25 @@ TSharedPtr<FSelectionQueryInstance> USelectionQueryManager::CreateQueryInstance(
     return NewInstance;
 }
 
-void USelectionQueryManager::CreateOptionInstance(USelectionQueryOption* OptionTemplate, const TArray<USelectionQueryTest*>& SortedTests, FSelectionQueryInstance& Instance)
-{
-    FSelQueryOptionInstance OptionInstance;
-    OptionInstance.Generator = OptionTemplate->Generator;
-    OptionInstance.ItemType = OptionTemplate->Generator->ItemType;
-
-    OptionInstance.Tests.AddZeroed(SortedTests.Num());
-    for (int32 TestIndex = 0; TestIndex < SortedTests.Num(); TestIndex++)
-    {
-        USelectionQueryTest* TestOb = SortedTests[TestIndex];
-        OptionInstance.Tests[TestIndex] = TestOb;
-    }
-
-    DEC_MEMORY_STAT_BY(STAT_AI_EQS_InstanceMemory, Instance.Options.GetAllocatedSize());
-
-    const int32 AddedIdx = Instance.Options.Add(OptionInstance);
-
-    INC_MEMORY_STAT_BY(STAT_AI_EQS_InstanceMemory, Instance.Options.GetAllocatedSize() + Instance.Options[AddedIdx].GetAllocatedSize());
-}
-
-float USelectionQueryManager::FindNamedParam(int32 QueryId, FName ParamName) const
-{
-    float ParamValue = 0.0f;
-
-    const TWeakPtr<FSelectionQueryInstance>* QueryInstancePtr = ExternalQueries.Find(QueryId);
-    if (QueryInstancePtr)
-    {
-        TSharedPtr<FSelectionQueryInstance> QueryInstance = (*QueryInstancePtr).Pin();
-        if (QueryInstance.IsValid())
-        {
-            ParamValue = QueryInstance->NamedParams.FindRef(ParamName);
-        }
-    }
-    else
-    {
-        for (int32 QueryIndex = 0; QueryIndex < RunningQueries.Num(); QueryIndex++)
-        {
-            const TSharedPtr<FSelectionQueryInstance>& QueryInstance = RunningQueries[QueryIndex];
-            if (QueryInstance->QueryID == QueryId)
-            {
-                ParamValue = QueryInstance->NamedParams.FindRef(ParamName);
-                break;
-            }
-        }
-    }
-
-    return ParamValue;
-}
-
 //----------------------------------------------------------------------//
 // BP functions and related functionality 
 //----------------------------------------------------------------------//
-USelectionQueryInstanceBlueprintWrapper* USelectionQueryManager::RunEQSQuery(UObject* WorldContext, USelectionQuery* QueryTemplate, UObject* Querier, TEnumAsByte<ESQRunMode::Type> RunMode, TSubclassOf<USelectionQueryInstanceBlueprintWrapper> WrapperClass)
+USQInstanceBlueprintWrapper* USelectionQueryManager::RunQuery(UObject* WorldContext, USelectionQuery* QueryTemplate, UObject* Querier, TEnumAsByte<ESQRunMode> RunMode, TSubclassOf<USQInstanceBlueprintWrapper> WrapperClass)
 {
     if (QueryTemplate == nullptr || Querier == nullptr)
     {
         return nullptr;
     }
 
-    USelectionQueryManager* EQSManager = GetCurrent(WorldContext);
-    USelectionQueryInstanceBlueprintWrapper* QueryInstanceWrapper = nullptr;
+    USelectionQueryManager* SQManager = GetCurrent(WorldContext);
+    USQInstanceBlueprintWrapper* QueryInstanceWrapper = nullptr;
 
-    if (EQSManager)
+    if (SQManager)
     {
         bool bValidQuerier = true;
 
         // convert controller-owners to pawns, unless specifically configured not to do so
-        if (GET_AI_CONFIG_VAR(bAllowControllersAsEQSQuerier) == false && Cast<AController>(Querier))
+        if (Cast<AController>(Querier))
         {
             AController* Controller = Cast<AController>(Querier);
             if (Controller->GetPawn())
@@ -748,14 +518,14 @@ USelectionQueryInstanceBlueprintWrapper* USelectionQueryManager::RunEQSQuery(UOb
             }
             else
             {
-                UE_VLOG(Controller, LogEQS, Error, TEXT("Trying to run EQS query while not having a pawn! Aborting."));
+                //UE_VLOG(Controller, LogSelectionQuery, Error, TEXT("Trying to run EQS query while not having a pawn! Aborting."));
                 bValidQuerier = false;
             }
         }
 
         if (bValidQuerier)
         {
-            QueryInstanceWrapper = NewObject<USelectionQueryInstanceBlueprintWrapper>(EQSManager, (UClass*)(WrapperClass) ? (UClass*)WrapperClass : USelectionQueryInstanceBlueprintWrapper::StaticClass());
+            QueryInstanceWrapper = NewObject<USQInstanceBlueprintWrapper>(SQManager, (UClass*)(WrapperClass) ? (UClass*)WrapperClass : USQInstanceBlueprintWrapper::StaticClass());
             check(QueryInstanceWrapper);
 
             FSQRequest QueryRequest(QueryTemplate, Querier);
@@ -768,12 +538,12 @@ USelectionQueryInstanceBlueprintWrapper* USelectionQueryManager::RunEQSQuery(UOb
     return QueryInstanceWrapper;
 }
 
-void USelectionQueryManager::RegisterActiveWrapper(USelectionQueryInstanceBlueprintWrapper& Wrapper)
+void USelectionQueryManager::RegisterActiveWrapper(USQInstanceBlueprintWrapper& Wrapper)
 {
     GCShieldedWrappers.AddUnique(&Wrapper);
 }
 
-void USelectionQueryManager::UnregisterActiveWrapper(USelectionQueryInstanceBlueprintWrapper& Wrapper)
+void USelectionQueryManager::UnregisterActiveWrapper(USQInstanceBlueprintWrapper& Wrapper)
 {
     GCShieldedWrappers.RemoveSingleSwap(&Wrapper, /*bAllowShrinking=*/false);
 }
@@ -801,11 +571,11 @@ TSharedPtr<FSelectionQueryInstance> USelectionQueryManager::FindQueryInstance(co
 void USelectionQueryManager::SetAllowTimeSlicing(bool bAllowTimeSlicing)
 {
 #if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-    bAllowEQSTimeSlicing = bAllowTimeSlicing;
+    bAllowSQTimeSlicing = bAllowTimeSlicing;
 
-    UE_LOG(LogEQS, Log, TEXT("Set allow time slicing to %s."),
-        bAllowEQSTimeSlicing ? TEXT("true") : TEXT("false"));
+    UE_LOG(LogSelectionQuery, Log, TEXT("Set allow time slicing to %s."),
+        bAllowSQTimeSlicing ? TEXT("true") : TEXT("false"));
 #else
-    UE_LOG(LogEQS, Log, TEXT("Time slicing cannot be disabled in Test or Shipping builds.  SetAllowTimeSlicing does nothing."));
+    UE_LOG(LogSelectionQuery, Log, TEXT("Time slicing cannot be disabled in Test or Shipping builds.  SetAllowTimeSlicing does nothing."));
 #endif
 }

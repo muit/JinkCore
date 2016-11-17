@@ -7,12 +7,9 @@
 #include "SelectionQueryTypes.generated.h"
 
 class AActor;
-class ARecastNavMesh;
 class UNavigationQueryFilter;
 class USelectionQuery;
 struct FSelectionQueryInstance;
-struct FSQOptionInstance;
-struct FSQItemDetails;
 
 UENUM()
 enum class ESQStatus : uint8
@@ -94,6 +91,8 @@ public:
 	/** special test value assigned to items skipped by condition check */
 	static float SkippedItemValue;
 
+    static FString DescribeNodeHelper(const USQNode* Node);
+
 	static FText GetShortTypeName(const UObject* Ob);
 };
 
@@ -113,28 +112,6 @@ struct JINKCORE_API FSelectionQueryInstance : public FSQResult
 
     /** observer's delegate */
     FQueryFinishedSignature FinishDelegate;
-
-    /** list of options */
-    TArray<FSQOptionInstance> Options;
-
-    /** currently processed test (-1 = generator) */
-    int32 CurrentTest;
-
-    /** non-zero if test run last step has been stopped mid-process. This indicates
-    *	index of the first item that needs processing when resumed */
-    int32 CurrentTestStartingItem;
-
-    /** list of item details */
-    TArray<FSQItemDetails> ItemDetails;
-
-    /** number of valid items on list */
-    int32 NumValidItems;
-
-    /** size of current value */
-    uint16 ValueSize;
-
-    /** used to breaking from item iterator loops */
-    uint8 bFoundSingleResult : 1;
 
 private:
     /** set when testing final condition of an option */
@@ -198,15 +175,11 @@ public:
     template<typename TypeItem, typename TypeValue>
     void AddItemData(TypeValue ItemValue)
     {
-        DEC_MEMORY_STAT_BY(STAT_AI_EQS_InstanceMemory, RawData.GetAllocatedSize() + Items.GetAllocatedSize());
-
         check(GetDefault<TypeItem>()->GetValueSize() == sizeof(TypeValue));
         check(GetDefault<TypeItem>()->GetValueSize() == ValueSize);
         const int32 DataOffset = RawData.AddUninitialized(ValueSize);
         TypeItem::SetValue(RawData.GetData() + DataOffset, ItemValue);
         Items.Add(FSQItem(DataOffset));
-
-        INC_MEMORY_STAT_BY(STAT_AI_EQS_InstanceMemory, RawData.GetAllocatedSize() + Items.GetAllocatedSize());
     }
 
     /** AddItemData specialization for arrays if values */
@@ -215,8 +188,6 @@ public:
     {
         if (ItemCollection.Num() > 0)
         {
-            DEC_MEMORY_STAT_BY(STAT_AI_EQS_InstanceMemory, RawData.GetAllocatedSize() + Items.GetAllocatedSize());
-
             check(GetDefault<TypeItem>()->GetValueSize() == sizeof(TypeValue));
             check(GetDefault<TypeItem>()->GetValueSize() == ValueSize);
             int32 DataOffset = RawData.AddUninitialized(ValueSize * ItemCollection.Num());
@@ -228,8 +199,6 @@ public:
                 Items.Add(FSQItem(DataOffset));
                 DataOffset += ValueSize;
             }
-
-            INC_MEMORY_STAT_BY(STAT_AI_EQS_InstanceMemory, RawData.GetAllocatedSize() + Items.GetAllocatedSize());
         }
     }
 

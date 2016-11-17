@@ -1,46 +1,25 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
-#include "AI/SelectionQuery/Blackboard/BlackboardKeyAllTypes.h"
-#include "AI/SelectionQuery/BTCompositeNode.h"
+#include "AI/SelectionQuery/SQCompositeNode.h"
 #include "AI/SelectionQuery/SelectionQueryTypes.h"
-#include "AI/SelectionQuery/BTDecorator.h"
 
 //----------------------------------------------------------------------//
 // FSelectionQueryInstance
 //----------------------------------------------------------------------//
-void FSelectionQueryInstance::Initialize(USelectionQueryComponent& OwnerComp, UBTCompositeNode& Node, int32& InstancedIndex, EBTMemoryInit::Type InitType)
+void FSelectionQueryInstance::Initialize(USelectionQueryComponent& OwnerComp, UBTCompositeNode& Node, int32& InstancedIndex)
 {
-	for (int32 ServiceIndex = 0; ServiceIndex < Node.Services.Num(); ServiceIndex++)
-	{
-		Node.Services[ServiceIndex]->InitializeInSubtree(OwnerComp, Node.Services[ServiceIndex]->GetNodeMemory<uint8>(*this), InstancedIndex, InitType);
-	}
+	Node.InitializeInSubtree(OwnerComp, InstancedIndex, InitType);
 
-	uint8* NodeMemory = Node.GetNodeMemory<uint8>(*this);
-	Node.InitializeInSubtree(OwnerComp, NodeMemory, InstancedIndex, InitType);
-
-	UBTCompositeNode* InstancedComposite = Cast<UBTCompositeNode>(Node.GetNodeInstance(OwnerComp, NodeMemory));
+	USQCompositeNode* InstancedComposite = Cast<USQCompositeNode>(Node.GetNodeInstance(OwnerComp, NodeMemory));
 	if (InstancedComposite)
 	{
-		InstancedComposite->InitializeComposite(Node.GetLastExecutionIndex());
+		InstancedComposite->InitializeComposite();
 	}
 
 	for (int32 ChildIndex = 0; ChildIndex < Node.Children.Num(); ChildIndex++)
 	{
 		FBTCompositeChild& ChildInfo = Node.Children[ChildIndex];
-
-		for (int32 DecoratorIndex = 0; DecoratorIndex < ChildInfo.Decorators.Num(); DecoratorIndex++)
-		{
-			UBTDecorator* DecoratorOb = ChildInfo.Decorators[DecoratorIndex];
-			uint8* DecoratorMemory = DecoratorOb->GetNodeMemory<uint8>(*this);
-			DecoratorOb->InitializeInSubtree(OwnerComp, DecoratorMemory, InstancedIndex, InitType);
-
-			UBTDecorator* InstancedDecoratorOb = Cast<UBTDecorator>(DecoratorOb->GetNodeInstance(OwnerComp, DecoratorMemory));
-			if (InstancedDecoratorOb)
-			{
-				InstancedDecoratorOb->InitializeParentLink(DecoratorOb->GetChildIndex());
-			}
-		}
 
 		if (ChildInfo.ChildComposite)
 		{
@@ -48,20 +27,7 @@ void FSelectionQueryInstance::Initialize(USelectionQueryComponent& OwnerComp, UB
 		}
 		else if (ChildInfo.ChildTask)
 		{
-			for (int32 ServiceIndex = 0; ServiceIndex < ChildInfo.ChildTask->Services.Num(); ServiceIndex++)
-			{
-				UBTService* ServiceOb = ChildInfo.ChildTask->Services[ServiceIndex];
-				uint8* ServiceMemory = ServiceOb->GetNodeMemory<uint8>(*this);
-				ServiceOb->InitializeInSubtree(OwnerComp, ServiceMemory, InstancedIndex, InitType);
-
-				UBTService* InstancedServiceOb = Cast<UBTService>(ServiceOb->GetNodeInstance(OwnerComp, ServiceMemory));
-				if (InstancedServiceOb)
-				{
-					InstancedServiceOb->InitializeParentLink(ServiceOb->GetChildIndex());
-				}
-			}
-
-			ChildInfo.ChildTask->InitializeInSubtree(OwnerComp, ChildInfo.ChildTask->GetNodeMemory<uint8>(*this), InstancedIndex, InitType);
+			ChildInfo.ChildTask->InitializeInSubtree(OwnerComp, InstancedIndex, InitType);
 		}
 	}
 }
@@ -206,242 +172,6 @@ bool FBTNodeIndex::TakesPriorityOver(const FBTNodeIndex& Other) const
 	return ExecutionIndex < Other.ExecutionIndex;
 }
 
-//----------------------------------------------------------------------//
-// FSelectionQuerySearchData
-//----------------------------------------------------------------------//
-
-int32 FSelectionQuerySearchData::NextSearchId = 1;
-
-void FSelectionQuerySearchData::AddUniqueUpdate(const FSelectionQuerySearchUpdate& UpdateInfo)
-{
-	UE_VLOG(OwnerComp.GetOwner(), LogSelectionQuery, Verbose, TEXT("Search node update[%s]: %s"),
-		*USelectionQueryTypes::DescribeNodeUpdateMode(UpdateInfo.Mode),
-		*USelectionQueryTypes::DescribeNodeHelper(UpdateInfo.AuxNode ? (UBTNode*)UpdateInfo.AuxNode : (UBTNode*)UpdateInfo.TaskNode));
-
-	bool bSkipAdding = false;
-	for (int32 UpdateIndex = 0; UpdateIndex < PendingUpdates.Num(); UpdateIndex++)
-	{
-		const FSelectionQuerySearchUpdate& Info = PendingUpdates[UpdateIndex];
-		if (Info.AuxNode == UpdateInfo.AuxNode && Info.TaskNode == UpdateInfo.TaskNode)
-		{
-			// duplicate, skip
-			if (Info.Mode == UpdateInfo.Mode)
-			{
-				bSkipAdding = true;
-				break;
-			}
-
-			// don't add pairs add-remove
-			bSkipAdding = (Info.Mode == EBTNodeUpdateMode::Remove) || (UpdateInfo.Mode == EBTNodeUpdateMode::Remove);
-
-			PendingUpdates.RemoveAt(UpdateIndex, 1, false);
-		}
-	}
-	
-	// don't add Remove updates for inactive aux nodes, as they will block valid Add update coming later from the same search
-	// check only aux nodes, it happens due to UBTCompositeNode::NotifyDecoratorsOnActivation
-	if (!bSkipAdding && UpdateInfo.Mode == EBTNodeUpdateMode::Remove && UpdateInfo.AuxNode)
-	{
-		const bool bIsActive = OwnerComp.IsAuxNodeActive(UpdateInfo.AuxNode, UpdateInfo.InstanceIndex);
-		bSkipAdding = !bIsActive;
-	}
-
-	if (!bSkipAdding)
-	{
-		const int32 Idx = PendingUpdates.Add(UpdateInfo);
-		PendingUpdates[Idx].bPostUpdate = (UpdateInfo.Mode == EBTNodeUpdateMode::Add) && (Cast<UBTService>(UpdateInfo.AuxNode) != NULL);
-	}
-	else
-	{
-		UE_VLOG(OwnerComp.GetOwner(), LogSelectionQuery, Verbose, TEXT(">> or not, update skipped"));
-	}
-}
-
-void FSelectionQuerySearchData::AssignSearchId()
-{
-	SearchId = NextSearchId;
-	NextSearchId++;
-}
-
-//----------------------------------------------------------------------//
-// FBlackboardKeySelector
-//----------------------------------------------------------------------//
-void FBlackboardKeySelector::ResolveSelectedKey(const UBlackboardData& BlackboardAsset)
-{
-	if (SelectedKeyName.IsNone() == false || !bNoneIsAllowedValue)
-	{
-		if (SelectedKeyName.IsNone() && !bNoneIsAllowedValue)
-		{
-			InitSelection(BlackboardAsset);
-		}
-
-		SelectedKeyID = BlackboardAsset.GetKeyID(SelectedKeyName);
-		SelectedKeyType = BlackboardAsset.GetKeyType(SelectedKeyID);
-	}
-}
-
-void FBlackboardKeySelector::InitSelection(const UBlackboardData& BlackboardAsset)
-{
-	for (const UBlackboardData* It = &BlackboardAsset; It; It = It->Parent)
-	{
-		for (int32 KeyIndex = 0; KeyIndex < It->Keys.Num(); KeyIndex++)
-		{
-			const FBlackboardEntry& EntryInfo = It->Keys[KeyIndex];
-			if (EntryInfo.KeyType)
-			{
-				bool bFilterPassed = false;
-				if (AllowedTypes.Num())
-				{
-					for (int32 FilterIndex = 0; FilterIndex < AllowedTypes.Num(); FilterIndex++)
-					{
-						if (EntryInfo.KeyType->IsAllowedByFilter(AllowedTypes[FilterIndex]))
-						{
-							bFilterPassed = true;
-							break;
-						}
-					}
-				}
-				else
-				{
-					bFilterPassed = true;
-				}
-
-				SelectedKeyName = EntryInfo.EntryName;
-				break;
-			}
-		}
-	}
-}
-
-void FBlackboardKeySelector::AddObjectFilter(UObject* Owner, TSubclassOf<UObject> AllowedClass)
-{
-	AddObjectFilter(Owner, TEXT("BlackboardKeyType"), AllowedClass);
-}
-
-void FBlackboardKeySelector::AddClassFilter(UObject* Owner, TSubclassOf<UClass> AllowedClass)
-{
-	AddClassFilter(Owner, TEXT("BlackboardKeyType"), AllowedClass);
-}
-
-void FBlackboardKeySelector::AddEnumFilter(UObject* Owner, UEnum* AllowedEnum)
-{
-	AddEnumFilter(Owner, TEXT("BlackboardKeyType"), AllowedEnum);
-}
-
-void FBlackboardKeySelector::AddNativeEnumFilter(UObject* Owner, const FString& AllowedEnumName)
-{
-	AddNativeEnumFilter(Owner, TEXT("BlackboardKeyType"), AllowedEnumName);
-}
-
-void FBlackboardKeySelector::AddIntFilter(UObject* Owner)
-{
-	AddIntFilter(Owner, TEXT("BlackboardKeyType"));
-}
-
-void FBlackboardKeySelector::AddFloatFilter(UObject* Owner)
-{
-	AddFloatFilter(Owner, TEXT("BlackboardKeyType"));
-}
-
-void FBlackboardKeySelector::AddBoolFilter(UObject* Owner)
-{
-	AddBoolFilter(Owner, TEXT("BlackboardKeyType"));
-}
-
-void FBlackboardKeySelector::AddVectorFilter(UObject* Owner)
-{
-	AddVectorFilter(Owner, TEXT("BlackboardKeyType"));
-}
-
-void FBlackboardKeySelector::AddRotatorFilter(UObject* Owner)
-{
-	AddRotatorFilter(Owner, TEXT("BlackboardKeyType"));
-}
-
-void FBlackboardKeySelector::AddStringFilter(UObject* Owner)
-{
-	AddStringFilter(Owner, TEXT("BlackboardKeyType"));
-}
-
-void FBlackboardKeySelector::AddNameFilter(UObject* Owner)
-{
-	AddNameFilter(Owner, TEXT("BlackboardKeyType"));
-}
-
-void FBlackboardKeySelector::AddObjectFilter(UObject* Owner, FName PropertyName, TSubclassOf<UObject> AllowedClass)
-{
-	static int32 FilterCounter = 0;
-	const FString FilterName = FString::Printf(TEXT("%s_Object_%d"), *PropertyName.ToString(), ++FilterCounter);
-	UBlackboardKeyType_Object* FilterOb = NewObject<UBlackboardKeyType_Object>(Owner, *FilterName);
-	FilterOb->BaseClass = AllowedClass;
-	AllowedTypes.Add(FilterOb);
-}
-
-void FBlackboardKeySelector::AddClassFilter(UObject* Owner, FName PropertyName, TSubclassOf<UClass> AllowedClass)
-{
-	const FString FilterName = PropertyName.ToString() + TEXT("_Class");
-	UBlackboardKeyType_Class* FilterOb = NewObject<UBlackboardKeyType_Class>(Owner, *FilterName);
-	FilterOb->BaseClass = AllowedClass;
-	AllowedTypes.Add(FilterOb);
-}
-
-void FBlackboardKeySelector::AddEnumFilter(UObject* Owner, FName PropertyName, UEnum* AllowedEnum)
-{
-	const FString FilterName = PropertyName.ToString() + TEXT("_Enum");
-	UBlackboardKeyType_Enum* FilterOb = NewObject<UBlackboardKeyType_Enum>(Owner, *FilterName);
-	FilterOb->EnumType = AllowedEnum;
-	AllowedTypes.Add(FilterOb);
-}
-
-void FBlackboardKeySelector::AddNativeEnumFilter(UObject* Owner, FName PropertyName, const FString& AllowedEnumName)
-{
-	const FString FilterName = PropertyName.ToString() + TEXT("_NativeEnum");
-	UBlackboardKeyType_NativeEnum* FilterOb = NewObject<UBlackboardKeyType_NativeEnum>(Owner, *FilterName);
-	FilterOb->EnumName = AllowedEnumName;
-	AllowedTypes.Add(FilterOb);
-}
-
-void FBlackboardKeySelector::AddIntFilter(UObject* Owner, FName PropertyName)
-{
-	const FString FilterName = PropertyName.ToString() + TEXT("_Int");
-	AllowedTypes.Add(NewObject<UBlackboardKeyType_Int>(Owner, *FilterName));
-}
-
-void FBlackboardKeySelector::AddFloatFilter(UObject* Owner, FName PropertyName)
-{
-	const FString FilterName = PropertyName.ToString() + TEXT("_Float");
-	AllowedTypes.Add(NewObject<UBlackboardKeyType_Float>(Owner, *FilterName));
-}
-
-void FBlackboardKeySelector::AddBoolFilter(UObject* Owner, FName PropertyName)
-{
-	const FString FilterName = PropertyName.ToString() + TEXT("_Bool");
-	AllowedTypes.Add(NewObject<UBlackboardKeyType_Bool>(Owner, *FilterName));
-}
-
-void FBlackboardKeySelector::AddVectorFilter(UObject* Owner, FName PropertyName)
-{
-	const FString FilterName = PropertyName.ToString() + TEXT("_Vector");
-	AllowedTypes.Add(NewObject<UBlackboardKeyType_Vector>(Owner, *FilterName));
-}
-
-void FBlackboardKeySelector::AddRotatorFilter(UObject* Owner, FName PropertyName)
-{
-	const FString FilterName = PropertyName.ToString() + TEXT("_Rotator");
-	AllowedTypes.Add(NewObject<UBlackboardKeyType_Rotator>(Owner, *FilterName));
-}
-
-void FBlackboardKeySelector::AddStringFilter(UObject* Owner, FName PropertyName)
-{
-	const FString FilterName = PropertyName.ToString() + TEXT("_String");
-	AllowedTypes.Add(NewObject<UBlackboardKeyType_String>(Owner, *FilterName));
-}
-
-void FBlackboardKeySelector::AddNameFilter(UObject* Owner, FName PropertyName)
-{
-	const FString FilterName = PropertyName.ToString() + TEXT("_Name");
-	AllowedTypes.Add(NewObject<UBlackboardKeyType_Name>(Owner, *FilterName));
-}
 
 //----------------------------------------------------------------------//
 // USelectionQueryTypes
@@ -450,39 +180,9 @@ USelectionQueryTypes::USelectionQueryTypes(const FObjectInitializer& ObjectIniti
 {
 }
 
-FString USelectionQueryTypes::DescribeNodeResult(EBTNodeResult::Type NodeResult)
+FString USelectionQueryTypes::DescribeNodeHelper(const USQNode* Node)
 {
-	static FString ResultDesc[] = { TEXT("Succeeded"), TEXT("Failed"), TEXT("Aborted"), TEXT("InProgress") };
-	return (NodeResult < ARRAY_COUNT(ResultDesc)) ? ResultDesc[NodeResult] : FString();
-}
-
-FString USelectionQueryTypes::DescribeFlowAbortMode(EBTFlowAbortMode::Type AbortMode)
-{
-	static FString AbortModeDesc[] = { TEXT("None"), TEXT("Lower Priority"), TEXT("Self"), TEXT("Both") };
-	return (AbortMode < ARRAY_COUNT(AbortModeDesc)) ? AbortModeDesc[AbortMode] : FString();
-}
-
-FString USelectionQueryTypes::DescribeActiveNode(EBTActiveNode::Type ActiveNodeType)
-{
-	static FString ActiveDesc[] = { TEXT("Composite"), TEXT("ActiveTask"), TEXT("AbortingTask"), TEXT("InactiveTask") };
-	return (ActiveNodeType < ARRAY_COUNT(ActiveDesc)) ? ActiveDesc[ActiveNodeType] : FString();
-}
-
-FString USelectionQueryTypes::DescribeTaskStatus(EBTTaskStatus::Type TaskStatus)
-{
-	static FString TaskStatusDesc[] = { TEXT("Active"), TEXT("Aborting"), TEXT("Inactive") };
-	return (TaskStatus < ARRAY_COUNT(TaskStatusDesc)) ? TaskStatusDesc[TaskStatus] : FString();
-}
-
-FString USelectionQueryTypes::DescribeNodeUpdateMode(EBTNodeUpdateMode::Type UpdateMode)
-{
-	static FString UpdateModeDesc[] = { TEXT("Add"), TEXT("Remove") };
-	return (UpdateMode < ARRAY_COUNT(UpdateModeDesc)) ? UpdateModeDesc[UpdateMode] : FString();
-}
-
-FString USelectionQueryTypes::DescribeNodeHelper(const UBTNode* Node)
-{
-	return Node ? FString::Printf(TEXT("%s[%d]"), *Node->GetNodeName(), Node->GetExecutionIndex()) : FString();
+	return Node ? FString::Printf(TEXT("%s"), *Node->GetNodeName()) : FString();
 }
 
 FString USelectionQueryTypes::GetShortTypeName(const UObject* Ob)
@@ -500,23 +200,4 @@ FString USelectionQueryTypes::GetShortTypeName(const UObject* Ob)
 	}
 
 	return TypeDesc;
-}
-
-//----------------------------------------------------------------------//
-// DEPRECATED
-//----------------------------------------------------------------------//
-void FBlackboardKeySelector::CacheSelectedKey(UBlackboardData* BlackboardAsset)
-{
-	if (BlackboardAsset)
-	{
-		ResolveSelectedKey(*BlackboardAsset);
-	}
-}
-
-void FBlackboardKeySelector::InitSelectedKey(UBlackboardData* BlackboardAsset)
-{
-	if (BlackboardAsset)
-	{
-		InitSelection(*BlackboardAsset);
-	}
 }

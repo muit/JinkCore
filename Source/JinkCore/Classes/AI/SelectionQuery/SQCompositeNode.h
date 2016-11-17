@@ -53,7 +53,7 @@ class JINKCORE_API USQCompositeNode : public USQNode
 // Inlines
 
 FORCEINLINE bool FSQCompositeChild::ChildIsComposite() { 
-    return ChildComposite;
+    return ChildComposite != nullptr;
 }
 
 FORCEINLINE USQNode* USQCompositeNode::GetChildNode(int32 Index) const

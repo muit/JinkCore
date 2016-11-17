@@ -230,33 +230,19 @@ void FSelectionQueryInstance::PickSingleItem(int32 ItemIndex)
 
 void FSelectionQueryInstance::FinalizeQuery()
 {
-	if (NumValidItems > 0)
+	if (Mode == ESQRunMode::SingleResult)
 	{
-		if (Mode == ESQRunMode::SingleResult)
-		{
-			// if last test was not pure condition: sort and pick one of best items
-			if (bFoundSingleResult == false && bPassOnSingleResult == false)
-			{
-				SortScores();
-				PickSingleItem(0);
-			}
-		}
-		else
-		{
-			SortScores();
-
-			// normalizing after scoring and reducing number of elements to not 
-			// do anything for discarded items
-			NormalizeScores();
-		}
-
-		MarkAsFinishedWithoutIssues();
+		//Select the item
+        PickSingleItem(0);
 	}
 	else
 	{
-        //Set Result Item to null
-        Item = nullptr;
+		SortScores();
 
-		MarkAsFailed();
+		// normalizing after scoring and reducing number of elements to not 
+		// do anything for discarded items
+		NormalizeScores();
 	}
+
+	MarkAsFinishedWithoutIssues();
 }
