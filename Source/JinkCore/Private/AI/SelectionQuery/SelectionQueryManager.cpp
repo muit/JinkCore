@@ -141,7 +141,7 @@ void USelectionQueryManager::RunInstantQuery(const TSharedPtr<FSelectionQueryIns
     RegisterExternalQuery(QueryInstance);
     while (QueryInstance->IsFinished() == false)
     {
-        QueryInstance->ExecuteOneStep((double)FLT_MAX);
+        QueryInstance->ExecuteOneStep();
     }
 
     UnregisterExternalQuery(QueryInstance);
@@ -239,12 +239,12 @@ void USelectionQueryManager::Tick(float DeltaTime)
                     // Passing in -1 causes QueryInstance to set its Deadline to -1, which in turn causes it to 
                     // never fail based on time input.  (In fact, it's odd that we use FLT_MAX in RunInstantQuery(),
                     // since that could simply use -1. as well.)  Note: "-1." to explicitly specify that it's a double.
-                    QueryInstance->ExecuteOneStep(-1.);
+                    QueryInstance->ExecuteOneStep();
                 }
                 else
 #endif
                 {
-                    QueryInstance->ExecuteOneStep(TimeLeft);
+                    QueryInstance->ExecuteOneStep();
                 }
 
                 if (QueryInstance->IsFinished())
@@ -288,13 +288,6 @@ void USelectionQueryManager::Tick(float DeltaTime)
             if (bTestQueriesUsingBreadth && (Index == NumRunningQueries))
             {
                 Index = 0;
-            }
-
-#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-            if (bAllowSQTimeSlicing) // if Time slicing is enabled...
-#endif
-            {	// Don't include the querier handling as part of the total time spent by EQS for time-slicing purposes.
-                TimeLeft -= ((FPlatformTime::Seconds() - StartTime) - QuerierHandlingDuration);
             }
         }
     }

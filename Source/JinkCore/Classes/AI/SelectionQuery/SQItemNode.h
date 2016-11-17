@@ -25,5 +25,4 @@ public:
 	virtual FString GetItem() const { return TEXT("None"); }
 
 	virtual void PostLoad() override;
-	void UpdateNodeVersion() override;
 };

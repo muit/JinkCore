@@ -14,5 +14,5 @@ class USelectionQueryGraphNode_Item : public USelectionQueryGraphNode
 	/** Gets a list of actions that can be done to this particular node */
 	virtual void GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const override;
 
-	virtual bool CanPlaceBreakpoints() const override { return true; }
+	//virtual bool CanPlaceBreakpoints() const override { return true; }
 };

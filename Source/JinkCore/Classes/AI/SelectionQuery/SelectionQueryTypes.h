@@ -2,12 +2,14 @@
 
 #pragma once
 
+#include "Engine/EngineBaseTypes.h"
+#include "Engine/EngineTypes.h"
 #include "DataProviders/AIDataProvider.h"
-#include "BehaviorTree/BehaviorTreeTypes.h"
 #include "SelectionQueryTypes.generated.h"
 
 class AActor;
 class UNavigationQueryFilter;
+class USQNode;
 class USelectionQuery;
 struct FSelectionQueryInstance;
 
@@ -56,12 +58,8 @@ public:
 	//FORCEINLINE float GetItemScore(int32 Index) const { return Items.IsValidIndex(Index) ? Items[Index].Score : 0.0f; }
 
 	/** item accessors for basic types */
-	AActor* GetItemAsActor(int32 Index) const;
-	FVector GetItemAsLocation(int32 Index) const;
+	TSubclassOf<UObject> GetItem() const;
 
-	/** note that this function does not strip out the null-actors to not mess up results of GetItemScore(Index) calls*/
-	void GetAllAsActors(TArray<AActor*>& OutActors) const;
-	void GetAllAsLocations(TArray<FVector>& OutLocations) const;
 
 	FSQResult() : Status(ESQStatus::Processing) {}
 	FSQResult(const ESQStatus& InStatus) : Status(InStatus) {}
@@ -93,7 +91,7 @@ public:
 
     static FString DescribeNodeHelper(const USQNode* Node);
 
-	static FText GetShortTypeName(const UObject* Ob);
+	static FString GetShortTypeName(const UObject* Ob);
 };
 
 
@@ -145,7 +143,7 @@ public:
     ~FSelectionQueryInstance();
 
     /** execute single step of query */
-    void ExecuteOneStep(double InCurrentStepTimeLimit);
+    void ExecuteOneStep();
 
     /** set when we started the query */
     void SetQueryStartTime() { StartTime = FPlatformTime::Seconds(); }

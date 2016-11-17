@@ -6,8 +6,7 @@
 #include "EdGraphUtilities.h"
 
 #include "AI/SelectionQuery/SelectionQuery.h"
-#include "AI/SelectionQuery/SelectionQueryOption.h"
-#include "AI/SelectionQuery/SelectionQueryGenerator.h"
+#include "AI/SelectionQuery/SQCompositeNode.h"
 
 #include "Toolkits/IToolkitHost.h"
 #include "Editor/WorkspaceMenuStructure/Public/WorkspaceMenuStructureModule.h"
@@ -229,12 +228,12 @@ void FSelectionQueryEditor::OnSelectedNodesChanged(const TSet<class UObject*>& N
 				{
 					Selection.Add(GraphNode);
 				}
-				else if (GraphNode->IsA(USelectionQueryGraphNode_Option::StaticClass()))
+				else if (GraphNode->IsA(USelectionQueryGraphNode_Composite::StaticClass()))
 				{
-					USelQueryOption* QueryOption = Cast<USelQueryOption>(GraphNode->NodeInstance);
-					if (QueryOption)
+					USQCompositeNode* QueryComposite = Cast<USQCompositeNode>(GraphNode->NodeInstance);
+					if (QueryComposite)
 					{
-						Selection.Add(QueryOption->Generator);
+						Selection.Add(QueryComposite);
 					}
 				}
 				else
@@ -287,12 +286,12 @@ void FSelectionQueryEditor::OnFinishedChangingProperties(const FPropertyChangedE
 		{
 			for (FGraphPanelSelectionSet::TConstIterator It(CurrentSelection); It; ++It)
 			{
-				USelectionQueryGraphNode_Test* TestNode = Cast<USelectionQueryGraphNode_Test>(*It);
-				USelectionQueryGraphNode_Option* ParentNode = TestNode ? Cast<USelectionQueryGraphNode_Option>(TestNode->ParentNode) : nullptr;
+				USelectionQueryGraphNode_Item* ItemNode = Cast<USelectionQueryGraphNode_Item>(*It);
+				USelectionQueryGraphNode_Composite* ParentNode = ItemNode ? Cast<USelectionQueryGraphNode_Composite>(ItemNode->ParentNode) : nullptr;
 
 				if (ParentNode)
 				{
-					ParentNode->CalculateWeights();
+					//ParentNode->CalculateWeights();
 					break;
 				}
 			}

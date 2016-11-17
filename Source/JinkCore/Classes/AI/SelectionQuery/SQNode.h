@@ -26,7 +26,7 @@ class JINKCORE_API USQNode : public UObject
 private:
 	/** parent node */
 	UPROPERTY()
-	UBTCompositeNode* ParentNode;
+	USQCompositeNode* ParentNode;
 
 	/** depth in tree */
 	uint8 GraphDepth;

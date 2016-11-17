@@ -9,7 +9,7 @@
 // FSelectionQueryInstance
 //----------------------------------------------------------------------//
 
-void FSelectionQueryInstance::ExecuteOneStep(double InCurrentStepTimeLimit)
+void FSelectionQueryInstance::ExecuteOneStep()
 {
     /*
 	if (!Owner.IsValid())

@@ -44,7 +44,11 @@ public class SelectionQueryEditor : ModuleRules
 			}
 		);
 
-		PublicIncludePathModuleNames.Add("LevelEditor");
+		PublicIncludePathModuleNames.AddRange(
+            new string[] {
+                "LevelEditor"
+            }
+        );
 
         DynamicallyLoadedModuleNames.AddRange(
             new string[] { 

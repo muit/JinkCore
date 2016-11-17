@@ -1,16 +1,11 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
-#include "EnvironmentQuery/SelectionQueryManager.h"
-#include "SelectionQuery/SQItemNode.h"
+#include "AI/SelectionQuery/SelectionQueryManager.h"
+#include "AI/SelectionQuery/SQItemNode.h"
 
 USQItemNode::USQItemNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-}
-
-void USQItemNode::UpdateNodeVersion()
-{
-	VerNum = EnvQueryGeneratorVersion::Latest;
 }
 
 void USQItemNode::PostLoad()

@@ -2,10 +2,6 @@
 
 #include "SelectionQueryEditorPrivatePCH.h"
 
-#include "DetailCustomizations/SelDirectionCustomization.h"
-#include "DetailCustomizations/SelTraceDataCustomization.h"
-#include "DetailCustomizations/SelQueryTestDetails.h"
-
 #include "ModuleManager.h"
 #include "Toolkits/ToolkitManager.h"
 #include "SGraphNode_SelectionQuery.h"

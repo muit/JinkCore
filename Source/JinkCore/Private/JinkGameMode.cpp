@@ -16,7 +16,7 @@ AJinkGameMode::AJinkGameMode()
     SelectionQueryManager = NewObject<USelectionQueryManager>(ManagersOuter);
 
 
-    FWorldDelegates::OnWorldCleanup.AddDynamic(this, &AJinkGameMode::CleanupWorld);
+    FWorldDelegates::OnWorldCleanup.AddSP(this, &AJinkGameMode::CleanupWorld);
 }
 
 void AJinkGameMode::CleanupWorld(UWorld * World, bool bSessionEnded, bool bCleanupResources)

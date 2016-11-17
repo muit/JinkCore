@@ -34,14 +34,14 @@ void UEdGraphSchema_SelectionQuery::GetGraphContextActions(FGraphContextMenuBuil
 	FGraphNodeClassHelper* ClassCache = EditorModule.GetClassCache().Get();
 	
 	TArray<FGraphNodeClassData> NodeClasses;
-	ClassCache->GatherClasses(USelQueryGenerator::StaticClass(), NodeClasses);
+	ClassCache->GatherClasses(USQCompositeNode::StaticClass(), NodeClasses);
 
-	FCategorizedGraphActionListBuilder GeneratorsBuilder(TEXT("Generators"));
+	FCategorizedGraphActionListBuilder GeneratorsBuilder(TEXT("Composites"));
 	for (const auto& NodeClass : NodeClasses)
 	{
 		const FText NodeTypeName = FText::FromString(FName::NameToDisplayString(NodeClass.ToString(), false));
 
-		USelectionQueryGraphNode_Option* OpNode = NewObject<USelectionQueryGraphNode_Option>(ContextMenuBuilder.OwnerOfTemporaries);
+		USelectionQueryGraphNode_Composite* OpNode = NewObject<USelectionQueryGraphNode_Composite>(ContextMenuBuilder.OwnerOfTemporaries);
 		OpNode->ClassData = NodeClass;
 
 		TSharedPtr<FAISchemaAction_NewNode> AddOpAction = AddNewNodeAction(GeneratorsBuilder, NodeClass.GetCategory(), NodeTypeName, "");

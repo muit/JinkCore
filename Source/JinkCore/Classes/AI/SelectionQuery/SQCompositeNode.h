@@ -45,7 +45,6 @@ class JINKCORE_API USQCompositeNode : public USQNode
 	virtual void GenerateItems(FSelectionQueryInstance& QueryInstance) const { checkNoEntry(); }
 
 	virtual void PostLoad() override;
-	void UpdateNodeVersion() override;
 };
 
 

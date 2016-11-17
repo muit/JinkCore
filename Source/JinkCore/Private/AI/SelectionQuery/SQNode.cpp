@@ -13,22 +13,12 @@
 USQNode::USQNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
 	ParentNode = NULL;
-	TreeAsset = NULL;
-	TreeDepth = 0;
-	bCreateNodeInstance = false;
-	bIsInstanced = false;
-	bIsInjected = false;
 
 #if USE_SelectionQuery_DEBUGGER
 	NextExecutionNode = NULL;
 #endif
 }
 
-void USQNode::InitializeNode(USQCompositeNode* InParentNode, uint8 InTreeDepth)
-{
-	ParentNode = InParentNode;
-	GraphDepth = InTreeDepth;
-}
 /*
 void USQNode::OnInstanceCreated(USelectionQueryComponent& OwnerComp) { //empty in base class }
 void USQNode::OnInstanceDestroyed(USelectionQueryComponent& OwnerComp) { // empty in base class }

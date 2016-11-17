@@ -17,7 +17,7 @@
 #include "Classes/SelectionQueryGraphNode.h"
 #include "Classes/SelectionQueryGraphNode_Composite.h"
 #include "Classes/SelectionQueryGraphNode_Root.h"
-#include "Classes/SelectionQueryGraphNode_Test.h"
+#include "Classes/SelectionQueryGraphNode_Item.h"
 
 #include "AssetTypeActions_SelectionQuery.h"
 
