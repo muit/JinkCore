@@ -115,7 +115,7 @@ public:
 
 	static void CreateLevelActionsSubMenu(FMenuBuilder& MenuBuilder, TArray<FAssetData> SelectedAssets)
 	{
-		// Create sprites
+		// Create level instances
 		TSharedPtr<FCreateLevelInstanceFromLevelExtension> LevelICreatorFunctor = MakeShareable(new FCreateLevelInstanceFromLevelExtension());
 		LevelICreatorFunctor->SelectedAssets = SelectedAssets;
 
@@ -150,15 +150,14 @@ public:
 
 	static TSharedRef<FExtender> OnExtendContentBrowserAssetSelectionMenu(const TArray<FAssetData>& SelectedAssets)
 	{
-		TSharedRef<FExtender> Extender(new FExtender());
-
 		// Run through the assets to determine if any meet our criteria
 		bool bAnyLevel = false;
 		for (auto AssetIt = SelectedAssets.CreateConstIterator(); AssetIt; ++AssetIt)
 		{
-			const FAssetData& Asset = *AssetIt;
-			bAnyLevel = bAnyLevel || (Asset.GetClass() == UWorld::StaticClass());
+			bAnyLevel = bAnyLevel || (AssetIt->AssetClass == UWorld::StaticClass()->GetFName());
 		}
+
+		TSharedRef<FExtender> Extender(new FExtender());
 
 		if (bAnyLevel)
 		{
