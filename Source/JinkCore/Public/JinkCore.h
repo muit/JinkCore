@@ -1,8 +1,6 @@
 // Copyright 2015-2016 Piperift. All Rights Reserved.
 #pragma once
 
-#include "JinkCorePrivatePCH.h"
-
 // Settings
 #include "JinkCoreSettings.h"
 

@@ -3,6 +3,8 @@
 #include "JinkEditorPrivatePCH.h"
 
 #include "FactionCustomization.h"
+#include "Asset/AssetTypeAction_LevelInstance.h"
+#include "ContentBrowserExtensions/ContentBrowserExtensions.h"
 
 DEFINE_LOG_CATEGORY(JinkEditor)
  
@@ -13,12 +15,40 @@ void FJinkEditorModule::StartupModule()
 	UE_LOG(JinkEditor, Warning, TEXT("JinkEditor: Log Started"));
 
 	RegisterPropertyTypeCustomizations();
+
+	// Register asset types
+	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+	RegisterAssetTypeAction(AssetTools, MakeShareable(new FAssetTypeAction_LevelInstance));
+
+	// Integrate JinkCore actions into existing editor context menus
+	if (!IsRunningCommandlet())
+	{
+		FJCContentBrowserExtensions::InstallHooks();
+	}
 }
  
 void FJinkEditorModule::ShutdownModule()
 {
 	UE_LOG(JinkEditor, Warning, TEXT("JinkEditor: Log Ended"));
+
+	// Unregister all the asset types
+	if (FModuleManager::Get().IsModuleLoaded("AssetTools"))
+	{
+		IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+		for (int32 Index = 0; Index < CreatedAssetTypeActions.Num(); ++Index)
+		{
+			AssetTools.UnregisterAssetTypeActions(CreatedAssetTypeActions[Index].ToSharedRef());
+		}
+	}
+	CreatedAssetTypeActions.Empty();
+
+
+	if (UObjectInitialized())
+	{
+		FJCContentBrowserExtensions::RemoveHooks();
+	}
 }
+
 
 void FJinkEditorModule::RegisterPropertyTypeCustomizations()
 {

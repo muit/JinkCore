@@ -42,9 +42,11 @@ public class JinkEditor : ModuleRules
                 "UnrealEd",
 				"Slate",
 				"SlateCore",
+                "AssetTools",
                 "EditorStyle",
                 "PropertyEditor",
                 "DetailCustomizations",
+                "ContentBrowser",
                 "Settings",
                 "JinkCore"
 				// ... add private dependencies that you statically link with here ...	

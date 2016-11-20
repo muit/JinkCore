@@ -2,7 +2,6 @@
 #pragma once
 
 #include "JinkEditorPrivatePCH.h"
-
 #include "PropertyEditorModule.h"
  
 DECLARE_LOG_CATEGORY_EXTERN(JinkEditor, All, All)
@@ -13,6 +12,9 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 	
+
+
+private:
 	void RegisterPropertyTypeCustomizations();
 
 	/**
@@ -22,4 +24,14 @@ public:
 	* @param StructLayoutDelegate	The delegate to call to get the custom detail layout instance
 	*/
 	void RegisterCustomPropertyTypeLayout(FName PropertyTypeName, FOnGetPropertyTypeCustomizationInstance PropertyTypeLayoutDelegate);
+
+	void RegisterAssetTypeAction(IAssetTools& AssetTools, TSharedRef<IAssetTypeActions> Action)
+	{
+		AssetTools.RegisterAssetTypeActions(Action);
+		CreatedAssetTypeActions.Add(Action);
+	}
+
+
+	/** All created asset type actions.  Cached here so that we can unregister them during shutdown. */
+	TArray< TSharedPtr<IAssetTypeActions> > CreatedAssetTypeActions;
 };

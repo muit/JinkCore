@@ -2,7 +2,6 @@
 
 #pragma once
 
-//#include "Engine/Level.h"
 #include "LevelInstance.generated.h"
 
 /**
@@ -17,6 +16,10 @@ public:
 	ULevelInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance")
-	FBox Bounds;
+	TAssetPtr<UWorld> InstancedLevel;
+
+
+	UFUNCTION()
+	void SetupBounds();
 
 };
