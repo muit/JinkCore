@@ -10,6 +10,9 @@
 #include "ISettingsModule.h"
 #include "ISettingsSection.h"
 #include "ISettingsContainer.h"
+
+#include "Developer/AssetTools/Public/IAssetTools.h"
+#include "Developer/AssetTools/Public/AssetToolsModule.h"
 #endif //WITH_EDITOR
 
 DECLARE_LOG_CATEGORY_EXTERN(JinkCore, All, All);
@@ -17,6 +20,11 @@ DECLARE_LOG_CATEGORY_EXTERN(JinkCore, All, All);
 class FJinkCoreModule : public IModuleInterface
 {
 public:
+
+	// Get Jink Core module instance
+	FORCEINLINE static FJinkCoreModule* GetInstance() { 
+		return &FModuleManager::LoadModuleChecked<FJinkCoreModule>("JinkCore");
+	}
 
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
@@ -36,10 +44,14 @@ private:
 
 	// Callback for when the settings were saved.
 	bool HandleSettingsSaved();
-
 	void RegisterSettings();
-
 	void UnregisterSettings();
 
-	
+#if WITH_EDITOR
+private:
+	EAssetTypeCategories::Type JCAssetCategoryBit;
+public:
+	EAssetTypeCategories::Type GetJCAssetCategoryBit() const { return JCAssetCategoryBit; }
+#endif
+
 };

@@ -12,6 +12,16 @@ void FJinkCoreModule::StartupModule()
 
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 	
+#if WITH_EDITOR 
+	if (GIsEditor)
+	{
+		// Register asset types
+		IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
+		// register JK category so that assets can register to it
+		JCAssetCategoryBit = AssetTools.RegisterAdvancedAssetCategory(FName(TEXT("JC")), LOCTEXT("JCAssetCategory", "Jink Core"));
+	}
+#endif // WITH_EDITOR 
+
 	RegisterSettings();
 }
 

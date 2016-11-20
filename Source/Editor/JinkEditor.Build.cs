@@ -36,8 +36,10 @@ public class JinkEditor : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
+                "Core",
 				"CoreUObject",
 				"Engine",
+                "UnrealEd",
 				"Slate",
 				"SlateCore",
                 "EditorStyle",
