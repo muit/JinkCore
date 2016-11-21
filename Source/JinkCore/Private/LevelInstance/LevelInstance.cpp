@@ -4,6 +4,8 @@
 #include "LevelInstance.h"
 #include "LevelInstanceBounds.h"
 
+int32 ULevelInstance::InstanceIdCount = 0;
+
 ULevelInstance::ULevelInstance(const FObjectInitializer & ObjectInitializer)
 	: Super(ObjectInitializer)
 {
@@ -14,9 +16,6 @@ ULevelInstance::ULevelInstance(const FObjectInitializer & ObjectInitializer)
     bInitiallyLoaded = true;
     bInitiallyVisible = true;
     //** End Level      */
-
-    InstanceId = -1;
-    StreamingLevel = nullptr;
 }
 
 void ULevelInstance::SetupBounds() {
@@ -40,93 +39,7 @@ void ULevelInstance::SetupBounds() {
 		}
 
 		//Spawn a level instance bounds actor
-		ALevelInstanceBounds* Bounds = InstancedLevel->SpawnActor<ALevelInstanceBounds>();
-		Bounds->LevelInstance = this;
+		ALevelInstanceBounds* BoundsActor = InstancedLevel->SpawnActor<ALevelInstanceBounds>();
+		BoundsActor->LevelInstance = this;
 	}
-}
-
-
-
-int32 ULevelInstance::InstanceIdCount = 0;
-
-bool ULevelInstance::SpawnLevel(FTransform Transform)
-{
-	if (IsRegistered() || InstancedLevel.IsNull())
-		return false;
-
-	UWorld* const World = GEngine->GetWorldFromContextObject(this, false);
-	if (!World) {
-		return false;
-	}
-
-	// Check whether requested map exists, this could be very slow if LevelName is a short package name
-	FString LevelName = InstancedLevel.GetLongPackageName();
-	FString LongPackageName = FPackageName::FilenameToLongPackageName(LevelName);
-
-	// Create Unique Name for sub-level package
-	const FString ShortPackageName = FPackageName::GetShortName(LongPackageName);
-	const FString PackagePath = FPackageName::GetLongPackagePath(LongPackageName);
-	FString UniqueLevelPackageName = PackagePath + TEXT("/") + World->StreamingLevelsPrefix + ShortPackageName;
-	UniqueLevelPackageName += TEXT("_LevelInstance_") + FString::FromInt(InstanceIdCount);
-	// Increment Id counter
-	InstanceId = InstanceIdCount;
-	InstanceIdCount++;
-
-	// Setup streaming level object that will load specified map
-	ULevelStreamingKismet* NewStreamingLevel = NewObject<ULevelStreamingKismet>(World, ULevelStreamingKismet::StaticClass(), NAME_None, RF_Transient, NULL);
-	NewStreamingLevel->SetWorldAssetByPackageName(FName(*UniqueLevelPackageName));
-	NewStreamingLevel->LevelColor = FColor::MakeRandomColor();
-	NewStreamingLevel->bShouldBeLoaded = bShouldBeLoaded;
-	NewStreamingLevel->bShouldBeVisible = bShouldBeVisible;
-	NewStreamingLevel->bShouldBlockOnLoad = bShouldBlockOnLoad;
-	NewStreamingLevel->bInitiallyLoaded = bInitiallyLoaded;
-	NewStreamingLevel->bInitiallyVisible = bInitiallyVisible;
-
-	// Transform
-	NewStreamingLevel->LevelTransform = Transform;
-	// Map to Load
-	NewStreamingLevel->PackageNameToLoad = FName(*LongPackageName);
-
-	// Add the new level to world.
-	World->StreamingLevels.Add(NewStreamingLevel);
-
-	//Save level reference
-	StreamingLevel = NewStreamingLevel;
-	return true;
-}
-
-bool ULevelInstance::LoadLevel()
-{
-	if (!IsRegistered())
-		return false;
-	StreamingLevel->bShouldBeLoaded = true;
-	return true;
-}
-
-void ULevelInstance::SetLevelVisibility(bool NewVisibility)
-{
-	if (IsRegistered()) {
-		StreamingLevel->bShouldBeVisible = NewVisibility;
-	}
-}
-
-void ULevelInstance::UnloadLevel()
-{
-    if (IsRegistered()) {
-        StreamingLevel->bShouldBeLoaded = false;
-    }
-}
-
-void ULevelInstance::RemoveLevel() {
-    if (IsRegistered()) {
-        //Find Example at: LevelCollectionModel.cpp:568
-    }
-}
-
-FString ULevelInstance::GetUniqueName()
-{
-    if (!IsRegistered()) {
-        return TEXT("None");
-    }
-    return TEXT("");
 }

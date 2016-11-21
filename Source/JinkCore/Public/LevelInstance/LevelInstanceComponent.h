@@ -16,42 +16,60 @@ public:
     ULevelInstanceComponent();
 
     virtual void BeginPlay() override;
-    virtual void TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction ) override;
+    virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+    virtual void OnComponentDestroyed (bool bDestroyingHierarchy) override;
+#if WITH_EDITOR
+    virtual void OnRegister() override;
+    virtual void PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent) override;
+    void UpdateLevelInEditor();
+#endif //WITH_EDITOR
 
 
-    UPROPERTY(EditAnywhere, Category = "Level Instance")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level Instance")
     TAssetPtr<ULevelInstance> LevelInstanceAsset;
-
-    UPROPERTY(Transient)
-    ULevelInstance* LevelI_Data;
+#if WITH_EDITOR
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance")
+    bool ViewBounds;
+#endif //WITH_EDITOR
 
     UFUNCTION(BlueprintCallable, Category = "Level Instance")
-    bool SetLevelInstanceAsset(TAssetPtr<ULevelInstance> _LevelInstanceAsset) {
-        if (_LevelInstanceAsset) {
-            LevelInstanceAsset = _LevelInstanceAsset;
+    void SetLevelInstanceAsset(TAssetPtr<ULevelInstance> NewLevelInstanceAsset);
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    ULevelInstance* GetLevelInstance();
 
-            LevelI_Data->RemoveLevel();
+    //~ Begin Level Instance Interface
+private:
+    UPROPERTY(Transient)
+    ULevelStreamingKismet* StreamingLevel;
 
-            //Create a new Level Data Instance
-            LevelI_Data = nullptr;
-            GetLevelInstance();
-            return true;
-        }
-        return false;
-    }
+public:
+    UPROPERTY(BlueprintReadOnly, Category = "Level Instance")
+    int32 InstanceId;
+
+    UFUNCTION(BlueprintCallable, Category = "Level Instance")
+    bool SpawnLevel();
+    UFUNCTION(BlueprintCallable, Category = "Level Instance")
+    bool LoadLevel();
+    UFUNCTION(BlueprintCallable, Category = "Level Instance")
+    void SetLevelVisibility(bool NewVisibility);
+    UFUNCTION(BlueprintCallable, Category = "Level Instance")
+    void UnloadLevel();
+    UFUNCTION(BlueprintCallable, Category = "Level Instance")
+    void RemoveLevel();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
-    ULevelInstance* GetLevelInstance() {
-        // if level instance data is empty and the template asset is assigned
-        if (!LevelI_Data && !LevelInstanceAsset.IsNull())
-        {
-            ULevelInstance* Template = LevelInstanceAsset.LoadSynchronous();
-            LevelI_Data = NewObject<ULevelInstance>(this, NAME_None, RF_NoFlags, Template);
-        }
-        return LevelI_Data;
-    }
+    FString GetUniqueName();
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    bool IsRegistered() { return StreamingLevel != nullptr; }
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    bool IsLevelLoaded() { return IsRegistered() && StreamingLevel->IsLevelLoaded(); }
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    bool IsLevelVisible() { return IsRegistered() && StreamingLevel->IsLevelVisible(); }
+    //~ End Level Instance Interface
 
 
+    /*
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
     bool IsRegistered() {
         return LevelInstanceAsset.IsNull() ? false : GetLevelInstance()->IsRegistered();
@@ -63,5 +81,5 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
     bool IsLevelVisible() { 
         return LevelInstanceAsset.IsNull()? false : GetLevelInstance()->IsVisible();
-    }
+    }*/
 };

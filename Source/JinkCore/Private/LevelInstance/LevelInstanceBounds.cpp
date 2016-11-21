@@ -147,6 +147,12 @@ bool ALevelInstanceBounds::IsTickableInEditor() const
 void ALevelInstanceBounds::UpdateLevelBounds()
 {
 	FBox LevelBounds = CalculateLevelBounds(GetLevel());
+
+    if (!LevelInstance.IsNull()) {
+        ULevelInstance* LevelI = LevelInstance.LoadSynchronous();
+        LevelI->Bounds = LevelBounds;
+    }
+
 	if (LevelBounds.IsValid)
 	{
 		FVector LevelCenter = LevelBounds.GetCenter();

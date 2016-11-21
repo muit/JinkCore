@@ -28,10 +28,10 @@ private:
 	ULevelStreamingKismet* StreamingLevel;
 
 public:
-	static int32 InstanceIdCount;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance")
+    FBox Bounds;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Level Instance")
-	int32 InstanceId;
+	static int32 InstanceIdCount;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level Instance|Settings")
 	bool bShouldBeLoaded;
@@ -43,27 +43,5 @@ public:
 	bool bInitiallyLoaded;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level Instance|Settings")
 	bool bInitiallyVisible;
-
-	UFUNCTION(BlueprintCallable, Category = "Level Instance")
-	bool SpawnLevel(FTransform Transform);
-	UFUNCTION(BlueprintCallable, Category = "Level Instance")
-	bool LoadLevel();
-	UFUNCTION(BlueprintCallable, Category = "Level Instance")
-	void SetLevelVisibility(bool NewVisibility);
-	UFUNCTION(BlueprintCallable, Category = "Level Instance")
-	void UnloadLevel();
-	UFUNCTION(BlueprintCallable, Category = "Level Instance")
-	void RemoveLevel();
-
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
-	FString GetUniqueName();
-
-	//Helpers
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
-	bool IsRegistered() { return StreamingLevel != nullptr; }
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
-	bool IsLoaded() { return IsRegistered() && StreamingLevel->IsLevelLoaded(); }
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
-	bool IsVisible() { return IsRegistered() && StreamingLevel->IsLevelVisible(); }
 	//~ End Level Instance Interface
 };

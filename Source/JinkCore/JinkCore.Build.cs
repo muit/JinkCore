@@ -32,7 +32,9 @@ public class JinkCore : ModuleRules
 				"Slate",
 				"SlateCore",
                 "AIModule",
-                "RHI"
+                "RHI",
+                "WorldBrowser",
+                "UnrealEd"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
