@@ -55,21 +55,6 @@ protected:
 };
 
 
-/** cache of instances with sorted tests */
-USTRUCT()
-struct FSQInstanceCache
-{
-    GENERATED_USTRUCT_BODY()
-
-    /** query template, duplicated in manager's world */
-    UPROPERTY()
-    USelectionQuery* Template;
-
-    /** instance to duplicate */
-    FSelectionQueryInstance Instance;
-};
-
-
 UCLASS(config = Game, defaultconfig)
 class JINKCORE_API USelectionQueryManager : public UObject, public FTickableGameObject
 {
@@ -126,12 +111,6 @@ class JINKCORE_API USelectionQueryManager : public UObject, public FTickableGame
 	/** cleanup hooks for map loading */
 	virtual void FinishDestroy() override;
 
-	/** add information for data providers about query instance run independently */
-	void RegisterExternalQuery(const TSharedPtr<FSelectionQueryInstance>& QueryInstance);
-
-	/** clear information about query instance run independently */
-	void UnregisterExternalQuery(const TSharedPtr<FSelectionQueryInstance>& QueryInstance);
-
 	static USelectionQueryManager* GetCurrent(UWorld* World);
 	static USelectionQueryManager* GetCurrent(const UObject* WorldContextObject);
 
@@ -141,24 +120,12 @@ class JINKCORE_API USelectionQueryManager : public UObject, public FTickableGame
 	void RegisterActiveWrapper(USQInstanceBlueprintWrapper& Wrapper);
 	void UnregisterActiveWrapper(USQInstanceBlueprintWrapper& Wrapper);
 
-	static void SetAllowTimeSlicing(bool bAllowTimeSlicing);
-
 protected:
 	friend USQInstanceBlueprintWrapper;
 	TSharedPtr<FSelectionQueryInstance> FindQueryInstance(const int32 QueryID);
 
 	/** currently running queries */
 	TArray<TSharedPtr<FSelectionQueryInstance> > RunningQueries;
-
-	/** count of queries aborted since last update, to be removed. */
-	int32 NumRunningQueriesAbortedSinceLastUpdate;
-
-	/** queries run independently from manager, mapped here for data providers */
-	TMap<int32, TWeakPtr<FSelectionQueryInstance>> ExternalQueries;
-
-	/** cache of instances */
-	UPROPERTY(transient)
-	TArray<FSQInstanceCache> InstanceCache;
 
 	UPROPERTY()
 	TArray<USQInstanceBlueprintWrapper*> GCShieldedWrappers;
@@ -167,29 +134,5 @@ protected:
 	int32 NextQueryID;
 
 	/** create new instance, using cached data is possible */
-	TSharedPtr<FSelectionQueryInstance> CreateQueryInstance(const USelectionQuery* Template, ESQRunMode RunMode);
-
-	/** whether we update EQS queries based on:
-	    running a test on one query and move to the next (breadth) - default behavior,
-	    or test an entire query before moving to the next one (depth). */
-	UPROPERTY(config)
-	bool bTestQueriesUsingBreadth;
-
-	/** if greater than zero, we will warn once when the number of queries is greater than or equal to this number, and log the queries out */
-	UPROPERTY(config)
-	int32 QueryCountWarningThreshold;
-
-	/** how often (in seconds) we will warn about the number of queries (allows us to catch multiple occurrences in a session) */
-	UPROPERTY(config)
-	double QueryCountWarningInterval;
-
-#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-private:
-	static bool bAllowSQTimeSlicing;
-
-	mutable double LastQueryCountWarningThresholdTime;
-
-	void CheckQueryCount() const;
-	void LogQueryCountWarning() const;
-#endif
+	TSharedPtr<FSelectionQueryInstance> CreateQueryInstance(const USelectionQuery* QueryTemplate, ESQRunMode RunMode);
 };

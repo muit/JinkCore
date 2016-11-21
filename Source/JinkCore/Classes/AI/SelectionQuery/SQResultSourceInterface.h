@@ -16,9 +16,4 @@ class ISQResultSourceInterface
 
 	virtual const struct FSQResult* GetQueryResult() const { return NULL; }
 	virtual const struct FSelectionQueryInstance* GetQueryInstance() const { return NULL; }
-
-	// debugging
-	virtual bool GetShouldDebugDrawLabels() const { return true; }
-	virtual bool GetShouldDrawFailedItems() const { return true; }
-	virtual float GetHighlightRangePct() const { return 1.0f; }
 };

@@ -97,8 +97,6 @@ public:
 
 struct JINKCORE_API FSelectionQueryInstance : public FSQResult
 {
-    typedef float FNamedParamValueType;
-
     /** short name of query template - friendly name for debugging */
     FString QueryName;
 

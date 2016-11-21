@@ -23,7 +23,7 @@ void FAssetTypeActions_SelectionQuery::OpenAssetEditor( const TArray<UObject*>& 
 		if (Script != NULL)
 		{
 			FSelectionQueryEditorModule& SelectionQueryEditorModule = FModuleManager::LoadModuleChecked<FSelectionQueryEditorModule>( "SelectionQueryEditor" );
-			TSharedRef< ISelectionQueryEditor > NewEditor = SelectionQueryEditorModule.CreateSelectionQueryEditor( EToolkitMode::Standalone, EditWithinLevelEditor, Script );
+			TSharedRef< ISelectionQueryEditor > NewEditor = SelectionQueryEditorModule.CreateSelectionQueryEditor(EToolkitMode::Standalone, EditWithinLevelEditor, Script );
 		}
 	}
 }

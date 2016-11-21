@@ -24,7 +24,7 @@ int32 FSQRequest::Execute(ESQRunMode RunMode, FQueryFinishedSignature const& Fin
         Owner = FinishDelegate.GetUObject();
         if (Owner == NULL)
         {
-            //UE_LOG(LogSelectionQuery, Warning, TEXT("Unknown owner of request: %s"), *GetNameSafe(QueryTemplate));
+            UE_LOG(LogSelectionQuery, Warning, TEXT("Unknown owner of request: %s"), *GetNameSafe(QueryTemplate));
             return INDEX_NONE;
         }
     }
@@ -34,7 +34,7 @@ int32 FSQRequest::Execute(ESQRunMode RunMode, FQueryFinishedSignature const& Fin
         World = GEngine->GetWorldFromContextObject(Owner);
         if (World == NULL)
         {
-            //UE_LOG(LogSelectionQuery, Warning, TEXT("Unable to access world with owner: %s"), *GetNameSafe(Owner));
+            UE_LOG(LogSelectionQuery, Warning, TEXT("Unable to access world with owner: %s"), *GetNameSafe(Owner));
             return INDEX_NONE;
         }
     }
@@ -42,7 +42,7 @@ int32 FSQRequest::Execute(ESQRunMode RunMode, FQueryFinishedSignature const& Fin
     USelectionQueryManager* SelQueryManager = USelectionQueryManager::GetCurrent(World);
     if (SelQueryManager == NULL) 
     {
-        //UE_LOG(LogSelectionQuery, Warning, TEXT("Missing Selection Query manager!"));
+        UE_LOG(LogSelectionQuery, Warning, TEXT("Missing Selection Query manager!"));
         return INDEX_NONE;
     }
 
@@ -207,178 +207,6 @@ bool USelectionQueryManager::AbortQuery(int32 RequestID)
     return false;
 }
 
-void USelectionQueryManager::Tick(float DeltaTime)
-{
-#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-    CheckQueryCount();
-#endif
-
-    int32 QueriesFinishedDuringUpdate = 0;
-    const double ExecutionTimeWarningSeconds = 0.25;
-
-    {
-        const int32 NumRunningQueries = RunningQueries.Num();
-        int32 Index = 0;
-        while (/*(TimeLeft > 0.0) && */(Index < NumRunningQueries) && (QueriesFinishedDuringUpdate < NumRunningQueries))
-        {
-            const double StartTime = FPlatformTime::Seconds();
-            double QuerierHandlingDuration = 0.0;
-
-            const TSharedPtr<FSelectionQueryInstance>& QueryInstance = RunningQueries[Index];
-
-            if (QueryInstance->IsFinished())
-            {
-                // If this query is already finished, skip it.
-                ++Index;
-            }
-            else
-            {
-#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-                if (!bAllowSQTimeSlicing)
-                {
-                    // Passing in -1 causes QueryInstance to set its Deadline to -1, which in turn causes it to 
-                    // never fail based on time input.  (In fact, it's odd that we use FLT_MAX in RunInstantQuery(),
-                    // since that could simply use -1. as well.)  Note: "-1." to explicitly specify that it's a double.
-                    QueryInstance->ExecuteOneStep();
-                }
-                else
-#endif
-                {
-                    QueryInstance->ExecuteOneStep();
-                }
-
-                if (QueryInstance->IsFinished())
-                {
-                    // Always log that we executed total execution time at the end of the query.
-                    if (QueryInstance->GetTotalExecutionTime() > ExecutionTimeWarningSeconds)
-                    {
-                        UE_LOG(LogSelectionQuery, Warning, TEXT("Finished query %s over execution time warning. %s"), *QueryInstance->QueryName, *QueryInstance->GetExecutionTimeDescription());
-                    }
-
-                    // Now, handle the response to the query finishing, but calculate the time from that to remove from
-                    // the time spent for time-slicing purposes, because that's NOT the EQS manager doing work.
-                    {
-                        double QuerierHandlingStartTime = FPlatformTime::Seconds();
-
-                        //UE_VLOG_SQ(*QueryInstance.Get(), LogSelectionQuery, All);
-
-                        QueryInstance->FinishDelegate.ExecuteIfBound(QueryInstance);
-
-                        QuerierHandlingDuration = FPlatformTime::Seconds() - QuerierHandlingStartTime;
-                    }
-
-                    ++QueriesFinishedDuringUpdate;
-                    ++Index;
-                }
-                // If we're testing queries using breadth, move on to the next query.
-                // If we're testing queries using depth, we only move on to the next query when we finish the current one.
-                else if (bTestQueriesUsingBreadth)
-                {
-                    ++Index;
-                }
-
-                if (!QueryInstance->HasLoggedTimeLimitWarning() && (QueryInstance->GetTotalExecutionTime() > ExecutionTimeWarningSeconds))
-                {
-                    UE_LOG(LogSelectionQuery, Warning, TEXT("Query %s over execution time warning. %s"), *QueryInstance->QueryName, *QueryInstance->GetExecutionTimeDescription());
-                    QueryInstance->SetHasLoggedTimeLimitWarning();
-                }
-            }
-
-            // Start over at the beginning if we are testing using breadth and we've reached the end of the list
-            if (bTestQueriesUsingBreadth && (Index == NumRunningQueries))
-            {
-                Index = 0;
-            }
-        }
-    }
-
-    {
-        const int32 NumQueriesFinished = QueriesFinishedDuringUpdate + NumRunningQueriesAbortedSinceLastUpdate;
-        double FinishedQueriesTotalTime(0.0);
-
-        if (NumQueriesFinished > 0)
-        {
-            // When using breadth testing we don't know when a particular query will finish,
-            // or if we have queries that were aborted since the last update we don't know which ones were aborted,
-            // so we have to go through all the queries.
-            // When doing depth without any queries aborted since the last update we know how many to remove.
-            // Or if we have finished all the queries.  In that case we don't need to check if the queries are finished)
-            if ((NumQueriesFinished != RunningQueries.Num()) && (bTestQueriesUsingBreadth || (NumRunningQueriesAbortedSinceLastUpdate > 0)))
-            {
-                for (int32 Index = RunningQueries.Num() - 1, FinishedQueriesCounter = NumQueriesFinished; Index >= 0 && FinishedQueriesCounter > 0; --Index)
-                {
-                    TSharedPtr<FSelectionQueryInstance>& QueryInstance = RunningQueries[Index];
-
-                    if (QueryInstance->IsFinished())
-                    {
-                        FinishedQueriesTotalTime += FPlatformTime::Seconds() - QueryInstance->GetQueryStartTime();
-
-                        RunningQueries.RemoveAt(Index, 1, /*bAllowShrinking=*/false);
-
-                        --FinishedQueriesCounter;
-                    }
-                }
-            }
-            else // queries tested using depth without any aborted queries since our last update, or we're removing all queries
-            {
-                for (int32 Index = 0; Index < NumQueriesFinished; ++Index)
-                {
-                    TSharedPtr<FSelectionQueryInstance>& QueryInstance = RunningQueries[Index];
-                    ensure(QueryInstance->IsFinished());
-
-                    FinishedQueriesTotalTime += FPlatformTime::Seconds() - QueryInstance->GetQueryStartTime();
-                }
-
-                RunningQueries.RemoveAt(0, NumQueriesFinished, /*bAllowShrinking=*/false);
-            }
-        }
-
-        // Reset the running queries aborted since last update counter
-        NumRunningQueriesAbortedSinceLastUpdate = 0;
-
-        double InstanceAverageResponseTime = 0.f;
-        if (NumQueriesFinished > 0)
-        {
-            // Convert to ms from seconds
-            InstanceAverageResponseTime = FinishedQueriesTotalTime / (double)NumQueriesFinished * 1000.0;
-        }
-    }
-}
-
-#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-void USelectionQueryManager::CheckQueryCount() const
-{
-    if ((QueryCountWarningThreshold > 0) && (RunningQueries.Num() >= QueryCountWarningThreshold))
-    {
-        const double CurrentTime = FPlatformTime::Seconds();
-
-        if ((LastQueryCountWarningThresholdTime < 0.0) || ((LastQueryCountWarningThresholdTime + QueryCountWarningInterval) < CurrentTime))
-        {
-            LogQueryCountWarning();
-
-            LastQueryCountWarningThresholdTime = CurrentTime;
-        }
-    }
-}
-
-void USelectionQueryManager::LogQueryCountWarning() const
-{
-    UE_LOG(LogSelectionQuery, Warning, TEXT("The number of selection queries has reached (%d) the warning threshold (%d).  Logging queries."), RunningQueries.Num(), QueryCountWarningThreshold);
-
-    for (const TSharedPtr<FSelectionQueryInstance>& RunningQuery : RunningQueries)
-    {
-        if (RunningQuery.IsValid())
-        {
-            UE_LOG(LogSelectionQuery, Warning, TEXT("Query: %s - Owner: %s"), *RunningQuery->QueryName, RunningQuery->Owner.IsValid() ? *RunningQuery->Owner->GetName() : TEXT("Invalid"));
-        }
-        else
-        {
-            UE_LOG(LogSelectionQuery, Warning, TEXT("Invalid query found in list!"));
-        }
-    }
-}
-#endif
-
 void USelectionQueryManager::OnWorldCleanup()
 {
     if (RunningQueries.Num() > 0)
@@ -401,34 +229,8 @@ void USelectionQueryManager::OnWorldCleanup()
     GCShieldedWrappers.Reset();
 }
 
-void USelectionQueryManager::RegisterExternalQuery(const TSharedPtr<FSelectionQueryInstance>& QueryInstance)
-{
-    if (QueryInstance.IsValid())
-    {
-        ExternalQueries.Add(QueryInstance->QueryID, QueryInstance);
-    }
-}
-
-void USelectionQueryManager::UnregisterExternalQuery(const TSharedPtr<FSelectionQueryInstance>& QueryInstance)
-{
-    if (QueryInstance.IsValid())
-    {
-        ExternalQueries.Remove(QueryInstance->QueryID);
-    }
-}
-
 USelectionQuery* USelectionQueryManager::FindQueryTemplate(const FString& QueryName) const
 {
-    for (int32 InstanceIndex = 0; InstanceIndex < InstanceCache.Num(); InstanceIndex++)
-    {
-        const USelectionQuery* QueryTemplate = InstanceCache[InstanceIndex].Template;
-
-        if (QueryTemplate != NULL && QueryTemplate->GetName() == QueryName)
-        {
-            return const_cast<USelectionQuery*>(QueryTemplate);
-        }
-    }
-
     for (FObjectIterator It(USelectionQuery::StaticClass()); It; ++It)
     {
         if (It->GetName() == QueryName)
@@ -440,44 +242,22 @@ USelectionQuery* USelectionQueryManager::FindQueryTemplate(const FString& QueryN
     return NULL;
 }
 
-TSharedPtr<FSelectionQueryInstance> USelectionQueryManager::CreateQueryInstance(const USelectionQuery* Template, ESQRunMode RunMode)
+TSharedPtr<FSelectionQueryInstance> USelectionQueryManager::CreateQueryInstance(const USelectionQuery* QueryTemplate, ESQRunMode RunMode)
 {
-    if (Template == nullptr)
+    if (QueryTemplate == nullptr)
     {
         UE_LOG(LogSelectionQuery, Warning, TEXT("Query [%s] doesn't have a valid template!"), *Template->GetName());
         return nullptr;
     }
 
-    // try to find entry in cache
     FSelectionQueryInstance* InstanceTemplate = NULL;
-    for (int32 InstanceIndex = 0; InstanceIndex < InstanceCache.Num(); InstanceIndex++)
-    {
-        if (InstanceCache[InstanceIndex].Template->GetFName() == Template->GetFName() &&
-            InstanceCache[InstanceIndex].Instance.Mode == RunMode)
-        {
-            InstanceTemplate = &InstanceCache[InstanceIndex].Instance;
-            break;
-        }
-    }
 
-    // and create one if can't be found
-    if (InstanceTemplate == NULL)
-    {
-        // duplicate template in manager's world for BP based nodes
-        USelectionQuery* LocalTemplate = (USelectionQuery*)StaticDuplicateObject(Template, this, TEXT("None"));
+    // duplicate template in manager's world for BP based nodes
+    USelectionQuery* LocalQueryTemplate = (USelectionQuery*)StaticDuplicateObject(QueryTemplate, this, TEXT("None"));
 
-        {
-            // memory stat tracking: temporary variable will exist only inside this section
-            FSQInstanceCache NewCacheEntry;
-            NewCacheEntry.Template = LocalTemplate;
-            NewCacheEntry.Instance.UniqueName = LocalTemplate->GetFName();
-            NewCacheEntry.Instance.QueryName = LocalTemplate->GetQueryName().ToString();
-            NewCacheEntry.Instance.Mode = RunMode;
-
-            const int32 Idx = InstanceCache.Add(NewCacheEntry);
-            InstanceTemplate = &InstanceCache[Idx].Instance;
-        }
-    }
+    InstanceTemplate->UniqueName = LocalQueryTemplate->GetFName();
+    InstanceTemplate->QueryName = LocalQueryTemplate->GetQueryName().ToString();
+    InstanceTemplate->Mode = RunMode;
 
     // create new instance
     TSharedPtr<FSelectionQueryInstance> NewInstance(new FSelectionQueryInstance(*InstanceTemplate));
@@ -556,19 +336,4 @@ TSharedPtr<FSelectionQueryInstance> USelectionQueryManager::FindQueryInstance(co
     }
 
     return nullptr;
-}
-
-//----------------------------------------------------------------------//
-// Exec functions (i.e. console commands)
-//----------------------------------------------------------------------//
-void USelectionQueryManager::SetAllowTimeSlicing(bool bAllowTimeSlicing)
-{
-#if !(UE_BUILD_SHIPPING || UE_BUILD_TEST)
-    bAllowSQTimeSlicing = bAllowTimeSlicing;
-
-    UE_LOG(LogSelectionQuery, Log, TEXT("Set allow time slicing to %s."),
-        bAllowSQTimeSlicing ? TEXT("true") : TEXT("false"));
-#else
-    UE_LOG(LogSelectionQuery, Log, TEXT("Time slicing cannot be disabled in Test or Shipping builds.  SetAllowTimeSlicing does nothing."));
-#endif
 }
