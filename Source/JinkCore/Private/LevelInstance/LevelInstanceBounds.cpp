@@ -1,8 +1,14 @@
 // Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
-#include "LevelInstanceBounds.h"
+
 #include "Components/BoxComponent.h"
+#include "LIAnchorViewerComponent.h"
+#if WITH_EDITOR
+#include "ObjectEditorUtils.h"
+#endif
+
+#include "LevelInstanceBounds.h"
 
 // Default size of the box (scale)
 static const FVector DefaultLevelSize = FVector(1000.f);
@@ -91,6 +97,20 @@ void ALevelInstanceBounds::PostEditChangeProperty(FPropertyChangedEvent& Propert
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	MarkLevelBoundsDirty();
+
+	// Detect Anchors update
+	static const FName NAME_LevelInstance = FName(TEXT("Level Instance"));
+
+	if (PropertyChangedEvent.Property != NULL) {
+		if (FObjectEditorUtils::GetCategoryFName(PropertyChangedEvent.Property) == NAME_LevelInstance)
+			{
+			FName PropName = PropertyChangedEvent.Property->GetFName();
+
+			if (PropName == GET_MEMBER_NAME_CHECKED(ALevelInstanceBounds, Anchors)) {
+				UpdateAnchors();
+			}
+		}
+	}
 }
 
 void ALevelInstanceBounds::PostRegisterAllComponents()
@@ -148,6 +168,7 @@ void ALevelInstanceBounds::UpdateLevelBounds()
 {
 	FBox LevelBounds = CalculateLevelBounds(GetLevel());
 
+	/** Update Level Instance Bounds in the asset  */
     if (!LevelInstance.IsNull()) {
         ULevelInstance* LevelI = LevelInstance.LoadSynchronous();
         LevelI->Bounds = LevelBounds;
@@ -230,6 +251,34 @@ void ALevelInstanceBounds::UnsubscribeFromUpdateEvents()
 	GEngine->OnLevelActorDeleted().Remove(OnLevelActorDeletedDelegateHandle);
 	GEngine->OnLevelActorAdded().Remove(OnLevelActorAddedDelegateHandle);
 }
-
-
 #endif // WITH_EDITOR
+
+
+FLIAnchor* ALevelInstanceBounds::GetAnchorByGUID(FGuid GUID) {
+	return Anchors.FindByPredicate([GUID](const FLIAnchor& InAnchor)
+		{
+			return InAnchor.GUID == GUID;
+		}
+	);
+}
+
+FLIAnchor* ALevelInstanceBounds::GetAnchorByName(FName Name) {
+	return Anchors.FindByPredicate([Name](const FLIAnchor& InAnchor)
+		{
+			return InAnchor.Name == Name;
+		}
+	);
+}
+
+void ALevelInstanceBounds::UpdateAnchors()
+{
+	if (!LevelInstance.IsNull()) {
+		ULevelInstance* LevelI = LevelInstance.LoadSynchronous();
+		LevelI->Anchors = Anchors;
+		LevelI->MarkPackageDirty();
+	}
+}
+
+void ALevelInstanceBounds::UpdateAnchorViewers()
+{
+}

@@ -7,6 +7,7 @@
 #include "LevelInstanceBounds.generated.h"
 
 class ULevelInstance;
+struct FLIAnchor;
 
 /**
 *
@@ -24,6 +25,8 @@ class ALevelInstanceBounds
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance")
 	TAssetPtr<ULevelInstance> LevelInstance;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance")
+	TArray<FLIAnchor> Anchors;
 
 	//~ Begin UObject Interface
 	virtual void PostLoad() override;
@@ -67,6 +70,7 @@ private:
 	virtual TStatId GetStatId() const override;
 	virtual bool IsTickable() const override;
 	virtual bool IsTickableInEditor() const override;
+	
 
 	/** Updates this actor bounding box by summing all level actors bounding boxes  */
 	void UpdateLevelBounds();
@@ -95,4 +99,21 @@ private:
 	FDelegateHandle OnLevelActorAddedDelegateHandle;
 #endif
 	//~ End ALevelBounds Interface
+
+
+	//~ Begin ALevelInstanceBounds Interface.
+public:
+	FLIAnchor* GetAnchorByGUID(FGuid GUID);
+	FLIAnchor* GetAnchorByName(FName Name);
+
+#if WITH_EDITOR
+	/** Updates anchors in the level instance asset  */
+	void UpdateAnchors();
+
+private:
+	/** Resets the anchor viewers acording to the anchor list  */
+	void UpdateAnchorViewers();
+#endif //WITH_EDITOR
+
+	//~ End ALevelInstanceBounds Interface.
 };
