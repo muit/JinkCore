@@ -151,6 +151,7 @@ void ALevelInstanceBounds::UpdateLevelBounds()
     if (!LevelInstance.IsNull()) {
         ULevelInstance* LevelI = LevelInstance.LoadSynchronous();
         LevelI->Bounds = LevelBounds;
+        LevelI->MarkPackageDirty();
     }
 
 	if (LevelBounds.IsValid)

@@ -13,24 +13,23 @@ class JINKCORE_API ULevelInstanceComponent : public USceneComponent
     GENERATED_BODY()
 
 public:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level Instance")
+    TAssetPtr<ULevelInstance> LevelInstanceAsset;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance")
+    bool bViewBounds;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance")
+    bool bViewBoundsInGame;
+
     ULevelInstanceComponent();
 
     virtual void BeginPlay() override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     virtual void OnComponentDestroyed (bool bDestroyingHierarchy) override;
 #if WITH_EDITOR
-    virtual void OnRegister() override;
     virtual void PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent) override;
-    void UpdateLevelInEditor();
 #endif //WITH_EDITOR
 
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level Instance")
-    TAssetPtr<ULevelInstance> LevelInstanceAsset;
-#if WITH_EDITOR
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance")
-    bool ViewBounds;
-#endif //WITH_EDITOR
+    virtual void DrawBounds();
 
     UFUNCTION(BlueprintCallable, Category = "Level Instance")
     void SetLevelInstanceAsset(TAssetPtr<ULevelInstance> NewLevelInstanceAsset);
@@ -47,15 +46,13 @@ public:
     int32 InstanceId;
 
     UFUNCTION(BlueprintCallable, Category = "Level Instance")
-    bool SpawnLevel();
+    bool SpawnLevel(bool bForced = false);
     UFUNCTION(BlueprintCallable, Category = "Level Instance")
     bool LoadLevel();
     UFUNCTION(BlueprintCallable, Category = "Level Instance")
     void SetLevelVisibility(bool NewVisibility);
     UFUNCTION(BlueprintCallable, Category = "Level Instance")
     void UnloadLevel();
-    UFUNCTION(BlueprintCallable, Category = "Level Instance")
-    void RemoveLevel();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
     FString GetUniqueName();

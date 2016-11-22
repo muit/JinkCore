@@ -17,7 +17,10 @@ ULevelInstanceComponent::ULevelInstanceComponent()
     // Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
     // off to improve performance if you don't need them.
     PrimaryComponentTick.bCanEverTick = true;
-    ViewBounds = true;
+    bTickInEditor = true;
+    bViewBounds = true;
+    bViewBoundsInGame = false;
+
     InstanceId = -1;
     StreamingLevel = nullptr;
 }
@@ -35,28 +38,31 @@ void ULevelInstanceComponent::BeginPlay()
 void ULevelInstanceComponent::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
     Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+
+    if (GEngine->IsEditor()) {
+        //Editor Tick
+        if (bViewBounds) {
+            DrawBounds();
+        }
+        return;
+    }
+
+    //In Game Tick
+    if (bViewBoundsInGame) {
+        DrawBounds();
+    }
 }
 
 void ULevelInstanceComponent::OnComponentDestroyed(bool bDestroyingHierarchy)
 {
     UnloadLevel();
-    RemoveLevel();
     Super::OnComponentDestroyed(bDestroyingHierarchy);
 }
 
 #if WITH_EDITOR
-void ULevelInstanceComponent::OnRegister()
-{
-    Super::OnRegister();
-
-    if (GEngine->IsEditor()) {
-        UpdateLevelInEditor();
-    }
-}
-
 void ULevelInstanceComponent::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)
 {
-    static const FName NAME_LevelInstance = FName(TEXT("Level Instance"));
+    /*static const FName NAME_LevelInstance = FName(TEXT("Level Instance"));
     Super::PostEditChangeProperty(PropertyChangedEvent);
 
     if (PropertyChangedEvent.Property != NULL) {
@@ -66,69 +72,74 @@ void ULevelInstanceComponent::PostEditChangeProperty(FPropertyChangedEvent & Pro
 
             if (PropName == GET_MEMBER_NAME_CHECKED(ULevelInstanceComponent, ViewBounds)) {
                 if (GEngine->IsEditor()) {
-                    UpdateLevelInEditor();
                 }
             }
         }
-    }
-}
-
-void ULevelInstanceComponent::UpdateLevelInEditor() {
-    if (!LevelInstanceAsset.IsNull()) {
-    }
+    }*/
 }
 #endif //WITH_EDITOR
+
+void ULevelInstanceComponent::DrawBounds() {
+    if (!LevelInstanceAsset.IsNull()) {
+        //get the last level instance bounds box
+        const FBox LevelBounds = GetLevelInstance()->Bounds;
+        const FVector Center = GetComponentLocation() + LevelBounds.GetCenter();
+        const FVector Extent = LevelBounds.GetExtent() * GetComponentScale();
+
+        DrawDebugBox(GetWorld(), Center, Extent, GetComponentQuat(), FColor::Purple);
+    }
+}
 
 void ULevelInstanceComponent::SetLevelInstanceAsset(TAssetPtr<ULevelInstance> NewLevelInstanceAsset) {
     if (NewLevelInstanceAsset && LevelInstanceAsset != NewLevelInstanceAsset) {
         //Remove Last Level
-        RemoveLevel();
+        UnloadLevel();
 
         LevelInstanceAsset = NewLevelInstanceAsset;
 
         //Load the new level if needed
-        //
+        SpawnLevel(true);
     }
 }
 
 ULevelInstance* ULevelInstanceComponent::GetLevelInstance() {
-    return LevelInstanceAsset.LoadSynchronous();
+    return LevelInstanceAsset.IsNull()? nullptr : LevelInstanceAsset.LoadSynchronous();
 }
 
 
 //~ Begin Level Instance Interface
 
-bool ULevelInstanceComponent::SpawnLevel()
+bool ULevelInstanceComponent::SpawnLevel(bool bForced)
 {
     UE_LOG(JinkCore, Display, TEXT("LevelInstance: Spawning"));
 
-    if (LevelInstanceAsset.IsNull() || IsRegistered()) {
-        if (IsRegistered()) {
-            UE_LOG(JinkCore, Error, TEXT("LevelInstance: LevelInstanceAsset is empty"));
-        } else {
-            UE_LOG(JinkCore, Warning, TEXT("LevelInstance: Already registered"));
-        }
+    if (LevelInstanceAsset.IsNull()) {
+        UE_LOG(JinkCore, Error, TEXT("LevelInstance: LevelInstanceAsset is empty"));
+        return false;
+    }
+    if(IsRegistered() && !bForced) {
+        UE_LOG(JinkCore, Warning, TEXT("LevelInstance: Already registered"));
         return false;
     }
 
     //May need to load LevelInstanceAsset
     LevelInstanceAsset.LoadSynchronous();
 
-    const TAssetPtr<UWorld> InstancedLevel = LevelInstanceAsset->InstancedLevel;
+    const TAssetPtr<UWorld> Level = LevelInstanceAsset->InstancedLevel;
 
-    if (InstancedLevel.IsNull()) {
+    if (Level.IsNull()) {
         UE_LOG(JinkCore, Error, TEXT("LevelInstance: Instanced Level is empty"));
         return false;
     }
 
-    UWorld* const World = GEngine->GetWorldFromContextObject(this, false);
+    UWorld* const World = GetWorld();
     if (!World) {
         UE_LOG(JinkCore, Error, TEXT("LevelInstance: Couldn't get World while spawning the level"));
         return false;
     }
 
     // Check whether requested map exists, this could be very slow if LevelName is a short package name
-    FString LevelName = InstancedLevel.GetLongPackageName();
+    FString LevelName = Level.GetLongPackageName();
     FString LongPackageName = FPackageName::FilenameToLongPackageName(LevelName);
 
 
@@ -152,7 +163,7 @@ bool ULevelInstanceComponent::SpawnLevel()
     NewStreamingLevel->bInitiallyVisible = LevelInstanceAsset->bInitiallyVisible;
 
     // Transform
-    NewStreamingLevel->LevelTransform = FTransform(GetComponentRotation(), GetComponentLocation(), GetComponentScale());
+    NewStreamingLevel->LevelTransform = GetOwner()->GetActorTransform();
     // Map to Load
     NewStreamingLevel->PackageNameToLoad = FName(*LongPackageName);
 
@@ -186,34 +197,6 @@ void ULevelInstanceComponent::UnloadLevel()
     if (IsRegistered()) {
         StreamingLevel->bShouldBeLoaded = false;
     }
-}
-
-//Executable only in editor
-void ULevelInstanceComponent::RemoveLevel() {
-#if WITH_EDITOR
-    if (IsRegistered()) {
-        //Find Example at: LevelCollectionModel.cpp:568
-        ULevel* Level = StreamingLevel->GetLoadedLevel();
-        if (Level != nullptr)
-        {
-            // Unselect all actors before removing the level
-            // This avoids crashing in areas that rely on getting a selected actors level. The level will be invalid after its removed.
-            for (auto ActorIt = Level->Actors.CreateIterator(); ActorIt; ++ActorIt)
-            {
-                GEditor->SelectActor((*ActorIt), /*bInSelected=*/ false, /*bSelectEvenIfHidden=*/ false);
-            }
-
-            // Remove the streaming level before unloading level
-            {
-                StreamingLevel->MarkPendingKill();
-            }
-
-            // Unload level
-            FUnmodifiableObject ImmuneWorld(GetWorld());
-            EditorLevelUtils::RemoveLevelFromWorld(Level);
-        }
-    }
-#endif //WITH_EDITOR
 }
 
 FString ULevelInstanceComponent::GetUniqueName()
