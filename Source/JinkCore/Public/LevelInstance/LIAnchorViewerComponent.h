@@ -2,13 +2,14 @@
 
 #pragma once
 
-#include "Components/SceneComponent.h"
+#include "Components/ArrowComponent.h"
 #include "LIAnchorViewerComponent.generated.h"
 
 class ALevelInstanceBounds;
+struct FLIAnchor;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class JINKCORE_API ULIAnchorViewerComponent : public USceneComponent
+class JINKCORE_API ULIAnchorViewerComponent : public UArrowComponent
 {
 	GENERATED_BODY()
 

@@ -34,6 +34,8 @@ ALevelInstanceBounds::ALevelInstanceBounds(const FObjectInitializer& ObjectIniti
 #if WITH_EDITOR
 	bLevelBoundsDirty = true;
 	bUsingDefaultBounds = false;
+
+	UpdateAnchorViewers();
 #endif
 }
 
@@ -108,6 +110,7 @@ void ALevelInstanceBounds::PostEditChangeProperty(FPropertyChangedEvent& Propert
 
 			if (PropName == GET_MEMBER_NAME_CHECKED(ALevelInstanceBounds, Anchors)) {
 				UpdateAnchors();
+				UpdateAnchorViewers();
 			}
 		}
 	}
@@ -270,6 +273,7 @@ FLIAnchor* ALevelInstanceBounds::GetAnchorByName(FName Name) {
 	);
 }
 
+#if WITH_EDITOR
 void ALevelInstanceBounds::UpdateAnchors()
 {
 	if (!LevelInstance.IsNull()) {
@@ -281,4 +285,21 @@ void ALevelInstanceBounds::UpdateAnchors()
 
 void ALevelInstanceBounds::UpdateAnchorViewers()
 {
+	//Remove previous anchor viewers
+	TArray<UActorComponent*> OldViewers = GetComponentsByClass(ULIAnchorViewerComponent::StaticClass());
+	for (auto OldViewerIt = OldViewers.CreateConstIterator(); OldViewerIt; ++OldViewerIt)
+	{
+		(*OldViewerIt)->DestroyComponent();
+	}
+
+	for (auto AnchorIt = Anchors.CreateConstIterator(); AnchorIt; ++AnchorIt)
+	{
+		//Create a new viewer for each anchor
+		ULIAnchorViewerComponent* AnchorViewer = CreateDefaultSubobject<ULIAnchorViewerComponent>(NAME_None);
+		AnchorViewer->AnchorGUID = (*AnchorIt).GUID;
+		AnchorViewer->SetWorldTransform((*AnchorIt).Transform);
+		AnchorViewer->Name = (*AnchorIt).Name;
+		AnchorViewer->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
+	}
 }
+#endif //WITH_EDITOR
