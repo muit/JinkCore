@@ -36,13 +36,17 @@ public class JinkEditor : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
+                "Core",
 				"CoreUObject",
 				"Engine",
+                "UnrealEd",
 				"Slate",
 				"SlateCore",
+                "AssetTools",
                 "EditorStyle",
                 "PropertyEditor",
                 "DetailCustomizations",
+                "ContentBrowser",
                 "Settings",
                 "JinkCore"
 				// ... add private dependencies that you statically link with here ...	
