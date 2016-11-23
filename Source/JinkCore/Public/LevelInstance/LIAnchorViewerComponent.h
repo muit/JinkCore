@@ -14,10 +14,8 @@ class JINKCORE_API ULIAnchorViewerComponent : public UArrowComponent
 	GENERATED_BODY()
 
 public:
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level Anchor")
 	FGuid AnchorGUID;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Anchor")
-	FName Name;
 
 	// Sets default values for this component's properties
 	ULIAnchorViewerComponent();
@@ -38,11 +36,10 @@ private:
 		return Cast<ALevelInstanceBounds>(GetOwner());
 	}
 
-	FLIAnchor* GetLIAnchor() {
+	FLIAnchor GetLIAnchor() {
 		if (ALevelInstanceBounds* LIBoundsActor = GetLIBoundsActor()) {
 			return LIBoundsActor->GetAnchorByGUID(AnchorGUID);
 		}
-		return nullptr;
+		return FLIAnchor();
 	}
-	
 };

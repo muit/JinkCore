@@ -13,16 +13,30 @@ struct FLIAnchor
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "")
 	FName Name;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Transform")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "")
 	FTransform Transform;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Transform")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "")
 	FGuid GUID;
 
-	FLIAnchor() : Transform(FTransform::Identity), Name("None"), GUID(FGuid::NewGuid())
-	{
-	
-	}
+	FLIAnchor() : Name("None"), Transform(FTransform::Identity), GUID(FGuid::NewGuid())
+	{}
+
+    void CopyFrom(const FLIAnchor& Other) {
+        GUID = Other.GUID;
+        Name = Other.Name;
+        Transform = Other.Transform;
+    }
+
+    FORCEINLINE bool operator==(const FLIAnchor &Other) const
+    {
+        return GUID == Other.GUID;
+    }
+
+    FORCEINLINE bool operator==(const FGuid &OtherGUID) const
+    {
+        return GUID == OtherGUID;
+    }
 };
 
 /**
@@ -34,7 +48,6 @@ class JINKCORE_API ULevelInstance : public UObject
 	GENERATED_BODY()
 
 public:
-
 	ULevelInstance(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	UFUNCTION(BlueprintCallable, Category = "Level Instance")

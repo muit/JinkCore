@@ -2,6 +2,7 @@
 
 #include "JinkCorePrivatePCH.h"
 #include "LevelInstanceBounds.h"
+#include "LevelInstance.h"
 #include "LIAnchorViewerComponent.h"
 
 
@@ -31,30 +32,16 @@ void ULIAnchorViewerComponent::TickComponent( float DeltaTime, ELevelTick TickTy
 #if WITH_EDITOR
 void ULIAnchorViewerComponent::PostEditComponentMove(bool bFinished) {
 	if (ALevelInstanceBounds* LIBoundsActor = GetLIBoundsActor()) {
-		if (FLIAnchor* Anchor = GetLIAnchor()) {
-			Anchor->Transform = GetComponentTransform();
+        FLIAnchor Anchor = GetLIAnchor();
+        if(Anchor.GUID == AnchorGUID) {
+			//Anchor->Transform = GetComponentTransform();
 			//Save to level instance asset
-			LIBoundsActor->UpdateAnchors();
+			//LIBoundsActor->UpdateAnchors();
 		}
 	}
 }
 
 void ULIAnchorViewerComponent::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)
-{
-	if (PropertyChangedEvent.Property != NULL) {
-		FName PropName = PropertyChangedEvent.Property->GetFName();
-
-		if (PropName == GET_MEMBER_NAME_CHECKED(ULIAnchorViewerComponent, Name)) {
-			//On name change, update anchors on level bounds
-			if (ALevelInstanceBounds* LIBoundsActor = GetLIBoundsActor()) {
-				if (FLIAnchor* Anchor = GetLIAnchor()) {
-					Anchor->Name = Name;
-					//Save to level instance asset
-					LIBoundsActor->UpdateAnchors();
-				}
-			}
-		}
-	}
-}
+{}
 #endif //WITH_EDITOR
 

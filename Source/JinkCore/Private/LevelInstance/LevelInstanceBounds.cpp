@@ -3,6 +3,7 @@
 #include "JinkCorePrivatePCH.h"
 
 #include "Components/BoxComponent.h"
+#include "LevelInstance.h"
 #include "LIAnchorViewerComponent.h"
 #if WITH_EDITOR
 #include "ObjectEditorUtils.h"
@@ -104,15 +105,15 @@ void ALevelInstanceBounds::PostEditChangeProperty(FPropertyChangedEvent& Propert
 	static const FName NAME_LevelInstance = FName(TEXT("Level Instance"));
 
 	if (PropertyChangedEvent.Property != NULL) {
-		if (FObjectEditorUtils::GetCategoryFName(PropertyChangedEvent.Property) == NAME_LevelInstance)
-			{
-			FName PropName = PropertyChangedEvent.Property->GetFName();
+        if (FObjectEditorUtils::GetCategoryFName(PropertyChangedEvent.MemberProperty) == NAME_LevelInstance)
+        {
+            FName PropName = PropertyChangedEvent.MemberProperty->GetFName();
 
-			if (PropName == GET_MEMBER_NAME_CHECKED(ALevelInstanceBounds, Anchors)) {
-				UpdateAnchors();
-				UpdateAnchorViewers();
-			}
-		}
+            if (PropName == GET_MEMBER_NAME_CHECKED(ALevelInstanceBounds, Anchors)) {
+                UpdateAnchors();
+                UpdateAnchorViewers();
+            }
+        }
 	}
 }
 
@@ -257,16 +258,16 @@ void ALevelInstanceBounds::UnsubscribeFromUpdateEvents()
 #endif // WITH_EDITOR
 
 
-FLIAnchor* ALevelInstanceBounds::GetAnchorByGUID(FGuid GUID) {
-	return Anchors.FindByPredicate([GUID](const FLIAnchor& InAnchor)
+FLIAnchor& ALevelInstanceBounds::GetAnchorByGUID(FGuid GUID) {
+    return *Anchors.FindByPredicate([GUID](const FLIAnchor& InAnchor)
 		{
 			return InAnchor.GUID == GUID;
 		}
 	);
 }
 
-FLIAnchor* ALevelInstanceBounds::GetAnchorByName(FName Name) {
-	return Anchors.FindByPredicate([Name](const FLIAnchor& InAnchor)
+FLIAnchor& ALevelInstanceBounds::GetAnchorByName(FName Name) {
+	return *Anchors.FindByPredicate([Name](const FLIAnchor& InAnchor)
 		{
 			return InAnchor.Name == Name;
 		}
@@ -278,28 +279,56 @@ void ALevelInstanceBounds::UpdateAnchors()
 {
 	if (!LevelInstance.IsNull()) {
 		ULevelInstance* LevelI = LevelInstance.LoadSynchronous();
-		LevelI->Anchors = Anchors;
+
+        //Remove unknown anchors
+        LevelI->Anchors.RemoveAll([&](const FLIAnchor& InAnchor) {
+            return !Anchors.Contains<FLIAnchor>(InAnchor);
+        });
+
+        for (auto& Anchor : Anchors)
+        {
+            FLIAnchor NewAnchor;
+            NewAnchor.GUID = Anchor.GUID;
+            NewAnchor.Name = Anchor.Name;
+            NewAnchor.Transform = Anchor.Transform;
+
+            int32 Index = LevelI->Anchors.IndexOfByKey(Anchor);
+            if (Index < 0) {
+                LevelI->Anchors.Add(NewAnchor);
+            } else {
+                LevelI->Anchors[Index] = NewAnchor;
+            }
+        }
 		LevelI->MarkPackageDirty();
 	}
 }
 
+/*
+void ALevelInstanceBounds::UpdateAnchorViewerPosition(FGuid GUID)
+{
+}*/
+
 void ALevelInstanceBounds::UpdateAnchorViewers()
 {
 	//Remove previous anchor viewers
-	TArray<UActorComponent*> OldViewers = GetComponentsByClass(ULIAnchorViewerComponent::StaticClass());
-	for (auto OldViewerIt = OldViewers.CreateConstIterator(); OldViewerIt; ++OldViewerIt)
+	for (auto OldViewerIt = AnchorViewers.CreateConstIterator(); OldViewerIt; ++OldViewerIt)
 	{
 		(*OldViewerIt)->DestroyComponent();
 	}
+    AnchorViewers.Empty();
 
-	for (auto AnchorIt = Anchors.CreateConstIterator(); AnchorIt; ++AnchorIt)
-	{
-		//Create a new viewer for each anchor
-		ULIAnchorViewerComponent* AnchorViewer = CreateDefaultSubobject<ULIAnchorViewerComponent>(NAME_None);
-		AnchorViewer->AnchorGUID = (*AnchorIt).GUID;
-		AnchorViewer->SetWorldTransform((*AnchorIt).Transform);
-		AnchorViewer->Name = (*AnchorIt).Name;
-		AnchorViewer->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
+    for (auto& Anchor : Anchors)
+    {
+        //Create a new viewer for each anchor
+        ULIAnchorViewerComponent* AnchorViewer = NewObject<ULIAnchorViewerComponent>(this, ULIAnchorViewerComponent::StaticClass(), Anchor.Name);
+        if (AnchorViewer)
+        {
+            AnchorViewer->RegisterComponent();
+            AnchorViewer->AnchorGUID = Anchor.GUID;
+            AnchorViewer->SetWorldTransform(Anchor.Transform);
+            AnchorViewer->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
+            AnchorViewers.Add(AnchorViewer);
+        }
 	}
 }
 #endif //WITH_EDITOR

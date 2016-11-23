@@ -8,6 +8,7 @@
 
 class ULevelInstance;
 struct FLIAnchor;
+class ULIAnchorViewerComponent;
 
 /**
 *
@@ -27,6 +28,9 @@ public:
 	TAssetPtr<ULevelInstance> LevelInstance;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance")
 	TArray<FLIAnchor> Anchors;
+
+    UPROPERTY(Transient)
+    TArray<ULIAnchorViewerComponent*> AnchorViewers;
 
 	//~ Begin UObject Interface
 	virtual void PostLoad() override;
@@ -103,8 +107,8 @@ private:
 
 	//~ Begin ALevelInstanceBounds Interface.
 public:
-	FLIAnchor* GetAnchorByGUID(FGuid GUID);
-	FLIAnchor* GetAnchorByName(FName Name);
+	FLIAnchor& GetAnchorByGUID(FGuid GUID);
+	FLIAnchor& GetAnchorByName(FName Name);
 
 #if WITH_EDITOR
 	/** Updates anchors in the level instance asset  */
