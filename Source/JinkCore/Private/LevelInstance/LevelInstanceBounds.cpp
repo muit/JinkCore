@@ -1,8 +1,15 @@
 // Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
-#include "LevelInstanceBounds.h"
+
 #include "Components/BoxComponent.h"
+#include "LevelInstance.h"
+#include "LIAnchorViewerComponent.h"
+#if WITH_EDITOR
+#include "ObjectEditorUtils.h"
+#endif
+
+#include "LevelInstanceBounds.h"
 
 // Default size of the box (scale)
 static const FVector DefaultLevelSize = FVector(1000.f);
@@ -28,6 +35,8 @@ ALevelInstanceBounds::ALevelInstanceBounds(const FObjectInitializer& ObjectIniti
 #if WITH_EDITOR
 	bLevelBoundsDirty = true;
 	bUsingDefaultBounds = false;
+
+	UpdateAnchorViewers();
 #endif
 }
 
@@ -91,6 +100,21 @@ void ALevelInstanceBounds::PostEditChangeProperty(FPropertyChangedEvent& Propert
 	Super::PostEditChangeProperty(PropertyChangedEvent);
 
 	MarkLevelBoundsDirty();
+
+	// Detect Anchors update
+	static const FName NAME_LevelInstance = FName(TEXT("Level Instance"));
+
+	if (PropertyChangedEvent.Property != NULL) {
+        if (FObjectEditorUtils::GetCategoryFName(PropertyChangedEvent.MemberProperty) == NAME_LevelInstance)
+        {
+            FName PropName = PropertyChangedEvent.MemberProperty->GetFName();
+
+            if (PropName == GET_MEMBER_NAME_CHECKED(ALevelInstanceBounds, Anchors)) {
+                UpdateAnchors();
+                UpdateAnchorViewers();
+            }
+        }
+	}
 }
 
 void ALevelInstanceBounds::PostRegisterAllComponents()
@@ -148,6 +172,7 @@ void ALevelInstanceBounds::UpdateLevelBounds()
 {
 	FBox LevelBounds = CalculateLevelBounds(GetLevel());
 
+	/** Update Level Instance Bounds in the asset  */
     if (!LevelInstance.IsNull()) {
         ULevelInstance* LevelI = LevelInstance.LoadSynchronous();
         LevelI->Bounds = LevelBounds;
@@ -230,6 +255,80 @@ void ALevelInstanceBounds::UnsubscribeFromUpdateEvents()
 	GEngine->OnLevelActorDeleted().Remove(OnLevelActorDeletedDelegateHandle);
 	GEngine->OnLevelActorAdded().Remove(OnLevelActorAddedDelegateHandle);
 }
-
-
 #endif // WITH_EDITOR
+
+
+FLIAnchor& ALevelInstanceBounds::GetAnchorByGUID(FGuid GUID) {
+    return *Anchors.FindByPredicate([GUID](const FLIAnchor& InAnchor)
+		{
+			return InAnchor.GUID == GUID;
+		}
+	);
+}
+
+FLIAnchor& ALevelInstanceBounds::GetAnchorByName(FName Name) {
+	return *Anchors.FindByPredicate([Name](const FLIAnchor& InAnchor)
+		{
+			return InAnchor.Name == Name;
+		}
+	);
+}
+
+#if WITH_EDITOR
+void ALevelInstanceBounds::UpdateAnchors()
+{
+	if (!LevelInstance.IsNull()) {
+		ULevelInstance* LevelI = LevelInstance.LoadSynchronous();
+
+        //Remove unknown anchors
+        LevelI->Anchors.RemoveAll([&](const FLIAnchor& InAnchor) {
+            return !Anchors.Contains<FLIAnchor>(InAnchor);
+        });
+
+        for (auto& Anchor : Anchors)
+        {
+            FLIAnchor NewAnchor;
+            NewAnchor.GUID = Anchor.GUID;
+            NewAnchor.Name = Anchor.Name;
+            NewAnchor.Transform = Anchor.Transform;
+
+            int32 Index = LevelI->Anchors.IndexOfByKey(Anchor);
+            if (Index < 0) {
+                LevelI->Anchors.Add(NewAnchor);
+            } else {
+                LevelI->Anchors[Index] = NewAnchor;
+            }
+        }
+		LevelI->MarkPackageDirty();
+	}
+}
+
+/*
+void ALevelInstanceBounds::UpdateAnchorViewerPosition(FGuid GUID)
+{
+}*/
+
+void ALevelInstanceBounds::UpdateAnchorViewers()
+{
+	//Remove previous anchor viewers
+	for (auto OldViewerIt = AnchorViewers.CreateConstIterator(); OldViewerIt; ++OldViewerIt)
+	{
+		(*OldViewerIt)->DestroyComponent();
+	}
+    AnchorViewers.Empty();
+
+    for (auto& Anchor : Anchors)
+    {
+        //Create a new viewer for each anchor
+        ULIAnchorViewerComponent* AnchorViewer = NewObject<ULIAnchorViewerComponent>(this, ULIAnchorViewerComponent::StaticClass(), Anchor.Name);
+        if (AnchorViewer)
+        {
+            AnchorViewer->RegisterComponent();
+            AnchorViewer->AnchorGUID = Anchor.GUID;
+            AnchorViewer->SetWorldTransform(Anchor.Transform);
+            AnchorViewer->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
+            AnchorViewers.Add(AnchorViewer);
+        }
+	}
+}
+#endif //WITH_EDITOR
