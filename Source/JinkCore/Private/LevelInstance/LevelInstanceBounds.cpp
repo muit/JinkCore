@@ -285,6 +285,7 @@ void ALevelInstanceBounds::UpdateAnchors()
             return !Anchors.Contains<FLIAnchor>(InAnchor);
         });
 
+        //Update or create new ones
         for (auto& Anchor : Anchors)
         {
             FLIAnchor NewAnchor;
