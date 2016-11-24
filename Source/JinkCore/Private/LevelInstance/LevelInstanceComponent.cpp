@@ -39,7 +39,9 @@ void ULevelInstanceComponent::TickComponent( float DeltaTime, ELevelTick TickTyp
 {
     Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-    if (GEngine->IsEditor()) {
+    if (GetWorld()->WorldType == EWorldType::Type::Editor ||
+		GetWorld()->WorldType == EWorldType::Type::None)
+	{
         //Editor Tick
         if (bViewBounds) {
             DrawBounds();
@@ -96,9 +98,6 @@ void ULevelInstanceComponent::SetLevelInstanceAsset(TAssetPtr<ULevelInstance> Ne
         UnloadLevel();
 
         LevelInstanceAsset = NewLevelInstanceAsset;
-
-        //Load the new level if needed
-        SpawnLevel(true);
     }
 }
 
