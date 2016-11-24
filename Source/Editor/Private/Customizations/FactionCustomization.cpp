@@ -99,6 +99,7 @@ void FFactionCustomization::OnSettingsChanged()
 void FFactionCustomization::UpdateFactionNames()
 {
 	Names = GetDefault<UJinkCoreSettings>()->Factions;
+	// Make sure None is at the start
 	Names.Remove(FACTION_None);
 	Names.Insert(FACTION_None, 0);
 
