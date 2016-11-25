@@ -4,7 +4,7 @@
 #pragma once
 
 #include "Kismet/BlueprintFunctionLibrary.h"
-#include "VideoSettingsLib.generated.h"
+#include "VideoSettings.generated.h"
 
 /** Used by FPostProcessSettings Anti-aliasings */
 UENUM(BlueprintType)
@@ -42,7 +42,7 @@ enum class EViewDistance : uint8
  * Custom Game Settings Function Library.
  */
 UCLASS()
-class JINKCORE_API UVideoSettingsLib : public UBlueprintFunctionLibrary
+class JINKCORE_API UVideoSettings : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 public:

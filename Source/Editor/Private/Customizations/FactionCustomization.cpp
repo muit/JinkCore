@@ -5,7 +5,7 @@
 
 #include "Faction.h"
 #include "JinkCore/Private/JinkCorePrivatePCH.h"
-#include "JinkCoreSettings.h"
+#include "JCGeneralSettings.h"
 
 #include "FactionCustomization.h"
 
@@ -20,7 +20,7 @@ void FFactionCustomization::CustomizeHeader(TSharedRef<class IPropertyHandle> St
 		if (FJinkCoreModule* JinkCoreModule = FModuleManager::GetModulePtr<FJinkCoreModule>("JinkCore"))
 		{
 			//Bind On Settings Changed event
-			JinkCoreModule->OnModifiedSettings().BindRaw(this, &FFactionCustomization::OnSettingsChanged);
+			JinkCoreModule->OnModifiedGeneralSettings().BindRaw(this, &FFactionCustomization::OnSettingsChanged);
 		}
 
 		UpdateFactionNames();
@@ -98,7 +98,7 @@ void FFactionCustomization::OnSettingsChanged()
 /** Display the current column selection */
 void FFactionCustomization::UpdateFactionNames()
 {
-	Names = GetDefault<UJinkCoreSettings>()->Factions;
+	Names = GetDefault<UJCGeneralSettings>()->Factions;
 	// Make sure None is at the start
 	Names.Remove(FACTION_None);
 	Names.Insert(FACTION_None, 0);

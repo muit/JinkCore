@@ -1,10 +1,11 @@
 // Copyright 2015-2016 Piperift. All Rights Reserved.
 
 #include "JinkEditorPrivatePCH.h"
+#include "Editor/DetailCustomizations/Private/DetailCustomizationsPrivatePCH.h"
 
 #include "LIAnchorType.h"
 #include "JinkCore/Private/JinkCorePrivatePCH.h"
-#include "JinkCoreSettings.h"
+#include "JCGenerationSettings.h"
 
 #include "AnchorTypeCustomization.h"
 
@@ -19,7 +20,7 @@ bool FAnchorTypeCustomization::CanCustomizeHeader(TSharedRef<class IPropertyHand
 		if (FJinkCoreModule* JinkCoreModule = FJinkCoreModule::GetInstance())
 		{
 			//Bind On Settings Changed event
-			JinkCoreModule->OnModifiedSettings().BindRaw(this, &FStringEnumCustomization::UpdateItems);
+			JinkCoreModule->OnModifiedGenerationSettings().BindRaw(this, &FAnchorTypeCustomization::UpdateItems);
 		}
 		return true;
 	}
@@ -27,8 +28,11 @@ bool FAnchorTypeCustomization::CanCustomizeHeader(TSharedRef<class IPropertyHand
 }
 
 TArray<FString> FAnchorTypeCustomization::GetEnumItems() {
-	TArray<FString> Values;
-	Values.Add(FString("None"));
+	TArray<FString> Values = GetDefault<UJCGenerationSettings>()->AnchorTypes;
+    // Make sure None is at the start
+    Values.Remove(ANCHOR_None);
+    Values.Insert(ANCHOR_None, 0);
+
 	return Values;
 }
 

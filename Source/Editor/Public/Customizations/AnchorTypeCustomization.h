@@ -1,7 +1,6 @@
 // Copyright 2015-2016 Piperift. All Rights Reserved.
 #pragma once
 
-#include "IPropertyTypeCustomization.h"
 #include "StringEnumCustomization.h"
 
 class FAnchorTypeCustomization : public FStringEnumCustomization
@@ -17,7 +16,7 @@ public:
 		return MakeShareable(new FAnchorTypeCustomization);
 	}
 
-private:
+protected:
 	/** Handle to the struct properties being customized */
 	TSharedPtr<IPropertyHandle> StructHandle;
 	TSharedPtr<IPropertyHandle> TypeHandle;

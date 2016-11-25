@@ -3,9 +3,6 @@
 
 #include "Private/JinkCorePrivatePCH.h"
 
-// Settings
-#include "JinkCoreSettings.h"
-
 #if WITH_EDITOR
 #include "ISettingsModule.h"
 #include "ISettingsSection.h"
@@ -33,19 +30,29 @@ public:
 	virtual bool SupportsDynamicReloading() override { return true; }
 
 	DECLARE_DELEGATE_RetVal(void, FOnModifiedSettings)
-	FOnModifiedSettings& OnModifiedSettings()
+	FOnModifiedSettings& OnModifiedGeneralSettings()
 	{
-		return ModifiedSettingsDelegate;
+		return ModifiedGeneralSettingsDelegate;
 	}
+
+    DECLARE_DELEGATE_RetVal(void, FOnModifiedSettings)
+    FOnModifiedSettings& OnModifiedGenerationSettings()
+    {
+        return ModifiedGenerationSettingsDelegate;
+    }
 
 private:
 	/** Holds a delegate that is executed after the settings section has been modified. */
-	FOnModifiedSettings ModifiedSettingsDelegate;
+	FOnModifiedSettings ModifiedGeneralSettingsDelegate;
+    /** Holds a delegate that is executed after the settings section has been modified. */
+    FOnModifiedSettings ModifiedGenerationSettingsDelegate;
 
-	// Callback for when the settings were saved.
-	bool HandleSettingsSaved();
 	void RegisterSettings();
 	void UnregisterSettings();
+
+    // Callbacks for when the settings were saved.
+    bool HandleGeneralSettingsSaved();
+    bool HandleGenerationSettingsSaved();
 
 #if WITH_EDITOR
 private:

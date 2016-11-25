@@ -1,12 +1,12 @@
 // Copyright 2015-2016 Piperift. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
-#include "VideoSettingsLib.h"
+#include "VideoSettings.h"
 
 
 // Get a list of screen resolutions supported by video adapter
 // NOTE: This function needs "RHI" to be added to <Project>.Build.cs file!
-bool UVideoSettingsLib::GetSupportedScreenResolutions(TArray<FString>& Resolutions)
+bool UVideoSettings::GetSupportedScreenResolutions(TArray<FString>& Resolutions)
 {
 	FScreenResolutionArray ResolutionsArray;
 
@@ -31,7 +31,7 @@ bool UVideoSettingsLib::GetSupportedScreenResolutions(TArray<FString>& Resolutio
 
 
 // Get currently set screen resolution
-FString UVideoSettingsLib::GetScreenResolution()
+FString UVideoSettings::GetScreenResolution()
 {
 	UGameUserSettings* Settings = GetGameUserSettings();
 	if (!Settings)
@@ -45,7 +45,7 @@ FString UVideoSettingsLib::GetScreenResolution()
 
 
 // Check whether or not we are currently running in fullscreen mode
-bool UVideoSettingsLib::IsInFullscreen()
+bool UVideoSettings::IsInFullscreen()
 {
 	UGameUserSettings* Settings = GetGameUserSettings();
 	if (!Settings)
@@ -58,7 +58,7 @@ bool UVideoSettingsLib::IsInFullscreen()
 
 
 // Set the desired screen resolution (does not change it yet)
-bool UVideoSettingsLib::SetScreenResolution(const int32 Width, const int32 Height, const bool Fullscreen)
+bool UVideoSettings::SetScreenResolution(const int32 Width, const int32 Height, const bool Fullscreen)
 {
 	UGameUserSettings* Settings = GetGameUserSettings();
 	if (!Settings)
@@ -73,7 +73,7 @@ bool UVideoSettingsLib::SetScreenResolution(const int32 Width, const int32 Heigh
 
 
 // Change the current screen resolution
-bool UVideoSettingsLib::ChangeScreenResolution(const int32 Width, const int32 Height, const bool Fullscreen)
+bool UVideoSettings::ChangeScreenResolution(const int32 Width, const int32 Height, const bool Fullscreen)
 {
 	UGameUserSettings* Settings = GetGameUserSettings();
 	if (!Settings)
@@ -88,7 +88,7 @@ bool UVideoSettingsLib::ChangeScreenResolution(const int32 Width, const int32 He
 
 
 // Get the current video quality settings
-bool UVideoSettingsLib::GetVideoQualitySettings(EAntiAliasing& AntiAliasing, EQuality& Effects, EQuality& PostProcess,
+bool UVideoSettings::GetVideoQualitySettings(EAntiAliasing& AntiAliasing, EQuality& Effects, EQuality& PostProcess,
 	int32& Resolution, EQuality& Shadow, EQuality& Texture, int32& ViewDistance)
 {
 	UGameUserSettings* Settings = GetGameUserSettings();
@@ -109,7 +109,7 @@ bool UVideoSettingsLib::GetVideoQualitySettings(EAntiAliasing& AntiAliasing, EQu
 
 
 // Set the quality settings (not applied nor saved yet)
-bool UVideoSettingsLib::SetVideoQualitySettings(const EAntiAliasing AntiAliasing, const EQuality Effects, const EQuality PostProcess,
+bool UVideoSettings::SetVideoQualitySettings(const EAntiAliasing AntiAliasing, const EQuality Effects, const EQuality PostProcess,
 	const int32 Resolution, const EQuality Shadow, const EQuality Texture, const int32 ViewDistance)
 {
 	UGameUserSettings* Settings = GetGameUserSettings();
@@ -130,7 +130,7 @@ bool UVideoSettingsLib::SetVideoQualitySettings(const EAntiAliasing AntiAliasing
 
 
 // Check whether or not we have vertical sync enabled
-bool UVideoSettingsLib::IsVSyncEnabled()
+bool UVideoSettings::IsVSyncEnabled()
 {
 	UGameUserSettings* Settings = GetGameUserSettings();
 	if (!Settings)
@@ -143,7 +143,7 @@ bool UVideoSettingsLib::IsVSyncEnabled()
 
 
 // Set the vertical sync flag
-bool UVideoSettingsLib::SetVSyncEnabled(const bool VSync)
+bool UVideoSettings::SetVSyncEnabled(const bool VSync)
 {
 	UGameUserSettings* Settings = GetGameUserSettings();
 	if (!Settings)
@@ -157,7 +157,7 @@ bool UVideoSettingsLib::SetVSyncEnabled(const bool VSync)
 
 
 // Confirm and save current video mode (resolution and fullscreen/windowed)
-bool UVideoSettingsLib::SaveVideoModeAndQuality()
+bool UVideoSettings::SaveVideoModeAndQuality()
 {
 	UGameUserSettings* Settings = GetGameUserSettings();
 	if (!Settings)
@@ -173,7 +173,7 @@ bool UVideoSettingsLib::SaveVideoModeAndQuality()
 
 
 // Revert to original video settings
-bool UVideoSettingsLib::RevertVideoMode()
+bool UVideoSettings::RevertVideoMode()
 {
 	UGameUserSettings* Settings = GetGameUserSettings();
 	if (!Settings)
@@ -185,7 +185,7 @@ bool UVideoSettingsLib::RevertVideoMode()
 	return true;
 }
 
-FString UVideoSettingsLib::QToString(EQuality Quality)
+FString UVideoSettings::QToString(EQuality Quality)
 {
 	switch (Quality) {
 		case EQuality::Low:      return "Low";
@@ -196,7 +196,7 @@ FString UVideoSettingsLib::QToString(EQuality Quality)
 	}
 }
 
-EQuality UVideoSettingsLib::ToQuality(FString Name) {
+EQuality UVideoSettings::ToQuality(FString Name) {
 	if (Name == "Low")       return EQuality::Low;
 	if (Name == "Medium")    return EQuality::Medium;
 	if (Name == "High")      return EQuality::High;
@@ -205,7 +205,7 @@ EQuality UVideoSettingsLib::ToQuality(FString Name) {
 	return EQuality::None;
 }
 
-FString UVideoSettingsLib::AAToString(EAntiAliasing Aa)
+FString UVideoSettings::AAToString(EAntiAliasing Aa)
 {
 	switch (Aa) {
 	case EAntiAliasing::None:       return "No Antialiasing";
@@ -215,7 +215,7 @@ FString UVideoSettingsLib::AAToString(EAntiAliasing Aa)
 	}
 }
 
-EAntiAliasing UVideoSettingsLib::ToAntialiasing(FString Name) {
+EAntiAliasing UVideoSettings::ToAntialiasing(FString Name) {
 	if (Name == "No Antialiasing") return EAntiAliasing::None;
 	if (Name == "FXAA")            return EAntiAliasing::FXAA;
 	if (Name == "Temporal AA")     return EAntiAliasing::TemporalAA;
@@ -227,7 +227,7 @@ EAntiAliasing UVideoSettingsLib::ToAntialiasing(FString Name) {
 //---- PRIVATE METHODS -------------------------------------------------------------------------------
 
 // Try to get the GameUserSettings object from the engine
-UGameUserSettings* UVideoSettingsLib::GetGameUserSettings()
+UGameUserSettings* UVideoSettings::GetGameUserSettings()
 {
 	if (GEngine != nullptr)
 	{
