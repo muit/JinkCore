@@ -2,6 +2,10 @@
 
 #include "JinkCorePrivatePCH.h"
 
+// Settings
+#include "JCGeneralSettings.h"
+#include "JCGenerationSettings.h"
+
 DEFINE_LOG_CATEGORY(JinkCore)
 
 #define LOCTEXT_NAMESPACE "JinkCore"
@@ -37,40 +41,6 @@ void FJinkCoreModule::ShutdownModule()
 	}
 }
 
-bool FJinkCoreModule::HandleSettingsSaved()
-{
-	UJinkCoreSettings* Settings = GetMutableDefault<UJinkCoreSettings>();
-	bool ResaveSettings = false;
-
-	if (ModifiedSettingsDelegate.IsBound()) {
-		ModifiedSettingsDelegate.Execute();
-	}
-
-	// You can put any validation code in here and resave the settings in case an invalid
-	// value has been entered
-	
-	/*Foreach lenguaje*/
-	//    Settings->Lenguajes
-	//    Check Row Types are correct
-	for (FLenguajeData Data : Settings->Lenguajes)
-	{
-		StaticLoadObject(UObject::StaticClass(), nullptr, *(Data.Audios).ToString());
-		UDataTable* DataTable = Cast<UDataTable>(Data.Audios.TryLoad());
-
-		if (DataTable) {
-			if (DataTable->RowStruct->GetClass()->GetName() != "LenguajeAudioRow")
-				ResaveSettings = true;
-		}
-	}
-
-	if (ResaveSettings)
-	{
-		Settings->SaveConfig();
-	}
-
-	return true;
-}
-
 void FJinkCoreModule::RegisterSettings()
 {
 #if WITH_EDITOR
@@ -83,27 +53,31 @@ void FJinkCoreModule::RegisterSettings()
 		// Create the new category
 		ISettingsContainerPtr SettingsContainer = SettingsModule->GetContainer("Project");
 
-		SettingsContainer->DescribeCategory("Jink Core",
+		SettingsContainer->DescribeCategory("JinkCore",
 			LOCTEXT("RuntimeWDCategoryName", "Jink Core"),
 			LOCTEXT("RuntimeWDCategoryDescription", "Game configuration for the CustomSettings game module"));
 
-		// Register the settings
-		ISettingsSectionPtr SettingsSection = SettingsModule->RegisterSettings("Project", "Jink Core", "General",
+		// Register the General settings
+		ISettingsSectionPtr GeneralSettingsSection = SettingsModule->RegisterSettings("Project", "Game", "General",
 			LOCTEXT("RuntimeGeneralSettingsName", "General"),
 			LOCTEXT("RuntimeGeneralSettingsDescription", "Base configuration for the Jink core"),
-			GetMutableDefault<UJinkCoreSettings>());
-		/*
-		ISettingsSectionPtr SettingsSection = SettingsModule->RegisterSettings("Project", "Jink Core", "Lenguajes",
-			LOCTEXT("RuntimeGeneralSettingsName", "Lenguajes"),
-			LOCTEXT("RuntimeGeneralSettingsDescription", "Base configuration for the Jink core"),
-			GetMutableDefault<UJinkCoreSettings>());*/
+			GetMutableDefault<UJCGeneralSettings>());
+
+        ISettingsSectionPtr GenerationSettingsSection = SettingsModule->RegisterSettings("Project", "Game", "Generation",
+            LOCTEXT("FlipbookEditorSettingsName", "Generation"),
+            LOCTEXT("FlipbookEditorSettingsDescription", "Configuration for the generation functionality."),
+            GetMutableDefault<UJCGenerationSettings>());
 
 		// Register the save handler to your settings, you might want to use it to
 		// validate those or just act to settings changes.
-		if (SettingsSection.IsValid())
+		if (GeneralSettingsSection.IsValid())
 		{
-			SettingsSection->OnModified().BindRaw(this, &FJinkCoreModule::HandleSettingsSaved);
+			GeneralSettingsSection->OnModified().BindRaw(this, &FJinkCoreModule::HandleGeneralSettingsSaved);
 		}
+        if (GenerationSettingsSection.IsValid())
+        {
+            GenerationSettingsSection->OnModified().BindRaw(this, &FJinkCoreModule::HandleGenerationSettingsSaved);
+        }
 	}
 #endif
 }
@@ -116,9 +90,49 @@ void FJinkCoreModule::UnregisterSettings()
 
 	if (ISettingsModule* SettingsModule = FModuleManager::GetModulePtr<ISettingsModule>("Settings"))
 	{
-		SettingsModule->UnregisterSettings("Project", "Jink Core", "General");
+		SettingsModule->UnregisterSettings("Project", "Game", "General");
+        SettingsModule->UnregisterSettings("Project", "Game", "Generation");
 	}
 #endif
+}
+
+bool FJinkCoreModule::HandleGeneralSettingsSaved()
+{
+    UJCGeneralSettings* Settings = GetMutableDefault<UJCGeneralSettings>();
+    bool ResaveSettings = false;
+
+    if (ModifiedGeneralSettingsDelegate.IsBound()) {
+        ModifiedGeneralSettingsDelegate.Execute();
+    }
+
+    // You can put any validation code in here and resave the settings in case an invalid
+    // value has been entered
+
+    if (ResaveSettings)
+    {
+        Settings->SaveConfig();
+    }
+
+    return true;
+}
+
+bool FJinkCoreModule::HandleGenerationSettingsSaved()
+{
+    UJCGenerationSettings* Settings = GetMutableDefault<UJCGenerationSettings>();
+    bool ResaveSettings = false;
+
+    if (ModifiedGenerationSettingsDelegate.IsBound()) {
+        ModifiedGenerationSettingsDelegate.Execute();
+    }
+
+    // You can put any validation code in here and resave the settings in case an invalid
+    // value has been entered
+
+    if (ResaveSettings)
+    {
+        Settings->SaveConfig();
+    }
+    return true;
 }
 
 #undef LOCTEXT_NAMESPACE

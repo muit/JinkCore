@@ -18,6 +18,7 @@ ULevelInstanceComponent::ULevelInstanceComponent()
     // off to improve performance if you don't need them.
     PrimaryComponentTick.bCanEverTick = true;
     bTickInEditor = true;
+	bSpawnOnPlay = true;
     bViewBounds = true;
     bViewBoundsInGame = false;
 
@@ -30,7 +31,7 @@ void ULevelInstanceComponent::BeginPlay()
     Super::BeginPlay();
 
     // TEMPORAL: Spawn Level on Begin Play
-    if (!LevelInstanceAsset.IsNull()) {
+    if (bSpawnOnPlay) {
         SpawnLevel();
     }
 }
@@ -39,7 +40,9 @@ void ULevelInstanceComponent::TickComponent( float DeltaTime, ELevelTick TickTyp
 {
     Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
-    if (GEngine->IsEditor()) {
+    if (GetWorld()->WorldType == EWorldType::Type::Editor ||
+		GetWorld()->WorldType == EWorldType::Type::None)
+	{
         //Editor Tick
         if (bViewBounds) {
             DrawBounds();
@@ -96,9 +99,6 @@ void ULevelInstanceComponent::SetLevelInstanceAsset(TAssetPtr<ULevelInstance> Ne
         UnloadLevel();
 
         LevelInstanceAsset = NewLevelInstanceAsset;
-
-        //Load the new level if needed
-        SpawnLevel(true);
     }
 }
 
@@ -163,7 +163,7 @@ bool ULevelInstanceComponent::SpawnLevel(bool bForced)
     NewStreamingLevel->bInitiallyVisible = LevelInstanceAsset->bInitiallyVisible;
 
     // Transform
-    NewStreamingLevel->LevelTransform = GetOwner()->GetActorTransform();
+    NewStreamingLevel->LevelTransform = GetComponentTransform();
     // Map to Load
     NewStreamingLevel->PackageNameToLoad = FName(*LongPackageName);
 
