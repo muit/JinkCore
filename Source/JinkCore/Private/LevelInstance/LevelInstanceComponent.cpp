@@ -18,6 +18,7 @@ ULevelInstanceComponent::ULevelInstanceComponent()
     // off to improve performance if you don't need them.
     PrimaryComponentTick.bCanEverTick = true;
     bTickInEditor = true;
+	bSpawnOnPlay = true;
     bViewBounds = true;
     bViewBoundsInGame = false;
 
@@ -30,7 +31,7 @@ void ULevelInstanceComponent::BeginPlay()
     Super::BeginPlay();
 
     // TEMPORAL: Spawn Level on Begin Play
-    if (!LevelInstanceAsset.IsNull()) {
+    if (bSpawnOnPlay) {
         SpawnLevel();
     }
 }
@@ -162,7 +163,7 @@ bool ULevelInstanceComponent::SpawnLevel(bool bForced)
     NewStreamingLevel->bInitiallyVisible = LevelInstanceAsset->bInitiallyVisible;
 
     // Transform
-    NewStreamingLevel->LevelTransform = GetOwner()->GetActorTransform();
+    NewStreamingLevel->LevelTransform = GetComponentTransform();
     // Map to Load
     NewStreamingLevel->PackageNameToLoad = FName(*LongPackageName);
 

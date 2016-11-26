@@ -21,9 +21,6 @@ protected:
 	TSharedPtr<IPropertyHandle> StructHandle;
 	TSharedPtr<IPropertyHandle> TypeHandle;
 
-	/** Update the root data on a change of selection */
-	//void OnSettingsChanged();
-
 	virtual bool CanCustomizeHeader(TSharedRef<class IPropertyHandle> StructPropertyHandle, class FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& StructCustomizationUtils) override;
 
 	/** Returns all the enum items.

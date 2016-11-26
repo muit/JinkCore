@@ -1,9 +1,9 @@
 // Copyright 2015-2016 Piperift. All Rights Reserved.
 #pragma once
 
-#include "IPropertyTypeCustomization.h"
+#include "StringEnumCustomization.h"
 
-class FFactionCustomization : public IPropertyTypeCustomization
+class FFactionCustomization : public FStringEnumCustomization
 {
 public:
 	/**
@@ -16,34 +16,23 @@ public:
 		return MakeShareable(new FFactionCustomization);
 	}
 
-	/** IPropertyTypeCustomization interface */
-	virtual void CustomizeHeader(TSharedRef<class IPropertyHandle> StructPropertyHandle, class FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& StructCustomizationUtils) override;
-	virtual void CustomizeChildren(TSharedRef<class IPropertyHandle> StructPropertyHandle, class IDetailChildrenBuilder& StructBuilder, IPropertyTypeCustomizationUtils& StructCustomizationUtils) override;
-
-private:
-	/** Return the representation of the the column names to display */
-	TSharedRef<SWidget> HandleFactionNameComboBoxGenerateWidget(TSharedPtr<FString> Item);
-
-	/** Display the current column selection */
-	FText GetFactionNameComboBoxContentText() const;
-
-	/** Update the root data on a change of selection */
-	void OnSelectionChanged(TSharedPtr<FString> SelectedItem, ESelectInfo::Type SelectInfo);
-
-	/** Update the root data on a change of selection */
-	void OnSettingsChanged();
-
-
-	void UpdateFactionNames();
-
-	/** The row combobox object */
-	TSharedPtr<SComboBox<TSharedPtr<FString>>> ComboBox;
+protected:
 	/** Handle to the struct properties being customized */
 	TSharedPtr<IPropertyHandle> StructHandle;
-	TSharedPtr<IPropertyHandle> NameHandle;
+	TSharedPtr<IPropertyHandle> TypeHandle;
 
-	TArray<FString> Names;
-	/** A cached copy of strings to populate the column combo box */
-	TArray<TSharedPtr<FString>> FactionNames;
+	virtual bool CanCustomizeHeader(TSharedRef<class IPropertyHandle> StructPropertyHandle, class FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& StructCustomizationUtils) override;
+
+	/** Returns all the enum items.
+	* This is for override purposes.
+	*/
+	virtual TArray<FString> GetEnumItems() override;
+
+	/** Returns all the enum items.
+	* This is for override purposes.
+	*/
+	virtual void OnItemSelected(FString Value) override;
+
+	virtual FText GetSelectedItem() const override;
 };
 

@@ -11,62 +11,40 @@
 
 #define LOCTEXT_NAMESPACE "FFactionCustomization"
 
-void FFactionCustomization::CustomizeHeader(TSharedRef<class IPropertyHandle> StructPropertyHandle, class FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& StructCustomizationUtils) 
+bool FFactionCustomization::CanCustomizeHeader(TSharedRef<class IPropertyHandle> StructPropertyHandle, class FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& StructCustomizationUtils)
 {
 	StructHandle = StructPropertyHandle;
-	NameHandle = StructPropertyHandle->GetChildHandle("Name");
+	TypeHandle = StructPropertyHandle->GetChildHandle("Name");
 
-	if (NameHandle->IsValidHandle()) {
-		if (FJinkCoreModule* JinkCoreModule = FModuleManager::GetModulePtr<FJinkCoreModule>("JinkCore"))
+	if (TypeHandle->IsValidHandle()) {
+		if (FJinkCoreModule* JinkCoreModule = FJinkCoreModule::GetInstance())
 		{
 			//Bind On Settings Changed event
-			JinkCoreModule->OnModifiedGeneralSettings().BindRaw(this, &FFactionCustomization::OnSettingsChanged);
+			JinkCoreModule->OnModifiedGeneralSettings().BindRaw(this, &FFactionCustomization::UpdateItems);
 		}
-
-		UpdateFactionNames();
-		
-		HeaderRow.NameContent()
-		[
-			StructPropertyHandle->CreatePropertyNameWidget()
-		]
-		.ValueContent()
-		.MaxDesiredWidth(0.0f)
-		.MinDesiredWidth(125.0f)
-		[
-			SAssignNew(ComboBox, SComboBox<TSharedPtr<FString>>)
-			.OptionsSource(&FactionNames)
-			.OnGenerateWidget(this, &FFactionCustomization::HandleFactionNameComboBoxGenerateWidget)
-			.OnSelectionChanged(this, &FFactionCustomization::OnSelectionChanged)
-			//.InitiallySelectedItem(GetVariableFactionValue())
-			[
-				SNew(STextBlock)
-				.Text(this, &FFactionCustomization::GetFactionNameComboBoxContentText)
-			]
-		];
+		return true;
 	}
-
+	return false;
 }
 
+TArray<FString> FFactionCustomization::GetEnumItems() {
+	TArray<FString> Values = GetDefault<UJCGeneralSettings>()->Factions;
+	// Make sure None is at the start
+	Values.Remove(FACTION_None);
+	Values.Insert(FACTION_None, 0);
 
-void FFactionCustomization::CustomizeChildren(TSharedRef<class IPropertyHandle> StructPropertyHandle, class IDetailChildrenBuilder& StructBuilder, IPropertyTypeCustomizationUtils& StructCustomizationUtils)
-{
-	//Do Nothing
+	return Values;
 }
 
-
-
-/** Return the representation of the the column names to display */
-TSharedRef<SWidget> FFactionCustomization::HandleFactionNameComboBoxGenerateWidget(TSharedPtr<FString> Item)
-{
-	return SNew(STextBlock)
-		.Text(FText::FromString(*Item));
+void FFactionCustomization::OnItemSelected(FString Value) {
+	TypeHandle->SetValue(Value);
 }
 
 /** Display the current column selection */
-FText FFactionCustomization::GetFactionNameComboBoxContentText() const
+FText FFactionCustomization::GetSelectedItem() const
 {
 	FString ContainedValue;
-	const FPropertyAccess::Result RowResult = NameHandle->GetValue(ContainedValue);
+	const FPropertyAccess::Result RowResult = TypeHandle->GetValue(ContainedValue);
 
 	if (RowResult != FPropertyAccess::MultipleValues)
 	{
@@ -76,48 +54,6 @@ FText FFactionCustomization::GetFactionNameComboBoxContentText() const
 		return FText::FromString(FACTION_None);
 	}
 	return LOCTEXT("MultipleValues", "Multiple Values");
-}
-
-/** Update the root data on a change of selection */
-void FFactionCustomization::OnSelectionChanged(TSharedPtr<FString> SelectedItem, ESelectInfo::Type SelectInfo)
-{
-	if (SelectedItem.IsValid()) {
-		FString NewValue = **SelectedItem;
-
-		UpdateFactionNames();
-
-		NameHandle->SetValue(NewValue);
-	}
-}
-
-void FFactionCustomization::OnSettingsChanged()
-{
-	UpdateFactionNames();
-}
-
-/** Display the current column selection */
-void FFactionCustomization::UpdateFactionNames()
-{
-	Names = GetDefault<UJCGeneralSettings>()->Factions;
-	// Make sure None is at the start
-	Names.Remove(FACTION_None);
-	Names.Insert(FACTION_None, 0);
-
-	FactionNames.Empty();
-	
-	//Convert FString to Shared Ptrs and Populate the array
-	for (auto It = Names.CreateConstIterator(); It; ++It)
-	{
-		if (!(*It).IsEmpty())
-		{
-			TSharedPtr<FString> Name = MakeShareable(new FString(*It));
-			FactionNames.Add(Name);
-		}
-	}
-
-	if (ComboBox.IsValid()) {
-		ComboBox->RefreshOptions();
-	}
 }
 
 

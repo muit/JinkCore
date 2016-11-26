@@ -4,6 +4,7 @@
 
 #include "Object.h"
 #include "Lenguajes/LenguajeData.h"
+#include "LIAnchorTypeInfo.h"
 #include "JCGenerationSettings.generated.h"
 
 /**
@@ -18,5 +19,5 @@ public:
     UJCGenerationSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
 
     UPROPERTY(config, EditAnywhere, Category = Custom)
-    TArray<FString> AnchorTypes;
+    TMap<FString, FLIAnchorTypeInfo> AnchorTypes;
 };

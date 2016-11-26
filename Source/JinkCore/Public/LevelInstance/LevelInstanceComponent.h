@@ -15,9 +15,13 @@ class JINKCORE_API ULevelInstanceComponent : public USceneComponent
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level Instance")
     TAssetPtr<ULevelInstance> LevelInstanceAsset;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance")
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance", Meta = (ExposeOnSpawn = true))
+	bool bSpawnOnPlay;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance|Debug")
     bool bViewBounds;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance|Debug")
     bool bViewBoundsInGame;
 
     ULevelInstanceComponent();

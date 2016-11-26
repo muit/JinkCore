@@ -12,7 +12,8 @@
 #define LOCTEXT_NAMESPACE "FAnchorTypeCustomization"
 
 /** Called at customization's setup */
-bool FAnchorTypeCustomization::CanCustomizeHeader(TSharedRef<class IPropertyHandle> StructPropertyHandle, class FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& StructCustomizationUtils){
+bool FAnchorTypeCustomization::CanCustomizeHeader(TSharedRef<class IPropertyHandle> StructPropertyHandle, class FDetailWidgetRow& HeaderRow, IPropertyTypeCustomizationUtils& StructCustomizationUtils)
+{
 	StructHandle = StructPropertyHandle;
 	TypeHandle = StructPropertyHandle->GetChildHandle("Name");
 
@@ -28,7 +29,9 @@ bool FAnchorTypeCustomization::CanCustomizeHeader(TSharedRef<class IPropertyHand
 }
 
 TArray<FString> FAnchorTypeCustomization::GetEnumItems() {
-	TArray<FString> Values = GetDefault<UJCGenerationSettings>()->AnchorTypes;
+	TArray<FString> Values;
+	GetDefault<UJCGenerationSettings>()->AnchorTypes.GetKeys(Values);
+
     // Make sure None is at the start
     Values.Remove(ANCHOR_None);
     Values.Insert(ANCHOR_None, 0);
