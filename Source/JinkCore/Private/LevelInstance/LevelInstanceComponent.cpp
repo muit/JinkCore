@@ -28,6 +28,12 @@ ULevelInstanceComponent::ULevelInstanceComponent()
     StreamingLevel = nullptr;
 }
 
+void ULevelInstanceComponent::OnRegister()
+{
+    Super::OnRegister();
+    UpdateAnchors();
+}
+
 void ULevelInstanceComponent::BeginPlay()
 {
     Super::BeginPlay();
@@ -97,9 +103,11 @@ void ULevelInstanceComponent::DrawBounds() {
 }
 
 void ULevelInstanceComponent::SetLevelInstanceAsset(TAssetPtr<ULevelInstance> NewLevelInstanceAsset) {
-    if (NewLevelInstanceAsset && LevelInstanceAsset != NewLevelInstanceAsset) {
-        //Remove Last Level
-        UnloadLevel();
+    if (!NewLevelInstanceAsset.IsNull()) {
+        if (LevelInstanceAsset != NewLevelInstanceAsset) {
+            //Remove Last Level
+            UnloadLevel();
+        }
 
         LevelInstanceAsset = NewLevelInstanceAsset;
         UpdateAnchors();
@@ -215,35 +223,48 @@ FString ULevelInstanceComponent::GetUniqueName()
 
 void ULevelInstanceComponent::AttachToAnchorByGuid(FGuid MyAnchorGUID, ULIAnchorViewerComponent * OtherAnchor)
 {
-    ULIAnchorViewerComponent* MyAnchor;
-
     for (auto* AnchorViewer : AnchorViewers) {
         if (AnchorViewer->AnchorGUID == MyAnchorGUID) {
-            MyAnchor = AnchorViewer;
+            AttachToAnchor(AnchorViewer, OtherAnchor);
             break;
         }
-
-    }
-
-    if (MyAnchor) {
-        AttachToAnchor(MyAnchor, OtherAnchor);
     }
 }
 
 void ULevelInstanceComponent::AttachToAnchor(ULIAnchorViewerComponent * MyAnchor, ULIAnchorViewerComponent * OtherAnchor)
 {
+    check(MyAnchor && OtherAnchor);
+
     check(!AnchorViewers.Contains(MyAnchor) || AnchorViewers.Contains(OtherAnchor));
 
-    //Attach
+    //Attach Anchor To Root
+    MyAnchor->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+    //Attach LIComponent to this anchor
+    this->AttachToComponent(MyAnchor, FAttachmentTransformRules::KeepWorldTransform);
+
+    //Set Anchor Location & Rotation to the other anchor
+    FTransform Transform = OtherAnchor->GetComponentTransform();
+    FVector AttachDirection = -Transform.GetRotation().GetForwardVector();
+    Transform.SetRotation(AttachDirection.ToOrientationRotator().Quaternion());
+
+    MyAnchor->SetWorldTransform(Transform);
+
+    //Attach LIComponent To Root
+    this->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+    //Attach Anchor To LIComponent
+    MyAnchor->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 }
 
 //~ Begin Anchors Interface
 void ULevelInstanceComponent::UpdateAnchors()
 {
+    TArray<USceneComponent*> Childrens;
+    GetChildrenComponents(true, Childrens);
     //Remove previous anchor viewers
-    for (auto OldViewerIt = AnchorViewers.CreateConstIterator(); OldViewerIt; ++OldViewerIt)
+    for (auto* Comp : Childrens)
     {
-        (*OldViewerIt)->DestroyComponent();
+        if(Comp->StaticClass() == ULIAnchorViewerComponent::StaticClass())
+            Comp->DestroyComponent();
     }
     AnchorViewers.Empty();
 

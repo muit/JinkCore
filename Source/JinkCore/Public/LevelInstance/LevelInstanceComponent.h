@@ -25,7 +25,7 @@ public:
     bool bViewBoundsInGame;
 
     ULevelInstanceComponent();
-
+    virtual void OnRegister() override;
 
     virtual void BeginPlay() override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
