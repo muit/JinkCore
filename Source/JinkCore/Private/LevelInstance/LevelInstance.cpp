@@ -1,8 +1,10 @@
 // Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
-#include "LevelInstance.h"
+
 #include "LevelInstanceBounds.h"
+
+#include "LevelInstance.h"
 
 int32 ULevelInstance::InstanceIdCount = 0;
 

@@ -93,7 +93,7 @@ void ABasic_Con::Tick(float DeltaTime)
 bool ABasic_Con::AttackStart(AEntity * Victim)
 {
 	if (!GetMe()) {
-		UE_LOG(JinkCore, Warning, TEXT("JinkCore: Me is NULL, can't start combat."));
+		UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: Me is NULL, can't start combat."));
 		return false;
 	}
 
@@ -106,7 +106,7 @@ bool ABasic_Con::AttackStart(AEntity * Victim)
 			if (BeforeEnterCombat(Victim)) {
 				//Set Target
 				Target = Victim;
-				UE_LOG(JinkCore, Log, TEXT("JinkCore AI: %s started combat with '%s'"), *GetMe()->GetName(), *Victim->GetName());
+				UE_LOG(LogJinkCore, Log, TEXT("JinkCore AI: %s started combat with '%s'"), *GetMe()->GetName(), *Victim->GetName());
 				EnterCombat(Target);
 				return true;
 			}
@@ -122,7 +122,7 @@ bool ABasic_Con::AttackStart(AEntity * Victim)
 bool ABasic_Con::SetTarget(AEntity * Victim) {
 	if (IsValidTarget(Victim) && Victim != Target) {
 		Target = Victim;
-		UE_LOG(JinkCore, Log, TEXT("JinkCore AI: %s changed target to '%s'"), *GetMe()->GetName(), *Victim->GetName());
+		UE_LOG(LogJinkCore, Log, TEXT("JinkCore AI: %s changed target to '%s'"), *GetMe()->GetName(), *Victim->GetName());
 		TargetChanged(Target);
 		return true;
 	}

@@ -12,7 +12,7 @@
 #include "Developer/AssetTools/Public/AssetToolsModule.h"
 #endif //WITH_EDITOR
 
-DECLARE_LOG_CATEGORY_EXTERN(JinkCore, All, All);
+DECLARE_LOG_CATEGORY_EXTERN(LogJinkCore, All, All);
 
 class FJinkCoreModule : public IModuleInterface
 {

@@ -178,6 +178,8 @@ void ALevelInstanceBounds::UpdateLevelBounds()
         LevelI->Bounds = LevelBounds;
         LevelI->MarkPackageDirty();
     }
+	//Avoid Anchor position change
+	UpdateAnchorViewers();
 
 	if (LevelBounds.IsValid)
 	{
@@ -289,9 +291,7 @@ void ALevelInstanceBounds::UpdateAnchors()
         for (auto& Anchor : Anchors)
         {
             FLIAnchor NewAnchor;
-            NewAnchor.GUID = Anchor.GUID;
-            NewAnchor.Name = Anchor.Name;
-            NewAnchor.Transform = Anchor.Transform;
+			NewAnchor.CopyFrom(Anchor);
 
             int32 Index = LevelI->Anchors.IndexOfByKey(Anchor);
             if (Index < 0) {
@@ -324,10 +324,16 @@ void ALevelInstanceBounds::UpdateAnchorViewers()
         ULIAnchorViewerComponent* AnchorViewer = NewObject<ULIAnchorViewerComponent>(this, ULIAnchorViewerComponent::StaticClass(), Anchor.Name);
         if (AnchorViewer)
         {
-            AnchorViewer->RegisterComponent();
+			AnchorViewer->RegisterComponent();
+
+			FLIAnchorTypeInfo TypeInfo;
+			if (Anchor.Type.GetAnchorInfo(TypeInfo)) {
+				AnchorViewer->SetArrowColor_New(TypeInfo.Color);
+			}
+
             AnchorViewer->AnchorGUID = Anchor.GUID;
             AnchorViewer->SetWorldTransform(Anchor.Transform);
-            AnchorViewer->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
+            //AnchorViewer->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
             AnchorViewers.Add(AnchorViewer);
         }
 	}

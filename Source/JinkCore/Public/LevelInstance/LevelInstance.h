@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include "LIAnchorType.h"
+
 #include "LevelInstance.generated.h"
 
 
@@ -13,18 +15,22 @@ struct FLIAnchor
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "")
 	FName Name;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "")
+	FLIAnchorType Type;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "")
 	FTransform Transform;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "")
 	FGuid GUID;
 
-	FLIAnchor() : Name("None"), Transform(FTransform::Identity), GUID(FGuid::NewGuid())
+	FLIAnchor() : Name("Conector"), Transform(FTransform::Identity), GUID(FGuid::NewGuid())
 	{}
 
     void CopyFrom(const FLIAnchor& Other) {
         GUID = Other.GUID;
         Name = Other.Name;
+		Type = Other.Type;
         Transform = Other.Transform;
     }
 
