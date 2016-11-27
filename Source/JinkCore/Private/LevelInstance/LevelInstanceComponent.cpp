@@ -28,13 +28,6 @@ ULevelInstanceComponent::ULevelInstanceComponent()
     StreamingLevel = nullptr;
 }
 
-void ULevelInstanceComponent::PostInitProperties()
-{
-    Super::PostInitProperties();
-
-    UpdateAnchors();
-}
-
 void ULevelInstanceComponent::BeginPlay()
 {
     Super::BeginPlay();
@@ -109,6 +102,7 @@ void ULevelInstanceComponent::SetLevelInstanceAsset(TAssetPtr<ULevelInstance> Ne
         UnloadLevel();
 
         LevelInstanceAsset = NewLevelInstanceAsset;
+        UpdateAnchors();
     }
 }
 
@@ -219,6 +213,30 @@ FString ULevelInstanceComponent::GetUniqueName()
 //~ End Level Instance Interface
 
 
+void ULevelInstanceComponent::AttachToAnchorByGuid(FGuid MyAnchorGUID, ULIAnchorViewerComponent * OtherAnchor)
+{
+    ULIAnchorViewerComponent* MyAnchor;
+
+    for (auto* AnchorViewer : AnchorViewers) {
+        if (AnchorViewer->AnchorGUID == MyAnchorGUID) {
+            MyAnchor = AnchorViewer;
+            break;
+        }
+
+    }
+
+    if (MyAnchor) {
+        AttachToAnchor(MyAnchor, OtherAnchor);
+    }
+}
+
+void ULevelInstanceComponent::AttachToAnchor(ULIAnchorViewerComponent * MyAnchor, ULIAnchorViewerComponent * OtherAnchor)
+{
+    check(!AnchorViewers.Contains(MyAnchor) || AnchorViewers.Contains(OtherAnchor));
+
+    //Attach
+}
+
 //~ Begin Anchors Interface
 void ULevelInstanceComponent::UpdateAnchors()
 {
@@ -228,7 +246,6 @@ void ULevelInstanceComponent::UpdateAnchors()
         (*OldViewerIt)->DestroyComponent();
     }
     AnchorViewers.Empty();
-
 
     if (LevelInstanceAsset.IsNull())
         return;
@@ -242,6 +259,8 @@ void ULevelInstanceComponent::UpdateAnchors()
         ULIAnchorViewerComponent* AnchorViewer = NewObject<ULIAnchorViewerComponent>(GetOwner(), ULIAnchorViewerComponent::StaticClass(), Anchor.Name);
         if (AnchorViewer)
         {
+            UE_LOG(LogJinkCore, Display, TEXT("LevelInstance: Creating Anchor Viewer"));
+
             AnchorViewer->RegisterComponent();
 
             FLIAnchorTypeInfo TypeInfo;
@@ -250,8 +269,10 @@ void ULevelInstanceComponent::UpdateAnchors()
             }
 
             AnchorViewer->AnchorGUID = Anchor.GUID;
+            AnchorViewer->bHiddenInGame = !bViewBoundsInGame;
             //Move to the local space anchor position
-            AnchorViewer->SetWorldTransform(GetComponentTransform().GetRelativeTransform(Anchor.Transform));
+            AnchorViewer->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+            AnchorViewer->SetRelativeTransform(Anchor.Transform);
             AnchorViewers.Add(AnchorViewer);
         }
     }

@@ -25,7 +25,6 @@ public:
     bool bViewBoundsInGame;
 
     ULevelInstanceComponent();
-    virtual void PostInitProperties() override;
 
 
     virtual void BeginPlay() override;
@@ -72,8 +71,14 @@ public:
     //~ End Level Instance Interface
 
     //~ Begin Level Instance Interface
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level Instance")
+    UPROPERTY(BlueprintReadOnly, Category = "Level Instance")
     TArray<ULIAnchorViewerComponent*> AnchorViewers;
+
+    UFUNCTION(BlueprintCallable, Category = "Level Instance", meta=(DisplayName = "AttachToAnchor"))
+    void AttachToAnchorByGuid(FGuid MyAnchorGUID, ULIAnchorViewerComponent* OtherAnchor);
+
+    UFUNCTION(BlueprintCallable, Category = "Level Instance", meta = (DisplayName = "AttachToAnchor"))
+    void AttachToAnchor(ULIAnchorViewerComponent* MyAnchor, ULIAnchorViewerComponent* OtherAnchor);
 
     void UpdateAnchors();
     //~ End Level Instance Interface
