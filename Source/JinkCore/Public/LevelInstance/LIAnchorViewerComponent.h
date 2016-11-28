@@ -38,4 +38,25 @@ private:
         }
         return FLIAnchor();
     }*/
+
+
+
+public:
+    //Attachment Interface
+    UPROPERTY(VisibleAnywhere, Category = "Level Anchor|Attachment")
+    bool bIsAttachmentFather;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level Anchor|Attachment")
+    ULIAnchorViewerComponent* AttachmentConector;
+
+
+    void SetupAttachment(ULIAnchorViewerComponent* OtherAnchor, bool IsFather);
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Anchor|Attachment")
+    bool IsAttached() { 
+        return AttachmentConector != nullptr;
+    }
+    UFUNCTION(BlueprintCallable, BlueprintPure,  Category = "Level Anchor|Attachment")
+    bool IsAttachmentFather() {
+        return IsAttached() && bIsAttachmentFather;
+    }
 };
