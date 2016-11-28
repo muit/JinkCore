@@ -6,6 +6,7 @@
 #include "LevelInstance.h"
 #include "LevelInstanceComponent.generated.h"
 
+class ULIAnchorViewerComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class JINKCORE_API ULevelInstanceComponent : public USceneComponent
@@ -16,15 +17,15 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level Instance")
     TAssetPtr<ULevelInstance> LevelInstanceAsset;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance", Meta = (ExposeOnSpawn = true))
-	bool bSpawnOnPlay;
-
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance", Meta = (ExposeOnSpawn = true))
+    bool bSpawnOnPlay;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance|Debug")
-    bool bViewBounds;
+    bool bDebug;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance|Debug")
-    bool bViewBoundsInGame;
+    bool bDebugInGame;
 
     ULevelInstanceComponent();
+    virtual void OnRegister() override;
 
     virtual void BeginPlay() override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -69,18 +70,16 @@ public:
     bool IsLevelVisible() { return IsRegistered() && StreamingLevel->IsLevelVisible(); }
     //~ End Level Instance Interface
 
+    //~ Begin Level Instance Interface
+    UPROPERTY(BlueprintReadOnly, Category = "Level Instance")
+    TArray<ULIAnchorViewerComponent*> AnchorViewers;
 
-    /*
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
-    bool IsRegistered() {
-        return LevelInstanceAsset.IsNull() ? false : GetLevelInstance()->IsRegistered();
-    }
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
-    bool IsLevelLoaded() {
-        return LevelInstanceAsset.IsNull() ? false : GetLevelInstance()->IsLoaded();
-    }
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
-    bool IsLevelVisible() { 
-        return LevelInstanceAsset.IsNull()? false : GetLevelInstance()->IsVisible();
-    }*/
+    UFUNCTION(BlueprintCallable, Category = "Level Instance", meta=(DisplayName = "AttachToAnchor"))
+    void AttachToAnchorByGuid(FGuid MyAnchorGUID, ULIAnchorViewerComponent* OtherAnchor);
+
+    UFUNCTION(BlueprintCallable, Category = "Level Instance", meta = (DisplayName = "AttachToAnchor"))
+    void AttachToAnchor(ULIAnchorViewerComponent* MyAnchor, ULIAnchorViewerComponent* OtherAnchor);
+
+    void UpdateAnchors();
+    //~ End Level Instance Interface
 };

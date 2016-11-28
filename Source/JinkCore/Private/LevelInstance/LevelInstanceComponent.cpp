@@ -2,6 +2,8 @@
 
 #include "JinkCorePrivatePCH.h"
 
+#include "LIAnchorViewerComponent.h"
+
 #if WITH_EDITOR
 #include "UnrealEd.h"
 #include "ObjectEditorUtils.h"
@@ -18,12 +20,18 @@ ULevelInstanceComponent::ULevelInstanceComponent()
     // off to improve performance if you don't need them.
     PrimaryComponentTick.bCanEverTick = true;
     bTickInEditor = true;
-	bSpawnOnPlay = true;
-    bViewBounds = true;
-    bViewBoundsInGame = false;
+    bSpawnOnPlay = true;
+    bDebug = true;
+    bDebugInGame = false;
 
     InstanceId = -1;
     StreamingLevel = nullptr;
+}
+
+void ULevelInstanceComponent::OnRegister()
+{
+    Super::OnRegister();
+    UpdateAnchors();
 }
 
 void ULevelInstanceComponent::BeginPlay()
@@ -41,18 +49,19 @@ void ULevelInstanceComponent::TickComponent( float DeltaTime, ELevelTick TickTyp
     Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 
     if (GetWorld()->WorldType == EWorldType::Type::Editor ||
-		GetWorld()->WorldType == EWorldType::Type::None)
-	{
+        GetWorld()->WorldType == EWorldType::Type::None)
+    {
         //Editor Tick
-        if (bViewBounds) {
+        if (bDebug) {
             DrawBounds();
         }
         return;
     }
 
     //In Game Tick
-    if (bViewBoundsInGame) {
+    if (bDebugInGame) {
         DrawBounds();
+
     }
 }
 
@@ -65,7 +74,7 @@ void ULevelInstanceComponent::OnComponentDestroyed(bool bDestroyingHierarchy)
 #if WITH_EDITOR
 void ULevelInstanceComponent::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)
 {
-    /*static const FName NAME_LevelInstance = FName(TEXT("Level Instance"));
+    static const FName NAME_LevelInstance = FName(TEXT("Level Instance"));
     Super::PostEditChangeProperty(PropertyChangedEvent);
 
     if (PropertyChangedEvent.Property != NULL) {
@@ -73,12 +82,19 @@ void ULevelInstanceComponent::PostEditChangeProperty(FPropertyChangedEvent & Pro
         {
             FName PropName = PropertyChangedEvent.Property->GetFName();
 
-            if (PropName == GET_MEMBER_NAME_CHECKED(ULevelInstanceComponent, ViewBounds)) {
-                if (GEngine->IsEditor()) {
+            if (PropName == GET_MEMBER_NAME_CHECKED(ULevelInstanceComponent, LevelInstanceAsset)) {
+#if WITH_EDITORONLY_DATA
+               UpdateAnchors();
+#endif // WITH_EDITORONLY_DATA
+            } 
+            else if (PropName == GET_MEMBER_NAME_CHECKED(ULevelInstanceComponent, bDebugInGame)) {
+                for (auto* Anchor : AnchorViewers)
+                {
+                    Anchor->bHiddenInGame = !bDebugInGame;
                 }
             }
         }
-    }*/
+    }
 }
 #endif //WITH_EDITOR
 
@@ -94,11 +110,14 @@ void ULevelInstanceComponent::DrawBounds() {
 }
 
 void ULevelInstanceComponent::SetLevelInstanceAsset(TAssetPtr<ULevelInstance> NewLevelInstanceAsset) {
-    if (NewLevelInstanceAsset && LevelInstanceAsset != NewLevelInstanceAsset) {
-        //Remove Last Level
-        UnloadLevel();
+    if (!NewLevelInstanceAsset.IsNull()) {
+        if (LevelInstanceAsset != NewLevelInstanceAsset) {
+            //Remove Last Level
+            UnloadLevel();
+        }
 
         LevelInstanceAsset = NewLevelInstanceAsset;
+        UpdateAnchors();
     }
 }
 
@@ -111,14 +130,14 @@ ULevelInstance* ULevelInstanceComponent::GetLevelInstance() {
 
 bool ULevelInstanceComponent::SpawnLevel(bool bForced)
 {
-    UE_LOG(JinkCore, Display, TEXT("LevelInstance: Spawning"));
+    UE_LOG(LogJinkCore, Display, TEXT("LevelInstance: Spawning"));
 
     if (LevelInstanceAsset.IsNull()) {
-        UE_LOG(JinkCore, Error, TEXT("LevelInstance: LevelInstanceAsset is empty"));
+        UE_LOG(LogJinkCore, Error, TEXT("LevelInstance: LevelInstanceAsset is empty"));
         return false;
     }
     if(IsRegistered() && !bForced) {
-        UE_LOG(JinkCore, Warning, TEXT("LevelInstance: Already registered"));
+        UE_LOG(LogJinkCore, Warning, TEXT("LevelInstance: Already registered"));
         return false;
     }
 
@@ -128,13 +147,13 @@ bool ULevelInstanceComponent::SpawnLevel(bool bForced)
     const TAssetPtr<UWorld> Level = LevelInstanceAsset->InstancedLevel;
 
     if (Level.IsNull()) {
-        UE_LOG(JinkCore, Error, TEXT("LevelInstance: Instanced Level is empty"));
+        UE_LOG(LogJinkCore, Error, TEXT("LevelInstance: Instanced Level is empty"));
         return false;
     }
 
     UWorld* const World = GetWorld();
     if (!World) {
-        UE_LOG(JinkCore, Error, TEXT("LevelInstance: Couldn't get World while spawning the level"));
+        UE_LOG(LogJinkCore, Error, TEXT("LevelInstance: Couldn't get World while spawning the level"));
         return false;
     }
 
@@ -173,7 +192,7 @@ bool ULevelInstanceComponent::SpawnLevel(bool bForced)
     //Save level reference
     StreamingLevel = NewStreamingLevel;
 
-    UE_LOG(JinkCore, Display, TEXT("LevelInstance: Spawned Succesfully"));
+    UE_LOG(LogJinkCore, Display, TEXT("LevelInstance: Spawned Succesfully"));
     return true;
 }
 
@@ -207,3 +226,91 @@ FString ULevelInstanceComponent::GetUniqueName()
     return TEXT("");
 }
 //~ End Level Instance Interface
+
+
+void ULevelInstanceComponent::AttachToAnchorByGuid(FGuid MyAnchorGUID, ULIAnchorViewerComponent * OtherAnchor)
+{
+    for (auto* AnchorViewer : AnchorViewers) {
+        if (AnchorViewer->AnchorGUID == MyAnchorGUID) {
+            AttachToAnchor(AnchorViewer, OtherAnchor);
+            break;
+        }
+    }
+}
+
+void ULevelInstanceComponent::AttachToAnchor(ULIAnchorViewerComponent * MyAnchor, ULIAnchorViewerComponent * OtherAnchor)
+{
+    if (!MyAnchor || !OtherAnchor) {
+        UE_LOG(LogJinkCore, Warning, TEXT("LevelInstance: Can't attach with an null anchor."));
+        return;
+    }
+
+    if (!AnchorViewers.Contains(MyAnchor) || AnchorViewers.Contains(OtherAnchor)) {
+        UE_LOG(LogJinkCore, Warning, TEXT("LevelInstance: Can't attach with an invalid anchor."));
+        return;
+    }
+
+    //Attach Anchor To Root
+    MyAnchor->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+    //Attach LIComponent to this anchor
+    this->AttachToComponent(MyAnchor, FAttachmentTransformRules::KeepWorldTransform);
+
+    //Set Anchor Location & Rotation to the other anchor
+    FTransform Transform = OtherAnchor->GetComponentTransform();
+    FVector AttachDirection = -Transform.GetRotation().GetForwardVector();
+    Transform.SetRotation(AttachDirection.ToOrientationRotator().Quaternion());
+
+    MyAnchor->SetWorldTransform(Transform);
+
+    //Attach LIComponent To Root
+    this->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
+    //Attach Anchor To LIComponent
+    MyAnchor->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
+}
+
+//~ Begin Anchors Interface
+void ULevelInstanceComponent::UpdateAnchors()
+{
+    TArray<USceneComponent*> Childrens;
+    GetChildrenComponents(true, Childrens);
+    if (Childrens.Num() > 0) {
+        //Remove previous anchor viewers
+        for (auto* Comp : Childrens)
+        {
+            if (Comp->StaticClass() == ULIAnchorViewerComponent::StaticClass())
+                Comp->DestroyComponent();
+        }
+    }
+    AnchorViewers.Empty();
+
+    if (LevelInstanceAsset.IsNull())
+        return;
+
+    ULevelInstance* LevelI = LevelInstanceAsset.LoadSynchronous();
+
+
+    for (auto& Anchor : LevelI->Anchors)
+    {
+        //Create a new viewer for each anchor
+        ULIAnchorViewerComponent* AnchorViewer = NewObject<ULIAnchorViewerComponent>(GetOwner(), ULIAnchorViewerComponent::StaticClass(), Anchor.Name);
+        if (AnchorViewer)
+        {
+            UE_LOG(LogJinkCore, Display, TEXT("LevelInstance: Creating Anchor Viewer"));
+
+            AnchorViewer->RegisterComponent();
+
+            FLIAnchorTypeInfo TypeInfo;
+            if (Anchor.Type.GetAnchorInfo(TypeInfo)) {
+                AnchorViewer->SetArrowColor_New(TypeInfo.Color);
+            }
+
+            AnchorViewer->AnchorGUID = Anchor.GUID;
+            AnchorViewer->bHiddenInGame = !bDebugInGame;
+            //Move to the local space anchor position
+            AnchorViewer->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
+            AnchorViewer->SetRelativeTransform(Anchor.Transform);
+            AnchorViewers.Add(AnchorViewer);
+        }
+    }
+}
+//~ End Anchors Interface

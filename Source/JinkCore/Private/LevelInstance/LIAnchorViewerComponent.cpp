@@ -30,17 +30,6 @@ void ULIAnchorViewerComponent::TickComponent( float DeltaTime, ELevelTick TickTy
 }
 
 #if WITH_EDITOR
-void ULIAnchorViewerComponent::PostEditComponentMove(bool bFinished) {
-	if (ALevelInstanceBounds* LIBoundsActor = GetLIBoundsActor()) {
-        FLIAnchor Anchor = GetLIAnchor();
-        if(Anchor.GUID == AnchorGUID) {
-			//Anchor->Transform = GetComponentTransform();
-			//Save to level instance asset
-			//LIBoundsActor->UpdateAnchors();
-		}
-	}
-}
-
 void ULIAnchorViewerComponent::PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent)
 {}
 #endif //WITH_EDITOR

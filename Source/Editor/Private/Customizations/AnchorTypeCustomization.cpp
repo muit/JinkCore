@@ -16,8 +16,11 @@ bool FAnchorTypeCustomization::CanCustomizeHeader(TSharedRef<class IPropertyHand
 {
 	StructHandle = StructPropertyHandle;
 	TypeHandle = StructPropertyHandle->GetChildHandle("Name");
+	IdHandle = StructPropertyHandle->GetChildHandle("Id");
 
-	if (TypeHandle->IsValidHandle()) {
+	if (TypeHandle->IsValidHandle() && 
+		IdHandle->IsValidHandle())
+	{
 		if (FJinkCoreModule* JinkCoreModule = FJinkCoreModule::GetInstance())
 		{
 			//Bind On Settings Changed event
@@ -40,7 +43,17 @@ TArray<FString> FAnchorTypeCustomization::GetEnumItems() {
 }
 
 void FAnchorTypeCustomization::OnItemSelected(FString Value){
+
+	TArray<FString> Values;
+	GetDefault<UJCGenerationSettings>()->AnchorTypes.GetKeys(Values);
+
 	TypeHandle->SetValue(Value);
+	if (Values.Contains(Value)) {
+		IdHandle->SetValue(Values.IndexOfByKey(Value));
+	}
+	else {
+		IdHandle->SetValue(0);
+	}
 }
 
 /** Display the current column selection */

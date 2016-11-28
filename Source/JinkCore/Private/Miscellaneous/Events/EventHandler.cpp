@@ -67,7 +67,7 @@ void UEventHandler::Restart(float Length)
 		return;
 
 	if (!EventDelegate.IsBound()) {
-		UE_LOG(JinkCore, Warning, TEXT("JinkCore: Tried to Restart an event that is not bounded."));
+		UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: Tried to Restart an event that is not bounded."));
 		return;
 	}
 

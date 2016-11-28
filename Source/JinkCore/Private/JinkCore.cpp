@@ -2,17 +2,19 @@
 
 #include "JinkCorePrivatePCH.h"
 
+#include "LIAnchorType.h"
+
 // Settings
 #include "JCGeneralSettings.h"
 #include "JCGenerationSettings.h"
 
-DEFINE_LOG_CATEGORY(JinkCore)
+DEFINE_LOG_CATEGORY(LogJinkCore)
 
 #define LOCTEXT_NAMESPACE "JinkCore"
 
 void FJinkCoreModule::StartupModule()
 {
-	UE_LOG(JinkCore, Warning, TEXT("JinkCore: Log Started"));
+	UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: Log Started"));
 
 	// This code will execute after your module is loaded into memory; the exact timing is specified in the .uplugin file per-module
 	
@@ -31,7 +33,7 @@ void FJinkCoreModule::StartupModule()
 
 void FJinkCoreModule::ShutdownModule()
 {
-	UE_LOG(JinkCore, Warning, TEXT("JinkCore: Log Ended"));
+	UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: Log Ended"));
 	// This function may be called during shutdown to clean up your module.  For modules that support dynamic reloading,
 	// we call this function before unloading the module.
 
@@ -121,12 +123,30 @@ bool FJinkCoreModule::HandleGenerationSettingsSaved()
     UJCGenerationSettings* Settings = GetMutableDefault<UJCGenerationSettings>();
     bool ResaveSettings = false;
 
-    if (ModifiedGenerationSettingsDelegate.IsBound()) {
-        ModifiedGenerationSettingsDelegate.Execute();
-    }
+	// You can put any validation code in here and resave the settings in case an invalid
+	// value has been entered
 
-    // You can put any validation code in here and resave the settings in case an invalid
-    // value has been entered
+	TArray<FString> Keys;
+	Settings->AnchorTypes.GetKeys(Keys);
+
+	if (!Settings->AnchorTypes.Contains(ANCHOR_None) || 
+		Keys.IndexOfByKey(ANCHOR_None) != 0)
+	{
+		//Add None Type if needed
+		Settings->AnchorTypes.FindOrAdd(ANCHOR_None);
+
+		//Sort map to put None the first
+		Settings->AnchorTypes.KeySort([](FString A, FString B) {
+			return A.Equals(ANCHOR_None); // sort keys depending on None
+		});
+
+		ResaveSettings = true;
+	}
+
+
+    if (ModifiedGenerationSettingsDelegate.IsBound()) {
+		ModifiedGenerationSettingsDelegate.Execute();
+    }
 
     if (ResaveSettings)
     {

@@ -99,7 +99,7 @@ void AEntity::RotateTowardsActor(AActor * Actor)
 
 bool AEntity::IsHostileTo(AEntity* Other) {
 	if (Other == nullptr) {
-		UE_LOG(JinkCore, Warning, TEXT("JinkCore: AEntity::IsHostileTo tried to compare a Null Entity"));
+		UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: AEntity::IsHostileTo tried to compare a Null Entity"));
 		return false;
 	}
 	return Faction.IsHostileTo(Other->Faction);
@@ -179,7 +179,7 @@ void AEntity::ReceiveDamage_Implementation(AActor * DamagedActor, float Damage, 
 
 void AEntity::DoMeleAttack_Implementation(AEntity* Target)
 {
-	UE_LOG(JinkCore, Log, TEXT("JinkCore: %s attacked but default behaviour is been called."), *this->GetName());
+	UE_LOG(LogJinkCore, Log, TEXT("JinkCore: %s attacked but default behaviour is been called."), *this->GetName());
 }
 
 bool AEntity::ApplyRadialDamage(float Damage, const FVector & Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel)
