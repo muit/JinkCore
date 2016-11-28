@@ -20,9 +20,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance", Meta = (ExposeOnSpawn = true))
     bool bSpawnOnPlay;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance|Debug")
-    bool bViewBounds;
+    bool bDebug;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance|Debug")
-    bool bViewBoundsInGame;
+    bool bDebugInGame;
 
     ULevelInstanceComponent();
     virtual void OnRegister() override;

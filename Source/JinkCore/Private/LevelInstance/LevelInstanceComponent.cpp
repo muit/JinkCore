@@ -21,8 +21,8 @@ ULevelInstanceComponent::ULevelInstanceComponent()
     PrimaryComponentTick.bCanEverTick = true;
     bTickInEditor = true;
     bSpawnOnPlay = true;
-    bViewBounds = true;
-    bViewBoundsInGame = false;
+    bDebug = true;
+    bDebugInGame = false;
 
     InstanceId = -1;
     StreamingLevel = nullptr;
@@ -52,15 +52,16 @@ void ULevelInstanceComponent::TickComponent( float DeltaTime, ELevelTick TickTyp
         GetWorld()->WorldType == EWorldType::Type::None)
     {
         //Editor Tick
-        if (bViewBounds) {
+        if (bDebug) {
             DrawBounds();
         }
         return;
     }
 
     //In Game Tick
-    if (bViewBoundsInGame) {
+    if (bDebugInGame) {
         DrawBounds();
+
     }
 }
 
@@ -82,8 +83,14 @@ void ULevelInstanceComponent::PostEditChangeProperty(FPropertyChangedEvent & Pro
             FName PropName = PropertyChangedEvent.Property->GetFName();
 
             if (PropName == GET_MEMBER_NAME_CHECKED(ULevelInstanceComponent, LevelInstanceAsset)) {
-                if (GEngine->IsEditor()) {
-                    UpdateAnchors();
+#if WITH_EDITORONLY_DATA
+               UpdateAnchors();
+#endif // WITH_EDITORONLY_DATA
+            } 
+            else if (PropName == GET_MEMBER_NAME_CHECKED(ULevelInstanceComponent, bDebugInGame)) {
+                for (auto* Anchor : AnchorViewers)
+                {
+                    Anchor->bHiddenInGame = !bDebugInGame;
                 }
             }
         }
@@ -233,9 +240,15 @@ void ULevelInstanceComponent::AttachToAnchorByGuid(FGuid MyAnchorGUID, ULIAnchor
 
 void ULevelInstanceComponent::AttachToAnchor(ULIAnchorViewerComponent * MyAnchor, ULIAnchorViewerComponent * OtherAnchor)
 {
-    check(MyAnchor && OtherAnchor);
+    if (!MyAnchor || !OtherAnchor) {
+        UE_LOG(LogJinkCore, Warning, TEXT("LevelInstance: Can't attach with an null anchor."));
+        return;
+    }
 
-    check(!AnchorViewers.Contains(MyAnchor) || AnchorViewers.Contains(OtherAnchor));
+    if (!AnchorViewers.Contains(MyAnchor) || AnchorViewers.Contains(OtherAnchor)) {
+        UE_LOG(LogJinkCore, Warning, TEXT("LevelInstance: Can't attach with an invalid anchor."));
+        return;
+    }
 
     //Attach Anchor To Root
     MyAnchor->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
@@ -260,11 +273,13 @@ void ULevelInstanceComponent::UpdateAnchors()
 {
     TArray<USceneComponent*> Childrens;
     GetChildrenComponents(true, Childrens);
-    //Remove previous anchor viewers
-    for (auto* Comp : Childrens)
-    {
-        if(Comp->StaticClass() == ULIAnchorViewerComponent::StaticClass())
-            Comp->DestroyComponent();
+    if (Childrens.Num() > 0) {
+        //Remove previous anchor viewers
+        for (auto* Comp : Childrens)
+        {
+            if (Comp->StaticClass() == ULIAnchorViewerComponent::StaticClass())
+                Comp->DestroyComponent();
+        }
     }
     AnchorViewers.Empty();
 
@@ -290,7 +305,7 @@ void ULevelInstanceComponent::UpdateAnchors()
             }
 
             AnchorViewer->AnchorGUID = Anchor.GUID;
-            AnchorViewer->bHiddenInGame = !bViewBoundsInGame;
+            AnchorViewer->bHiddenInGame = !bDebugInGame;
             //Move to the local space anchor position
             AnchorViewer->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
             AnchorViewer->SetRelativeTransform(Anchor.Transform);
