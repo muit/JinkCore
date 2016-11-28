@@ -266,6 +266,10 @@ void ULevelInstanceComponent::AttachToAnchor(ULIAnchorViewerComponent * MyAnchor
     this->AttachToComponent(GetOwner()->GetRootComponent(), FAttachmentTransformRules::KeepWorldTransform);
     //Attach Anchor To LIComponent
     MyAnchor->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
+
+
+    //Setup Attachment on the anchors
+    MyAnchor->SetupAttachment(OtherAnchor, false);
 }
 
 //~ Begin Anchors Interface
@@ -295,8 +299,6 @@ void ULevelInstanceComponent::UpdateAnchors()
         ULIAnchorViewerComponent* AnchorViewer = NewObject<ULIAnchorViewerComponent>(GetOwner(), ULIAnchorViewerComponent::StaticClass(), Anchor.Name);
         if (AnchorViewer)
         {
-            UE_LOG(LogJinkCore, Display, TEXT("LevelInstance: Creating Anchor Viewer"));
-
             AnchorViewer->RegisterComponent();
 
             FLIAnchorTypeInfo TypeInfo;
