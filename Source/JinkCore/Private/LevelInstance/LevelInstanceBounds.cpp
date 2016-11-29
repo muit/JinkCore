@@ -36,14 +36,13 @@ ALevelInstanceBounds::ALevelInstanceBounds(const FObjectInitializer& ObjectIniti
 	bLevelBoundsDirty = true;
 	bUsingDefaultBounds = false;
 
-	UpdateAnchorViewers();
+    UpdateAnchors();
 #endif
 }
 
 void ALevelInstanceBounds::PostLoad()
 {
 	Super::PostLoad();
-	//LevelInstance->BoundsActor = this;
 }
 
 FBox ALevelInstanceBounds::GetComponentsBoundingBox(bool bNonColliding) const
@@ -85,6 +84,7 @@ void ALevelInstanceBounds::PostEditUndo()
 {
 	Super::PostEditUndo();
 
+    UpdateAnchors();
 	MarkLevelBoundsDirty();
 }
 
@@ -111,7 +111,6 @@ void ALevelInstanceBounds::PostEditChangeProperty(FPropertyChangedEvent& Propert
 
             if (PropName == GET_MEMBER_NAME_CHECKED(ALevelInstanceBounds, Anchors)) {
                 UpdateAnchors();
-                UpdateAnchorViewers();
             }
         }
 	}
@@ -175,8 +174,10 @@ void ALevelInstanceBounds::UpdateLevelBounds()
 	/** Update Level Instance Bounds in the asset  */
     if (!LevelInstance.IsNull()) {
         ULevelInstance* LevelI = LevelInstance.LoadSynchronous();
-        LevelI->Bounds = LevelBounds;
-        LevelI->MarkPackageDirty();
+        if (LevelI) {
+            LevelI->Bounds = LevelBounds;
+            LevelI->MarkPackageDirty();
+        }
     }
 	//Avoid Anchor position change
 	UpdateAnchorViewers();
@@ -281,27 +282,23 @@ void ALevelInstanceBounds::UpdateAnchors()
 {
 	if (!LevelInstance.IsNull()) {
 		ULevelInstance* LevelI = LevelInstance.LoadSynchronous();
+        if (LevelI) {
+            //Remove unknown anchors
+            LevelI->Anchors.Empty();
 
-        //Remove unknown anchors
-        LevelI->Anchors.RemoveAll([&](const FLIAnchor& InAnchor) {
-            return !Anchors.Contains<FLIAnchor>(InAnchor);
-        });
+            //Update or create new ones
+            for (auto& Anchor : Anchors)
+            {
+                FLIAnchor NewAnchor;
+                NewAnchor.CopyFrom(Anchor);
 
-        //Update or create new ones
-        for (auto& Anchor : Anchors)
-        {
-            FLIAnchor NewAnchor;
-			NewAnchor.CopyFrom(Anchor);
-
-            int32 Index = LevelI->Anchors.IndexOfByKey(Anchor);
-            if (Index < 0) {
                 LevelI->Anchors.Add(NewAnchor);
-            } else {
-                LevelI->Anchors[Index] = NewAnchor;
             }
+            LevelI->MarkPackageDirty();
         }
-		LevelI->MarkPackageDirty();
 	}
+
+    UpdateAnchorViewers();
 }
 
 /*
