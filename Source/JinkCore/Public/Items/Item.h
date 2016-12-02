@@ -46,9 +46,4 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
     float BulletSpeedCof;
     //~ End Item Interface
-
-
-    UFUNCTION(BlueprintNativeEvent, Category = "Item")
-    void DoTest() const;
-    virtual void DoTest_Implementation();
 };
