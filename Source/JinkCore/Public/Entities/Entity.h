@@ -7,9 +7,8 @@
 #include "Spell.h"
 #include "Entity.generated.h"
 
-//~~~~~ Type Declarations ~~~~~
 typedef class ABasic_Con;
-
+class UItem;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FJustDiedSignature, AController*, InstigatedBy, AEntity*, Killer);
 
@@ -92,7 +91,7 @@ public:
 	ASpell* CastSpellAtCaster(TSubclassOf<ASpell> SpellType, AEntity* Target = NULL, float Damage = 0.0f);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
-	void ReceiveDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+	void ReceiveDamage(AActor* DamagedActor, float _Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Combat")
 	void DoMeleAttack(AEntity* Target);
 
@@ -113,7 +112,7 @@ public:
 	* @return true if damage was applied to at least one actor.
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Entity|Damage", meta = (WorldContext = "WorldContextObject", AutoCreateRefTerm = "IgnoreActors"))
-	bool ApplyRadialDamage(float Damage, const FVector& Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser = NULL, bool bDoFullDamage = false, ECollisionChannel DamagePreventionChannel = ECC_Visibility);
+	bool ApplyRadialDamage(float _Damage, const FVector& Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser = NULL, bool bDoFullDamage = false, ECollisionChannel DamagePreventionChannel = ECC_Visibility);
 	
 	/** Hurt locally authoritative actors within the radius. Will only hit components that block the Visibility channel.
 	* @param Damage - The base damage to apply, i.e. the damage at the origin.
@@ -128,7 +127,7 @@ public:
 	* @return true if damage was applied to at least one actor.
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Entity|Damage", meta = (WorldContext = "WorldContextObject", AutoCreateRefTerm = "IgnoreActors"))
-	bool ApplyRadialDamageWithFalloff(float Damage, float MinimumDamage, const FVector& Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser = NULL, ECollisionChannel DamagePreventionChannel = ECC_Visibility);
+	bool ApplyRadialDamageWithFalloff(float _Damage, float MinimumDamage, const FVector& Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser = NULL, ECollisionChannel DamagePreventionChannel = ECC_Visibility);
 	
 
 	/** Hurts the specified actor with the specified impact.
@@ -141,7 +140,7 @@ public:
 	* @param DamageCauser - Actor that actually caused the damage (e.g. the grenade that exploded)
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Entity|Damage")
-	void ApplyPointDamage(AActor* DamagedActor, float Damage, const FVector& HitFromDirection, const FHitResult& HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser = NULL);
+	void ApplyPointDamage(AActor* DamagedActor, float _Damage, const FVector& HitFromDirection, const FHitResult& HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser = NULL);
 	
 	/** Hurts the specified actor with generic damage.
 	* @param DamagedActor - Actor that will be damaged.
@@ -150,23 +149,23 @@ public:
 	* @param DamageCauser - Actor that actually caused the damage (e.g. the grenade that exploded)
 	*/
 	UFUNCTION(BlueprintCallable, BlueprintAuthorityOnly, Category = "Entity|Damage")
-	void ApplyDamage(AActor* DamagedActor, float Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser = NULL);
+	void ApplyDamage(AActor* DamagedActor, float _Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser = NULL);
 	
 	// APPLY CHECKS
 	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
-	bool CheckApplyRadialDamage(float Damage, const FVector& Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel);
+	bool CheckApplyRadialDamage(float _Damage, const FVector& Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel);
 	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
-	bool CheckApplyRadialDamageWithFalloff(float Damage, float MinimumDamage, const FVector& Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser, ECollisionChannel DamagePreventionChannel);
+	bool CheckApplyRadialDamageWithFalloff(float _Damage, float MinimumDamage, const FVector& Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor* DamageCauser, ECollisionChannel DamagePreventionChannel);
 	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
-	bool CheckApplyPointDamage(AActor* DamagedActor, float Damage, const FVector& HitFromDirection, const FHitResult& HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser);
+	bool CheckApplyPointDamage(AActor* DamagedActor, float _Damage, const FVector& HitFromDirection, const FHitResult& HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser);
 	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
-	bool CheckApplyDamage(AActor* DamagedActor, float Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser);
+	bool CheckApplyDamage(AActor* DamagedActor, float _Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor* DamageCauser);
 	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
-	bool CheckApplyAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType * DamageType, AActor* DamageCauser);
+	bool CheckApplyAnyDamage(AActor* DamagedActor, float _Damage, const class UDamageType * DamageType, AActor* DamageCauser);
 
 	// RECEIVE CHECKS
 	UFUNCTION(BlueprintNativeEvent, Category = "Entity|Damage")
-	bool CheckReceiveDamage(AActor* DamagedActor, float Damage, const class UDamageType * DamageType, AActor* DamageCauser);
+	bool CheckReceiveDamage(AActor* DamagedActor, float _Damage, const class UDamageType * DamageType, AActor* DamageCauser);
 
 
 	//EVENTS
@@ -186,5 +185,48 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
 	bool IsAI() const { return GetAI() != NULL; }
+
+
+    /**
+     * ATTRIBUTES
+     */
+public:
+    /** Base Damage. */
+    UPROPERTY(EditAnywhere, Category = "Entity|Attributes")
+    float Damage;
+
+    /** Fire rate in shots/second. */
+    UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
+    float FireRate;
+
+    /** Fire rate in shots/second. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
+    TArray<TSubclassOf<UItem>> Items;
+
+
+    /**
+    * Get the actor end damage.
+    * @return Modified damage.
+    */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
+    float GetDamage() const;
+    /**
+    * Get the actor base damage.
+    * @return Base damage.
+    */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
+    float GetBaseDamage() const;
+    /**
+    * Get the actor end fire rate.
+    * @return Modified fire rate.
+    */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
+    float GetFireRate() const;
+    /**
+    * Get the actor base fire rate.
+    * @return Base fire rate.
+    */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
+    float GetBaseFireRate() const;
 
 };

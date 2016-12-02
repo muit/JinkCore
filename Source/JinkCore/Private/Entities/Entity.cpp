@@ -2,6 +2,8 @@
 
 #include "JinkCorePrivatePCH.h"
 #include "Entity.h"
+
+#include "Item.h"
 #include "Basic_Con.h"
 #include "Kismet/KismetMathLibrary.h"
 
@@ -125,36 +127,36 @@ void AEntity::Die(AController * InstigatedBy, AEntity * Killer)
 	}
 }
 
-ASpell* AEntity::CastSpell(TSubclassOf<ASpell> SpellType, AEntity* Target, FVector Location, FRotator Rotation, float Damage)
+ASpell* AEntity::CastSpell(TSubclassOf<ASpell> SpellType, AEntity* Target, FVector Location, FRotator Rotation, float _Damage)
 {
 	ASpell* Spell = Cast<ASpell>(GetWorld()->SpawnActor(SpellType, &Location, &Rotation));
 	if (Spell) {
-		Spell->Cast(this, Target, Damage);
+		Spell->Cast(this, Target, _Damage);
 		return Spell;
 	}
 	return NULL;
 }
 
-ASpell * AEntity::CastSpellAtCaster(TSubclassOf<ASpell> SpellType, AEntity * Target, float Damage)
+ASpell * AEntity::CastSpellAtCaster(TSubclassOf<ASpell> SpellType, AEntity * Target, float _Damage)
 {
-	return CastSpell(SpellType, Target, this->GetActorLocation(), this->GetActorRotation(), Damage);
+	return CastSpell(SpellType, Target, this->GetActorLocation(), this->GetActorRotation(), _Damage);
 }
 
-void AEntity::ReceiveDamage_Implementation(AActor * DamagedActor, float Damage, const class UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
+void AEntity::ReceiveDamage_Implementation(AActor * DamagedActor, float _Damage, const class UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
 {
 	if (!IsAlive())
 		return;
 
 	if (AEntity* Causer = Cast<AEntity>(DamageCauser)) {
-		if (!Causer->CheckApplyAnyDamage(DamagedActor, Damage, DamageType, DamageCauser)) {
+		if (!Causer->CheckApplyAnyDamage(DamagedActor, _Damage, DamageType, DamageCauser)) {
 			return;
 		}
 	}
 
-	if (!CheckReceiveDamage(DamagedActor, Damage, DamageType, DamageCauser))
+	if (!CheckReceiveDamage(DamagedActor, _Damage, DamageType, DamageCauser))
 		return;
 
-	Live = FMath::Clamp(Live - Damage, 0.0f, MaxLive);
+	Live = FMath::Clamp(Live - _Damage, 0.0f, MaxLive);
 
 	if (!IsAlive()) {
 		AEntity* Killer = nullptr;
@@ -182,31 +184,31 @@ void AEntity::DoMeleAttack_Implementation(AEntity* Target)
 	UE_LOG(LogJinkCore, Log, TEXT("JinkCore: %s attacked but default behaviour is been called."), *this->GetName());
 }
 
-bool AEntity::ApplyRadialDamage(float Damage, const FVector & Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel)
+bool AEntity::ApplyRadialDamage(float _Damage, const FVector & Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel)
 {
 	if (!DamageCauser)
 		DamageCauser = this;
 
-	const bool checkSuccess = CheckApplyRadialDamage(Damage, Origin, DamageRadius, DamageTypeClass, IgnoreActors, DamageCauser, bDoFullDamage, DamagePreventionChannel);
+	const bool checkSuccess = CheckApplyRadialDamage(_Damage, Origin, DamageRadius, DamageTypeClass, IgnoreActors, DamageCauser, bDoFullDamage, DamagePreventionChannel);
 	if (checkSuccess) {
-		return UGameplayStatics::ApplyRadialDamage(this, Damage, Origin, DamageRadius, DamageTypeClass, IgnoreActors, DamageCauser, GetController(), bDoFullDamage, DamagePreventionChannel);
+		return UGameplayStatics::ApplyRadialDamage(this, _Damage, Origin, DamageRadius, DamageTypeClass, IgnoreActors, DamageCauser, GetController(), bDoFullDamage, DamagePreventionChannel);
 	}
 	return false;
 }
 
-bool AEntity::ApplyRadialDamageWithFalloff(float Damage, float MinimumDamage, const FVector & Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, ECollisionChannel DamagePreventionChannel)
+bool AEntity::ApplyRadialDamageWithFalloff(float _Damage, float MinimumDamage, const FVector & Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, ECollisionChannel DamagePreventionChannel)
 {
 	if (!DamageCauser)
 		DamageCauser = this;
 
-	const bool checkSuccess = CheckApplyRadialDamageWithFalloff(Damage, MinimumDamage, Origin, DamageInnerRadius, DamageOuterRadius, DamageFalloff, DamageTypeClass, IgnoreActors, DamageCauser, DamagePreventionChannel);
+	const bool checkSuccess = CheckApplyRadialDamageWithFalloff(_Damage, MinimumDamage, Origin, DamageInnerRadius, DamageOuterRadius, DamageFalloff, DamageTypeClass, IgnoreActors, DamageCauser, DamagePreventionChannel);
 	if (checkSuccess) {
-		return UGameplayStatics::ApplyRadialDamageWithFalloff(this, Damage, MinimumDamage, Origin, DamageInnerRadius, DamageOuterRadius, DamageFalloff, DamageTypeClass, IgnoreActors, DamageCauser, GetController(), DamagePreventionChannel);
+		return UGameplayStatics::ApplyRadialDamageWithFalloff(this, _Damage, MinimumDamage, Origin, DamageInnerRadius, DamageOuterRadius, DamageFalloff, DamageTypeClass, IgnoreActors, DamageCauser, GetController(), DamagePreventionChannel);
 	}
 	return false;
 }
 
-void AEntity::ApplyPointDamage(AActor * DamagedActor, float Damage, const FVector & HitFromDirection, const FHitResult & HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
+void AEntity::ApplyPointDamage(AActor * DamagedActor, float _Damage, const FVector & HitFromDirection, const FHitResult & HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
 {
 	if (!DamagedActor)
 		return;
@@ -214,13 +216,13 @@ void AEntity::ApplyPointDamage(AActor * DamagedActor, float Damage, const FVecto
 	if (!DamageCauser)
 		DamageCauser = this;
 
-	const bool checkSuccess = CheckApplyPointDamage(DamagedActor, Damage, HitFromDirection, HitInfo, DamageTypeClass, DamageCauser);
+	const bool checkSuccess = CheckApplyPointDamage(DamagedActor, _Damage, HitFromDirection, HitInfo, DamageTypeClass, DamageCauser);
 	if (checkSuccess) {
-		UGameplayStatics::ApplyPointDamage(DamagedActor, Damage, HitFromDirection, HitInfo, GetController(), DamageCauser, DamageTypeClass);
+		UGameplayStatics::ApplyPointDamage(DamagedActor, _Damage, HitFromDirection, HitInfo, GetController(), DamageCauser, DamageTypeClass);
 	}
 }
 
-void AEntity::ApplyDamage(AActor * DamagedActor, float Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
+void AEntity::ApplyDamage(AActor * DamagedActor, float _Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
 {
 	if (!DamagedActor)
 		return;
@@ -228,29 +230,73 @@ void AEntity::ApplyDamage(AActor * DamagedActor, float Damage, TSubclassOf<class
 	if (!DamageCauser)
 		DamageCauser = this;
 
-	const bool checkSuccess = CheckApplyDamage(DamagedActor, Damage, DamageTypeClass, DamageCauser);
+	const bool checkSuccess = CheckApplyDamage(DamagedActor, _Damage, DamageTypeClass, DamageCauser);
 	if (checkSuccess) {
-		UGameplayStatics::ApplyDamage(DamagedActor, Damage, GetController(), DamageCauser, DamageTypeClass);
+		UGameplayStatics::ApplyDamage(DamagedActor, _Damage, GetController(), DamageCauser, DamageTypeClass);
 	}
 }
 
 //APPLY CHECKS
-bool AEntity::CheckApplyRadialDamage_Implementation(float Damage, const FVector & Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel)
+bool AEntity::CheckApplyRadialDamage_Implementation(float _Damage, const FVector & Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel)
 { return true; }
 
-bool AEntity::CheckApplyRadialDamageWithFalloff_Implementation(float Damage, float MinimumDamage, const FVector & Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, ECollisionChannel DamagePreventionChannel)
+bool AEntity::CheckApplyRadialDamageWithFalloff_Implementation(float _Damage, float MinimumDamage, const FVector & Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, ECollisionChannel DamagePreventionChannel)
 { return true; }
 
-bool AEntity::CheckApplyPointDamage_Implementation(AActor * DamagedActor, float Damage, const FVector & HitFromDirection, const FHitResult & HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
+bool AEntity::CheckApplyPointDamage_Implementation(AActor * DamagedActor, float _Damage, const FVector & HitFromDirection, const FHitResult & HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
 { return true; }
 
-bool AEntity::CheckApplyDamage_Implementation(AActor * DamagedActor, float Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
+bool AEntity::CheckApplyDamage_Implementation(AActor * DamagedActor, float _Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
 { return true; }
 
-bool AEntity::CheckApplyAnyDamage_Implementation(AActor * DamagedActor, float Damage, const class UDamageType * DamageType, AActor * DamageCauser)
+bool AEntity::CheckApplyAnyDamage_Implementation(AActor * DamagedActor, float _Damage, const class UDamageType * DamageType, AActor * DamageCauser)
 { return true; }
 
 
 //RECEIVE CHECKS
-bool AEntity::CheckReceiveDamage_Implementation(AActor * DamagedActor, float Damage, const class UDamageType * DamageType, AActor * DamageCauser)
+bool AEntity::CheckReceiveDamage_Implementation(AActor * DamagedActor, float _Damage, const class UDamageType * DamageType, AActor * DamageCauser)
 { return true; }
+
+
+
+/**
+ * ATTRIBUTES
+ */
+
+float AEntity::GetDamage() const
+{
+    float ModDamage = Damage;
+    for (auto& ItemClass : Items) {
+        if (ItemClass) {
+            UItem* Item = Cast<UItem>(ItemClass->GetDefaultObject());
+            if (Item) {
+                ModDamage += Item->DamageIncrement;
+            }
+        }
+    }
+    return ModDamage;
+}
+
+float AEntity::GetBaseDamage() const
+{
+    return Damage;
+}
+
+float AEntity::GetFireRate() const
+{
+    float ModFireRate = FireRate;
+    for (auto& ItemClass : Items) {
+        if (ItemClass) {
+            UItem* Item = Cast<UItem>(ItemClass->GetDefaultObject());
+            if (Item) {
+                ModFireRate *= Item->FireRateCof;
+            }
+        }
+    }
+    return ModFireRate;
+}
+
+float AEntity::GetBaseFireRate() const
+{
+    return FireRate;
+}
