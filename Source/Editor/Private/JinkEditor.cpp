@@ -6,6 +6,7 @@
 #include "AnchorTypeCustomization.h"
 
 #include "Asset/AssetTypeAction_LevelInstance.h"
+#include "Asset/AssetTypeAction_Item.h"
 #include "ContentBrowserExtensions/ContentBrowserExtensions.h"
 
 DEFINE_LOG_CATEGORY(JinkEditor)
@@ -21,6 +22,7 @@ void FJinkEditorModule::StartupModule()
 	// Register asset types
 	IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
 	RegisterAssetTypeAction(AssetTools, MakeShareable(new FAssetTypeAction_LevelInstance));
+    RegisterAssetTypeAction(AssetTools, MakeShareable(new FAssetTypeAction_Item));
 
 	// Integrate JinkCore actions into existing editor context menus
 	if (!IsRunningCommandlet())

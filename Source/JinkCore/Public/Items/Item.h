@@ -7,7 +7,7 @@
 /**
 *
 */
-UCLASS(Abstract, BlueprintType)
+UCLASS(Abstract, Blueprintable)
 class JINKCORE_API UItem : public UObject
 {
     GENERATED_BODY()
