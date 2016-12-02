@@ -20,7 +20,7 @@ FText FAssetTypeAction_Item::GetName() const
 
 FColor FAssetTypeAction_Item::GetTypeColor() const
 {
-	return FColor(198, 93, 47);
+	return FColor(73, 131, 230);
 }
 
 UClass* FAssetTypeAction_Item::GetSupportedClass() const
