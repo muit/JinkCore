@@ -5,7 +5,7 @@
 #include "GameFramework/Actor.h"
 #include "ItemActor.generated.h"
 
-UCLASS()
+UCLASS(Abstract)
 class JINKCORE_API AItemActor : public AActor
 {
 	GENERATED_BODY()

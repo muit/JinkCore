@@ -19,6 +19,9 @@ UItem::UItem(const FObjectInitializer & ObjectInitializer)
     BulletSpeedCof = 1;
 }
 
+void UItem::DoTest_Implementation() {
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 #undef LOCTEXT_NAMESPACE

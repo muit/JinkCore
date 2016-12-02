@@ -40,6 +40,7 @@ public class JinkEditor : ModuleRules
 				"CoreUObject",
 				"Engine",
                 "UnrealEd",
+                "Blutility",
 				"Slate",
 				"SlateCore",
                 "AssetTools",

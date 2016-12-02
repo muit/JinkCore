@@ -1,10 +1,10 @@
 {
 	"Changelist" : 3195953,
 	"CompatibleChangelist" : 0,
-	"BuildId" : "83ae940b-d4c5-4751-8ad6-496603c1c7ea",
+	"BuildId" : "29338f18-12dd-4946-93c4-093d48041073",
 	"Modules" : 
 	{
-		"JinkCore" : "UE4Editor-JinkCore.dll",
-		"JinkEditor" : "UE4Editor-JinkEditor.dll"
+		"JinkCore" : "UE4Editor-JinkCore-2259.dll",
+		"JinkEditor" : "UE4Editor-JinkEditor-2259.dll"
 	}
 }
