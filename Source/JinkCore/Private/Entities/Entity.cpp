@@ -15,6 +15,9 @@ AEntity::AEntity()
 	PrimaryActorTick.bCanEverTick = true;
 	MaxLive = 100;
 	Live = MaxLive;
+    Damage = 10;
+    FireRate = 0.7f;
+
 	Faction = FFaction();
 
 	MovementState = EMovementState::MS_Walk;
