@@ -40,6 +40,63 @@ void AEntity::Tick( float DeltaTime )
 
 }
 
+
+
+/**
+ * Begin ATTRIBUTES
+ */
+
+float AEntity::GetDamage() const
+{
+    float ModDamage = Damage;
+    for (auto& ItemClass : Items) {
+        if (ItemClass) {
+            UItem* Item = Cast<UItem>(ItemClass->GetDefaultObject());
+            if (Item) {
+                ModDamage += Item->DamageIncrement;
+            }
+        }
+    }
+    return ModDamage;
+}
+
+float AEntity::GetFireRate() const
+{
+    float ModFireRate = FireRate;
+    for (auto& ItemClass : Items) {
+        if (ItemClass) {
+            UItem* Item = Cast<UItem>(ItemClass->GetDefaultObject());
+            if (Item) {
+                ModFireRate *= Item->FireRateCof;
+            }
+        }
+    }
+    return ModFireRate;
+}
+int32 AEntity::AddItem(TSubclassOf<UItem> Class)
+{
+    return Items.Add(Class);
+}
+void AEntity::RemoveItem(TSubclassOf<UItem> Class)
+{
+    Items.RemoveSingle(Class);
+}
+void AEntity::RemoveItemById(int32 Id)
+{
+    Items.RemoveAt(Id);
+}
+void AEntity::RemoveAllItems(TSubclassOf<UItem> Class)
+{
+    Items.Remove(Class);
+}
+void AEntity::ClearItems()
+{
+    Items.Empty();
+}
+/** End ATTRIBUTES*/
+
+
+
 bool AEntity::IsAlive() const
 {
 	return Live > 0;
@@ -256,47 +313,3 @@ bool AEntity::CheckApplyAnyDamage_Implementation(AActor * DamagedActor, float _D
 //RECEIVE CHECKS
 bool AEntity::CheckReceiveDamage_Implementation(AActor * DamagedActor, float _Damage, const class UDamageType * DamageType, AActor * DamageCauser)
 { return true; }
-
-
-
-/**
- * ATTRIBUTES
- */
-
-float AEntity::GetDamage() const
-{
-    float ModDamage = Damage;
-    for (auto& ItemClass : Items) {
-        if (ItemClass) {
-            UItem* Item = Cast<UItem>(ItemClass->GetDefaultObject());
-            if (Item) {
-                ModDamage += Item->DamageIncrement;
-            }
-        }
-    }
-    return ModDamage;
-}
-
-float AEntity::GetBaseDamage() const
-{
-    return Damage;
-}
-
-float AEntity::GetFireRate() const
-{
-    float ModFireRate = FireRate;
-    for (auto& ItemClass : Items) {
-        if (ItemClass) {
-            UItem* Item = Cast<UItem>(ItemClass->GetDefaultObject());
-            if (Item) {
-                ModFireRate *= Item->FireRateCof;
-            }
-        }
-    }
-    return ModFireRate;
-}
-
-float AEntity::GetBaseFireRate() const
-{
-    return FireRate;
-}
