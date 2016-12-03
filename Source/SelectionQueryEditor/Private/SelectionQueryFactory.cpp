@@ -21,13 +21,6 @@ UObject* USelectionQueryFactory::FactoryCreateNew(UClass* Class,UObject* InParen
 
 bool USelectionQueryFactory::CanCreateNew() const
 {
-	if (GetDefault<UEditorExperimentalSettings>()->bEQSEditor)
-	{
-		return true;
-	}
-
-	// Check ini to see if we should enable creation
-	bool bEnableSelectionQueryEd = false;
-	GConfig->GetBool(TEXT("SelectionQueryEd"), TEXT("EnableSelectionQueryEd"), bEnableSelectionQueryEd, GEngineIni);
-	return bEnableSelectionQueryEd;
+    // TODO: Enable/Disable creation from settings
+    return true;
 }

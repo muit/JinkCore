@@ -1,11 +1,11 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 
-//#include "SelectionQueryTypes.h"
+#include "SelectionQueryTypes.h"
 #include "Engine/DataAsset.h"
 #include "SelectionQuery.generated.h"
 
-//class USQCompositeNode;
+class USQCompositeNode;
 
 #if WITH_EDITORONLY_DATA
 class UEdGraph;
@@ -18,8 +18,8 @@ class JINKCORE_API USelectionQuery : public UDataAsset
 	GENERATED_UCLASS_BODY()
 
 	/** root node of loaded tree */
-	//UPROPERTY()
-	//USQCompositeNode* RootNode;
+	UPROPERTY()
+	USQCompositeNode* RootNode;
 
 #if WITH_EDITORONLY_DATA
 	/** Graph for query */

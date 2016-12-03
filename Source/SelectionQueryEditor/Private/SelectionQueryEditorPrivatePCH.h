@@ -12,12 +12,12 @@
 #include "SGraphNode.h"
 #include "Editor/UnrealEd/Public/Kismet2/BlueprintEditorUtils.h"
 
-#include "Classes/EdGraphSchema_SelectionQuery.h"
-#include "Classes/SelectionQueryGraph.h"
-#include "Classes/SelectionQueryGraphNode.h"
-#include "Classes/SelectionQueryGraphNode_Composite.h"
-#include "Classes/SelectionQueryGraphNode_Root.h"
-#include "Classes/SelectionQueryGraphNode_Item.h"
+//#include "Classes/EdGraphSchema_SelectionQuery.h"
+//#include "Classes/SelectionQueryGraph.h"
+//#include "Classes/SelectionQueryGraphNode.h"
+//#include "Classes/SelectionQueryGraphNode_Composite.h"
+//#include "Classes/SelectionQueryGraphNode_Root.h"
+//#include "Classes/SelectionQueryGraphNode_Item.h"
 
 #include "AssetTypeActions_SelectionQuery.h"
 

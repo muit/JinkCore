@@ -4,9 +4,9 @@
 
 #include "ModuleManager.h"
 #include "Toolkits/ToolkitManager.h"
-#include "SGraphNode_SelectionQuery.h"
+//#include "SGraphNode_SelectionQuery.h"
 #include "EdGraphUtilities.h"
-#include "Classes/SelectionQueryGraphNode.h"
+//#include "Classes/SelectionQueryGraphNode.h"
 
 #include "AI/SelectionQuery/SQNode.h"
 
@@ -44,8 +44,6 @@ void FSelectionQueryEditorModule::StartupModule()
 
 	// Register the details customizer
 	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
-	PropertyModule.RegisterCustomPropertyTypeLayout( "SelDirection", FOnGetPropertyTypeCustomizationInstance::CreateStatic( &FSelDirectionCustomization::MakeInstance ) );
-	PropertyModule.RegisterCustomPropertyTypeLayout( "SelTraceData", FOnGetPropertyTypeCustomizationInstance::CreateStatic( &FSelTraceDataCustomization::MakeInstance ) );
 	PropertyModule.RegisterCustomClassLayout( "SelQueryTest", FOnGetDetailCustomizationInstance::CreateStatic( &FSelQueryTestDetails::MakeInstance ) );
 	PropertyModule.NotifyCustomizationModuleChanged();
 }
