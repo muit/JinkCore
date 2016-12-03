@@ -3,7 +3,6 @@
 #pragma once
 
 #include "ModuleInterface.h"
-#include "AIGraphModule.h"
 #include "Toolkits/IToolkit.h"	// For EAssetEditorMode
 
 DECLARE_LOG_CATEGORY_EXTERN(LogSelectionQueryEditor, Log, All);

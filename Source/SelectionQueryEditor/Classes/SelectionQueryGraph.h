@@ -1,14 +1,14 @@
 // Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
 #pragma once
 
-#include "AIGraph.h"
+#include "EdGraph/EdGraph.h"
 #include "SelectionQueryGraph.generated.h"
 
 class USQComposerNode;
 class USelectionQueryGraphNode;
 
 UCLASS()
-class USelectionQueryGraph : public UAIGraph
+class USelectionQueryGraph : public UEdGraph
 {
 	GENERATED_UCLASS_BODY()
 

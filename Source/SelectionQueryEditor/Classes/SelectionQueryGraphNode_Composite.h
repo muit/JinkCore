@@ -11,18 +11,10 @@ class USelectionQueryGraphNode_Composite : public USelectionQueryGraphNode
 	virtual void AllocateDefaultPins() override;
 	virtual void PostPlacedNewNode() override;
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
-	virtual FText GetDescription() const override;
-
-	virtual void PrepareForCopying() override;
-	virtual void UpdateNodeClassData() override;
 
 	virtual void GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const override;
 	void CreateAddTestSubMenu(class FMenuBuilder& MenuBuilder, UEdGraph* Graph) const;
 
 	void CalculateWeights();
 	void UpdateNodeData();
-
-protected:
-
-	virtual void ResetNodeOwner() override;
 };

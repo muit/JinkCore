@@ -5,7 +5,7 @@
 #include "UnrealEd.h"
 
 #include "AI/SelectionQuery/SelectionQuery.h"
-#include "AI/SelectionQuery/SelectionQueryManager.h"
+//#include "AI/SelectionQuery/SelectionQueryManager.h"
 
 #include "GraphEditor.h"
 #include "SNodePanel.h"

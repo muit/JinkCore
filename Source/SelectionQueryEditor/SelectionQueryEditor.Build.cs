@@ -8,9 +8,10 @@ public class SelectionQueryEditor : ModuleRules
 	{
         PrivateIncludePaths.AddRange(
             new string[] {
-				"Editor/GraphEditor/Private",
-				"Editor/AIGraph/Private",
-				"SelectionQueryEditor/Private",
+                "SelectionQueryEditor/Private",
+                "Editor/GraphEditor/Private",
+                "Editor/GraphEditor/Private/KismetNodes",
+                "Editor/GraphEditor/Private/KismetPins",
 			}
 		);
 
@@ -22,24 +23,28 @@ public class SelectionQueryEditor : ModuleRules
 			}
 		);
 
-		PrivateDependencyModuleNames.AddRange(
-			new string[] {
-				"Core", 
-				"CoreUObject", 
-                "InputCore",
-				"Engine", 
-                "RenderCore",
-				"Slate",
-				"SlateCore",
+        PublicDependencyModuleNames.AddRange(
+            new string[] {
+                "Core",
+                "CoreUObject",
+                "Engine",
+                "Slate",
                 "EditorStyle",
-				"UnrealEd", 
-				"MessageLog", 
-				"GraphEditor",
-				"KismetWidgets",
+                "UnrealEd",
+                "KismetWidgets",
+                "GraphEditor",
+            }
+        );
+
+        PrivateDependencyModuleNames.AddRange(
+			new string[] {
+                "InputCore",
+                "SlateCore",
+                "RenderCore",
                 "PropertyEditor",
+                "MessageLog", 
 				"AnimGraph",
 				"BlueprintGraph",
-                "AIGraph",
                 "JinkCore",
 			}
 		);

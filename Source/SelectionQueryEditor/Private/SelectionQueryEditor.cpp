@@ -6,7 +6,7 @@
 #include "EdGraphUtilities.h"
 
 #include "AI/SelectionQuery/SelectionQuery.h"
-#include "AI/SelectionQuery/SQCompositeNode.h"
+//#include "AI/SelectionQuery/SQCompositeNode.h"
 
 #include "Toolkits/IToolkitHost.h"
 #include "Editor/WorkspaceMenuStructure/Public/WorkspaceMenuStructureModule.h"
@@ -230,15 +230,16 @@ void FSelectionQueryEditor::OnSelectedNodesChanged(const TSet<class UObject*>& N
 				}
 				else if (GraphNode->IsA(USelectionQueryGraphNode_Composite::StaticClass()))
 				{
+                    /*
 					USQCompositeNode* QueryComposite = Cast<USQCompositeNode>(GraphNode->NodeInstance);
 					if (QueryComposite)
 					{
 						Selection.Add(QueryComposite);
-					}
+					}*/
 				}
 				else
 				{
-					Selection.Add(GraphNode->NodeInstance);
+					Selection.Add(GraphNode);
 				}
 			}
 		}
@@ -287,13 +288,13 @@ void FSelectionQueryEditor::OnFinishedChangingProperties(const FPropertyChangedE
 			for (FGraphPanelSelectionSet::TConstIterator It(CurrentSelection); It; ++It)
 			{
 				USelectionQueryGraphNode_Item* ItemNode = Cast<USelectionQueryGraphNode_Item>(*It);
-				USelectionQueryGraphNode_Composite* ParentNode = ItemNode ? Cast<USelectionQueryGraphNode_Composite>(ItemNode->ParentNode) : nullptr;
-
+				/*USelectionQueryGraphNode_Composite* ParentNode = ItemNode ? Cast<USelectionQueryGraphNode_Composite>(ItemNode->ParentNode) : nullptr;
+                
 				if (ParentNode)
 				{
 					//ParentNode->CalculateWeights();
 					break;
-				}
+				}*/
 			}
 		}
 	}

@@ -2,21 +2,24 @@
 
 #pragma once
 
-#include "AIGraphNode.h"
+#include "EdGraph/EdGraphNode.h"
 #include "SelectionQueryGraphNode.generated.h"
 
 UCLASS()
-class USelectionQueryGraphNode : public UAIGraphNode
+class USelectionQueryGraphNode : public UEdGraphNode
 {
 	GENERATED_UCLASS_BODY()
 
 	virtual class USelectionQueryGraph* GetSelectionQueryGraph();
 
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
-	virtual FText GetDescription() const override;
 
-    /** gets icon resource name for title bar */
-    virtual FName GetNameIcon() const;
+    virtual bool CanCreateUnderSpecifiedSchema(const UEdGraphSchema* DesiredSchema) const override;
 
-	virtual bool CanCreateUnderSpecifiedSchema(const UEdGraphSchema* DesiredSchema) const override;
+public:
+    virtual void PostEditChangeProperty(struct FPropertyChangedEvent& e);
+    virtual UEdGraphPin* GetInputPin() const { return nullptr; }
+    virtual UEdGraphPin* GetOutputPin() const { return nullptr; }
+    virtual void NodeConnectionListChanged() override;
+
 };

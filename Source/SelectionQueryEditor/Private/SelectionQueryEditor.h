@@ -4,11 +4,11 @@
 
 #include "ISelectionQueryEditor.h"
 #include "Toolkits/AssetEditorToolkit.h"
-#include "AIGraphEditor.h"
+#include "EdGraph/EdGraphEditor.h"
 
 //class USelectionQuery;
 
-class FSelectionQueryEditor : public ISelectionQueryEditor, public FAIGraphEditor
+class FSelectionQueryEditor : public ISelectionQueryEditor, public FEdGraphEditor
 {
 public:
 

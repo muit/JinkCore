@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include "AIGraphSchema.h"
+#include "EdGraph/EdGraphSchema.h"
 #include "EdGraphSchema_SelectionQuery.generated.h"
 
 UCLASS(MinimalAPI)
-class UEdGraphSchema_SelectionQuery : public UAIGraphSchema
+class UEdGraphSchema_SelectionQuery : public UEdGraphSchema
 {
 	GENERATED_UCLASS_BODY()
 
@@ -17,8 +17,4 @@ class UEdGraphSchema_SelectionQuery : public UAIGraphSchema
 	virtual const FPinConnectionResponse CanMergeNodes(const UEdGraphNode* A, const UEdGraphNode* B) const override;
 	virtual int32 GetNodeSelectionCount(const UEdGraph* Graph) const override;
 	//~ End EdGraphSchema Interface
-
-	//~ Begin UAIGraphSchema Interface
-	virtual void GetSubNodeClasses(int32 SubNodeFlags, TArray<FGraphNodeClassData>& ClassData, UClass*& GraphNodeClass) const override;
-	//~ End UAIGraphSchema Interface
 };

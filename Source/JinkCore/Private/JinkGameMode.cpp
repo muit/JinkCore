@@ -2,7 +2,7 @@
 
 #include "JinkCorePrivatePCH.h"
 #include "Entity.h"
-#include "AI/SelectionQuery/SelectionQueryManager.h"
+//#include "AI/SelectionQuery/SelectionQueryManager.h"
 #include "JinkGameMode.h"
 
 AJinkGameMode::AJinkGameMode()
@@ -13,12 +13,12 @@ AJinkGameMode::AJinkGameMode()
     //Create Selection Query Manager
     UWorld* WorldOuter = Cast<UWorld>(GetOuter());
     UObject* ManagersOuter = WorldOuter != NULL ? (UObject*)WorldOuter : (UObject*)this;
-    SelectionQueryManager = NewObject<USelectionQueryManager>(ManagersOuter);
+    //SelectionQueryManager = NewObject<USelectionQueryManager>(ManagersOuter);
 
 
-    FWorldDelegates::OnWorldCleanup.AddSP(this, &AJinkGameMode::CleanupWorld);
+    //FWorldDelegates::OnWorldCleanup.AddSP(this, &AJinkGameMode::CleanupWorld);
 }
-
+/*
 void AJinkGameMode::CleanupWorld(UWorld * World, bool bSessionEnded, bool bCleanupResources)
 {
     if (bCleanupResources)
@@ -29,4 +29,4 @@ void AJinkGameMode::CleanupWorld(UWorld * World, bool bSessionEnded, bool bClean
             SelectionQueryManager = nullptr;
         }
     }
-}
+}*/

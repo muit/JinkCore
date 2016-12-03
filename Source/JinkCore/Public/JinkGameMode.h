@@ -4,7 +4,7 @@
 #include "Engine/StreamableManager.h"
 #include "JinkGameMode.generated.h"
 
-class USelectionQueryManager;
+//class USelectionQueryManager;
 
 UCLASS()
 class JINKCORE_API AJinkGameMode : public AGameMode
@@ -18,15 +18,15 @@ public:
 
 
     /** Environment query manager used by game */
-    UPROPERTY(Transient)
-    USelectionQueryManager* SelectionQueryManager;
+    //UPROPERTY(Transient)
+    //USelectionQueryManager* SelectionQueryManager;
 
-    virtual void CleanupWorld(UWorld* World, bool bSessionEnded = true, bool bCleanupResources = true);
+    //virtual void CleanupWorld(UWorld* World, bool bSessionEnded = true, bool bCleanupResources = true);
 
     /** Environment Query manager getter */
-    FORCEINLINE USelectionQueryManager* GetSelectionQueryManager() { return SelectionQueryManager; }
+    //FORCEINLINE USelectionQueryManager* GetSelectionQueryManager() { return SelectionQueryManager; }
     /** Environment Query manager const getter */
-    FORCEINLINE const USelectionQueryManager* GetSelectionQueryManager() const { return SelectionQueryManager; }
+    //FORCEINLINE const USelectionQueryManager* GetSelectionQueryManager() const { return SelectionQueryManager; }
 };
 
 

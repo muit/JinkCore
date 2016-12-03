@@ -3,7 +3,7 @@
 #include "SelectionQueryEditorPrivatePCH.h"
 #include "Toolkits/ToolkitManager.h"
 
-#include "AI/SelectionQuery/SQCompositeNode.h"
+//#include "AI/SelectionQuery/SQCompositeNode.h"
 
 #define LOCTEXT_NAMESPACE "SelectionQueryEditor"
 
@@ -31,7 +31,7 @@ void UEdGraphSchema_SelectionQuery::GetGraphContextActions(FGraphContextMenuBuil
 	}
 
 	FSelectionQueryEditorModule& EditorModule = FModuleManager::GetModuleChecked<FSelectionQueryEditorModule>(TEXT("SelectionQueryEditor"));
-	FGraphNodeClassHelper* ClassCache = EditorModule.GetClassCache().Get();
+	/*FGraphNodeClassHelper* ClassCache = EditorModule.GetClassCache().Get();
 	
 	TArray<FGraphNodeClassData> NodeClasses;
 	ClassCache->GatherClasses(USQCompositeNode::StaticClass(), NodeClasses);
@@ -44,15 +44,11 @@ void UEdGraphSchema_SelectionQuery::GetGraphContextActions(FGraphContextMenuBuil
 		USelectionQueryGraphNode_Composite* OpNode = NewObject<USelectionQueryGraphNode_Composite>(ContextMenuBuilder.OwnerOfTemporaries);
 		OpNode->ClassData = NodeClass;
 
-		TSharedPtr<FAISchemaAction_NewNode> AddOpAction = AddNewNodeAction(GeneratorsBuilder, NodeClass.GetCategory(), NodeTypeName, "");
-		AddOpAction->NodeTemplate = OpNode;
-	}
+		//TSharedPtr<FEdSchemaAction_NewNode> AddOpAction = AddNewNodeAction(GeneratorsBuilder, NodeClass.GetCategory(), NodeTypeName, "");
+		//AddOpAction->NodeTemplate = OpNode;
+	}*/
 
-	ContextMenuBuilder.Append(GeneratorsBuilder);
-}
-
-void UEdGraphSchema_SelectionQuery::GetSubNodeClasses(int32 SubNodeFlags, TArray<FGraphNodeClassData>& ClassData, UClass*& GraphNodeClass) const
-{
+	//ContextMenuBuilder.Append(GeneratorsBuilder);
 }
 
 const FPinConnectionResponse UEdGraphSchema_SelectionQuery::CanCreateConnection(const UEdGraphPin* PinA, const UEdGraphPin* PinB) const

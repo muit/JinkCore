@@ -15,11 +15,7 @@ class USelectionQueryGraphNode_Root : public USelectionQueryGraphNode
 
 	virtual void AllocateDefaultPins() override;
 	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
-	/** gets icon resource name for title bar */
-	virtual FName GetNameIcon() const override;
 
 	virtual bool CanDuplicateNode() const override { return false; }
 	virtual bool CanUserDeleteNode() const override { return false; }
-	virtual bool HasErrors() const override { return false; }
-	virtual bool RefreshNodeClass() override { return false; }
 };
