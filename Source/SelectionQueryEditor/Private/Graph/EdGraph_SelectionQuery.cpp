@@ -36,9 +36,9 @@ struct ExecutionSortComparer {
 	}
 };*/
 
-void UEdGraph_SelectionQuery::RebuildGraph(USelectionQuery* SQ, TArray<FPropTypeData>& OutProps, TArray<FDungeonGraphBuildError>& OutErrors)
+void UEdGraph_SelectionQuery::RebuildGraph(USelectionQuery* SQ,/* TArray<FPropTypeData>& OutProps,*/ TArray<FSQGraphBuildError>& OutErrors)
 {
-	OutProps.Reset();
+	//OutProps.Reset();
 	
 	// TODO: Check for cycles
 

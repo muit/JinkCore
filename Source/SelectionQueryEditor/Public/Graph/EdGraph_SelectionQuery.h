@@ -19,7 +19,7 @@ class UEdGraph_SelectionQuery : public UEdGraph {
 	GENERATED_UCLASS_BODY()
 
 public:
-	void RebuildGraph(USelectionQuery* DataAsset, TArray<FPropTypeData>& OutProps, TArray<FDungeonGraphBuildError>& OutErrors);
+	void RebuildGraph(USelectionQuery* DataAsset, /*TArray<FPropTypeData>& OutProps, */TArray<FSQGraphBuildError>& OutErrors);
 
 	void InitializeGraph();
 

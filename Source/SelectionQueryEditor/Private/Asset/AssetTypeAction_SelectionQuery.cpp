@@ -35,8 +35,8 @@ void FAssetTypeAction_SelectionQuery::OpenAssetEditor(const TArray<UObject*>& In
     {
         USelectionQuery* Query = Cast<USelectionQuery>(*ObjIt);
         if (Query) {
-            TSharedRef<FSelectionQueryEditor> NewDungeonEditor(new FSelectionQueryEditor());
-            NewDungeonEditor->InitDungeonEditor(Mode, EditWithinLevelEditor, Query);
+            TSharedRef<FSelectionQueryEditor> NewSelectionQueryEditor(new FSelectionQueryEditor());
+            NewSelectionQueryEditor->InitSelectionQueryEditor(Mode, EditWithinLevelEditor, Query);
         }
     }
 }
