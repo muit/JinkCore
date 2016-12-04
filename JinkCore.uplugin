@@ -19,6 +19,15 @@
             "Name": "JinkEditor",
             "Type": "Editor",
             "LoadingPhase":  "PostEngineInit"
+		},
+		{
+			"Name": "SelectionQuery",
+			"Type": "Runtime"
+		}, 
+		{
+            "Name": "SelectionQueryEditor",
+            "Type": "Editor",
+            "LoadingPhase":  "PostEngineInit"
 		}
 	]
 }
