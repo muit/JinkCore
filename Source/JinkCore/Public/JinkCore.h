@@ -12,26 +12,11 @@
 #include "ISettingsContainer.h"
 #endif //WITH_EDITOR
 
-//Declare Logs
 DECLARE_LOG_CATEGORY_EXTERN(JinkCore, All, All);
-JINKCORE_API DECLARE_LOG_CATEGORY_EXTERN(LogSelectionQuery, Display, All);
-
-class USelectionQueryManager;
 
 class FJinkCoreModule : public IModuleInterface
 {
 public:
-
-    /**
-    * Singleton-like access to this module's interface.
-    * Beware of calling this during the shutdown phase, though.  Your module might have been unloaded already.
-    *
-    * @return Returns singleton instance, loading the module on demand if needed
-    */
-    FORCEINLINE static FJinkCoreModule& Get()
-    {
-        return FModuleManager::LoadModuleChecked< FJinkCoreModule >("JinkCore");
-    }
 
 	/** IModuleInterface implementation */
 	virtual void StartupModule() override;
@@ -55,4 +40,6 @@ private:
 	void RegisterSettings();
 
 	void UnregisterSettings();
+
+	
 };

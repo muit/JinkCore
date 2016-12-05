@@ -27,12 +27,6 @@ public class JinkCore : ModuleRules
 			new string[]
 			{
 				"Core",
-				"CoreUObject",
-				"Engine",
-				"Slate",
-				"SlateCore",
-                "AIModule",
-                "RHI"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -41,6 +35,12 @@ public class JinkCore : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
+				"CoreUObject",
+				"Engine",
+				"Slate",
+				"SlateCore",
+                "AIModule",
+                "RHI"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

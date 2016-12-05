@@ -1,27 +1,27 @@
 {
 	"FileVersion": 3,
-	"FriendlyName": "JinkCore",
 	"Version": 1,
 	"VersionName": "1.0",
-	"CreatedBy": "PipeRift",
-	"CreatedByURL": "http://piperift.com/",
+	"FriendlyName": "JinkCore",
+	"Description": "",
 	"Category": "Gameplay",
-	"Description": "A plugin that adds game-focused features and improvements to the engine.",
-	"EnabledByDefault": true,
-	"CanContainContent": true,
-
+	"CreatedBy": "PipeRift",
+	"CreatedByURL": "piperift.com",
+	"DocsURL": "",
+	"MarketplaceURL": "",
+	"SupportURL": "",
+	"EnabledByDefault": false,
+	"CanContainContent": false,
+	"IsBetaVersion": true,
+	"Installed": false,
 	"Modules": [
 		{
 			"Name": "JinkCore",
-			"Type": "Runtime"
+			"Type": "Developer",
+			"LoadingPhase": "Default"
 		}, 
 		{
             "Name": "JinkEditor",
-            "Type": "Editor",
-            "LoadingPhase":  "PostEngineInit"
-		}, 
-		{
-            "Name": "SelectionQueryEditor",
             "Type": "Editor",
             "LoadingPhase":  "PostEngineInit"
 		}
