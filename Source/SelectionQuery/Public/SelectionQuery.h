@@ -5,6 +5,8 @@
 #include "UObject/NoExportTypes.h"
 #include "SelectionQuery.generated.h"
 
+class USQCompositeNode;
+
 /**
  * 
  */
@@ -14,8 +16,8 @@ class SELECTIONQUERY_API USelectionQuery : public UObject
     GENERATED_UCLASS_BODY()
 
     /** root node of loaded tree */
-    //UPROPERTY()
-    //USQCompositeNode* RootNode;
+    UPROPERTY()
+    USQCompositeNode* RootNode;
 
 #if WITH_EDITORONLY_DATA
     /** Graph for query */

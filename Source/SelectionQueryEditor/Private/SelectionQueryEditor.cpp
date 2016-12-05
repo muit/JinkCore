@@ -144,7 +144,7 @@ void FSelectionQueryEditor::InitSelectionQueryEditor(const EToolkitMode::Type Mo
     const bool bCreateDefaultStandaloneMenu = true;
     const bool bCreateDefaultToolbar = true;
     // Initialize the asset editor and spawn nothing (dummy layout)
-    InitAssetEditor(Mode, InitToolkitHost, Query->StaticClass->GetDisplayName(), StandaloneDefaultLayout, bCreateDefaultStandaloneMenu, bCreateDefaultToolbar, Query);
+    InitAssetEditor(Mode, InitToolkitHost, SQEditorAppName, StandaloneDefaultLayout, bCreateDefaultStandaloneMenu, bCreateDefaultToolbar, Query);
 
     ExtendMenu();
 

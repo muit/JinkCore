@@ -11,6 +11,11 @@
 #include "SelectionQuery.h"
 
 #include "SelectionQueryEditor.h"
+#include "SQGraphNode.h"
+#include "SQGraphNode_Composite.h"
+#include "SQGraphNode_Item.h"
+#include "SQGraphNode_Root.h"
+
 
 #include "SelectionQueryEditorModule.h"
 

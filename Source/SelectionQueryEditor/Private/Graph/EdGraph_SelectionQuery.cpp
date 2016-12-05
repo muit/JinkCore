@@ -18,7 +18,6 @@ UEdGraph_SelectionQuery::UEdGraph_SelectionQuery(const FObjectInitializer& Objec
     Schema = UEdGraphSchema_SelectionQuery::StaticClass();
 }
 
-/*
 template<typename T>
 void GetChildNodes(USQGraphNode* ParentNode, TArray<T*>& OutChildren) {
 	for (UEdGraphPin* ChildPin : ParentNode->GetOutputPin()->LinkedTo) {
@@ -28,7 +27,7 @@ void GetChildNodes(USQGraphNode* ParentNode, TArray<T*>& OutChildren) {
 			}
 		}
 	}
-}*/
+}
 
 /*
 struct ExecutionSortComparer {
@@ -43,11 +42,10 @@ void UEdGraph_SelectionQuery::RebuildGraph(USelectionQuery* SQ,/* TArray<FPropTy
 	
 	// TODO: Check for cycles
 
-    /* Enable with Root node class
-	UEdGraphNode_Root* Root;
-	GetNodeOfClass<UEdGraphNode_Root>(Root);
-	for (UEdGraphNode_Root* CompositeNode : CompositeNodes) {
-		TArray<UEdGraphNode_Item*> ItemNodes;
+	/*USQGraphNode_Root* Root;
+	GetNodesOfClass<USQGraphNode_Root>(Root);
+	for (USQGraphNode_Root* CompositeNode : CompositeNodes) {
+		TArray<USQGraphNode_Item*> ItemNodes;
 		ItemNodes.Sort(ExecutionSortComparer());
 	}*/
 }
@@ -55,11 +53,10 @@ void UEdGraph_SelectionQuery::RebuildGraph(USelectionQuery* SQ,/* TArray<FPropTy
 void UEdGraph_SelectionQuery::InitializeGraph()
 {
     //Create Root Node
-    /*{
-		UEdGraphNode_Root* RootNode = NewObject<UEdGraphNode_Root>(this);
-		RootNode->bUserDefined = false;
+    {
+		USQGraphNode_Root* RootNode = NewObject<USQGraphNode_Root>(this);
         RootNode->Rename(NULL, this, REN_NonTransactional);
-        RootNode->Name = "Root";
+        RootNode->NodeName = "Root";
 		this->AddNode(RootNode, true, false);
 
         RootNode->CreateNewGuid();
@@ -69,7 +66,7 @@ void UEdGraph_SelectionQuery::InitializeGraph()
         RootNode->NodePosX = 0;
         RootNode->NodePosY = 0;
         RootNode->SnapToGrid(SNAP_GRID);
-	}*/
+	}
 }
 
 FDelegateHandle UEdGraph_SelectionQuery::AddOnNodePropertyChangedHandler(const FOnGraphChanged::FDelegate& InHandler)

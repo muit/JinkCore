@@ -15,7 +15,8 @@ FSQConnectionDrawingPolicy::FSQConnectionDrawingPolicy(int32 InBackLayerID, int3
 {
 }
 
-static const FLinearColor DefaultColor(1.0f, 1.0f, 1.0f);
+static const FLinearColor DefaultColor = FLinearColor::Yellow;
+
 void FSQConnectionDrawingPolicy::DetermineWiringStyle(UEdGraphPin* OutputPin, UEdGraphPin* InputPin, /*inout*/ FConnectionParams& Params)
 {
 	Params.WireThickness = 1.5f;
@@ -49,20 +50,15 @@ void FSQConnectionDrawingPolicy::DrawPreviewConnector(const FGeometry& PinGeomet
 	bool bBiDirectional = false;
 	FConnectionParams Params;
 	Params.WireThickness = 1.0f;
-	Params.WireColor = FLinearColor::White;
 	Params.bDrawBubbles = false;
 	Params.bUserFlag1 = bBiDirectional;
-	DetermineWiringStyle(Pin, NULL, /*inout*/ Params);
 
-	if (Pin->Direction == EEdGraphPinDirection::EGPD_Output)
-	{
-		DrawSplineWithArrow(FGeometryHelper::FindClosestPointOnGeom(PinGeometry, EndPoint), EndPoint, Params);
-	}
-	else
-	{
-		DrawSplineWithArrow(FGeometryHelper::FindClosestPointOnGeom(PinGeometry, StartPoint), StartPoint, Params);
-	}
+    DetermineWiringStyle(Pin, NULL, /*inout*/ Params);
 
+    //Make Preview Conection Darker
+    Params.WireColor = DefaultColor + FLinearColor(0.3f, 0.3f, 0.3f);
+
+	DrawSplineWithArrow(StartPoint, EndPoint, Params);
 }
 
 
@@ -96,7 +92,7 @@ void FSQConnectionDrawingPolicy::Internal_DrawLineWithArrow(const FVector2D& Sta
 
 	// Draw the arrow
 	const FVector2D ArrowDrawPos = EndPoint - ArrowRadius;
-	const float AngleInRadians = FMath::Atan2(DeltaPos.Y, DeltaPos.X);
+	const float AngleInRadians = 0;
 
 	FSlateDrawElement::MakeRotatedBox(
 		DrawElementsList,
@@ -132,10 +128,10 @@ void FSQConnectionDrawingPolicy::DrawConnection(int32 LayerId, const FVector2D& 
 	const FVector2D& P1 = End;
 
 	const FVector2D Delta = End - Start;
-	const FVector2D NormDelta = Delta.GetSafeNormal();
+	//const FVector2D NormDelta = Delta.GetSafeNormal();
 
-	const FVector2D P0Tangent = NormDelta;
-	const FVector2D P1Tangent = NormDelta;
+	const FVector2D P0Tangent = FVector2D(Delta.X,0);
+	const FVector2D P1Tangent = FVector2D(Delta.X, 0);
 
 	// Draw the spline itself
 	FSlateDrawElement::MakeDrawSpaceSpline(

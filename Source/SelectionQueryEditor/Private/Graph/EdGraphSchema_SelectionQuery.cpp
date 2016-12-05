@@ -3,7 +3,6 @@
 #include "SelectionQueryEditorPrivatePCH.h"
 
 #include "EdGraph_SelectionQuery.h"
-//#include "EdGraphNode_------.h"
 #include "SQConnectionDrawingPolicy.h"
 
 #include "EdGraph/EdGraphPin.h"
@@ -106,6 +105,9 @@ UEdGraphSchema_SelectionQuery::UEdGraphSchema_SelectionQuery(const FObjectInitia
 void UEdGraphSchema_SelectionQuery::GetActionList(TArray<TSharedPtr<FEdGraphSchemaAction> >& OutActions, const UEdGraph* Graph, UEdGraph* OwnerOfTemporaries) const
 {
     //TODO: Add Node Creation actions
+    SQSchemaUtils::AddAction<USQGraphNode_Composite>(TEXT("Add Selector"), TEXT("Add a selector to the graph"), OutActions, OwnerOfTemporaries);
+    SQSchemaUtils::AddAction<USQGraphNode_Item>(TEXT("Add Item"), TEXT("Add an selectable item."), OutActions, OwnerOfTemporaries);
+
 
 	//UEdGraphSchema_Extensions::Get().CreateCustomActions(OutActions, Graph, OwnerOfTemporaries);
 }
@@ -135,7 +137,7 @@ FString GetNodeName(const UEdGraphNode* Node) {
 	FText emitterText = Node->GetNodeTitle(ENodeTitleType::FullTitle);
 	return emitterText.ToString();
 }
-/*
+
 TArray<USQGraphNode*> GetOutgoingNodes(const UEdGraphPin* A, const UEdGraphPin* B, const USQGraphNode* Node) {
 	TArray<USQGraphNode*> Result;
 	UEdGraphPin* OutPin = Node->GetOutputPin();
@@ -157,19 +159,20 @@ TArray<USQGraphNode*> GetOutgoingNodes(const UEdGraphPin* A, const UEdGraphPin* 
 		if (NextNode) Result.Add(NextNode);
 	}
 	return Result;
-}*/
-/*TArray<FString> GetItems(const UEdGraphPin* A, const UEdGraphPin* B, const UEdGraphNode_Composite* CompositeNode) {
+}
+
+TArray<FString> GetItems(const UEdGraphPin* A, const UEdGraphPin* B, const USQGraphNode_Composite* CompositeNode) {
 	TArray<FString> ItemNames;
 	TArray<USQGraphNode*> Nodes = GetOutgoingNodes(A, B, CompositeNode);
 
-	for (const USQGraphNode* MeshNode : MeshNodes) {
-		TArray<USQGraphNode*> EmitterNodes = GetOutgoingNodes(A, B, MeshNode);
+	for (const USQGraphNode* Node : Nodes) {
+		TArray<USQGraphNode*> EmitterNodes = GetOutgoingNodes(A, B, Node);
 		for (const USQGraphNode* EmitterNode : EmitterNodes) {
-			EmitterNames.Add(GetNodeName(EmitterNode));
+			ItemNames.Add(GetNodeName(EmitterNode));
 		}
 	}
-	return EmitterNames;
-}*/
+	return ItemNames;
+}
 
 typedef TMap<FString, TArray<FString>> CompositeToEmitterMapping_t;
 
@@ -216,21 +219,21 @@ bool FindCycles(const CompositeToEmitterMapping_t& CompositeToEmitterMapping, TA
 
 	return false;
 }
-/*
+
 bool UEdGraphSchema_SelectionQuery::ContainsCycles(const UEdGraphPin* A, const UEdGraphPin* B, TArray<FString>& OutCyclePath) const
 {
 	if (!A || !B) return false;
 	UEdGraph* Graph = A->GetOwningNode()->GetGraph();
 
-	TArray<UEdGraphNode_Composite*> CompositeNodes;
-	Graph->GetNodesOfClass<UEdGraphNode_Composite>(CompositeNodes);
+	TArray<USQGraphNode_Composite*> CompositeNodes;
+	Graph->GetNodesOfClass<USQGraphNode_Composite>(CompositeNodes);
 
 	
 	CompositeToEmitterMapping_t CompositeToEmitterMapping;
-	for (const UEdGraphNode_Composite* CompositeNode : CompositeNodes) {
+	for (const USQGraphNode_Composite* CompositeNode : CompositeNodes) {
 		TArray<FString> Items = GetItems(A, B, CompositeNode);
 		FString CompositeName = GetNodeName(CompositeNode);
-		if (!CompositeToEmitterMapping.Contains(CompopsiteName)) {
+		if (!CompositeToEmitterMapping.Contains(CompositeName)) {
 			CompositeToEmitterMapping.Add(CompositeName, Items);
 		}
 	}
@@ -243,7 +246,7 @@ bool UEdGraphSchema_SelectionQuery::ContainsCycles(const UEdGraphPin* A, const U
 	}
 
 	return false;
-}*/
+}
 
 FString Combine(const TArray<FString> Array, FString Separator) {
 	// TODO: Use a string builder
@@ -268,14 +271,14 @@ const FPinConnectionResponse UEdGraphSchema_SelectionQuery::CanCreateConnection(
 	if (A->PinType.PinCategory != B->PinType.PinCategory) {
 		return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, TEXT("Not allowed"));
 	}
-    /*
+    
 	// Make sure we don't have a cycle formed by this link
 	TArray<FString> CyclePath;
 	if (ContainsCycles(A, B, CyclePath)) {
 		FString CycleString = Combine(CyclePath, " > ");
 		return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, TEXT("Not allowed. Contains a cycle: " + CycleString));
 	}
-    */
+    
 	return FPinConnectionResponse(CONNECT_RESPONSE_MAKE, TEXT(""));
 }
 
