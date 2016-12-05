@@ -31,9 +31,10 @@ UClass* FAssetTypeAction_SelectionQuery::GetSupportedClass() const
 void FAssetTypeAction_SelectionQuery::OpenAssetEditor(const TArray<UObject*>& InObjects, TSharedPtr<class IToolkitHost> EditWithinLevelEditor)
 {
     const EToolkitMode::Type Mode = EditWithinLevelEditor.IsValid() ? EToolkitMode::WorldCentric : EToolkitMode::Standalone;
-    for (auto ObjIt = InObjects.CreateConstIterator(); ObjIt; ++ObjIt)
+
+    for (auto Object : InObjects)
     {
-        USelectionQuery* Query = Cast<USelectionQuery>(*ObjIt);
+        USelectionQuery* Query = Cast<USelectionQuery>(Object);
         if (Query) {
             TSharedRef<FSelectionQueryEditor> NewSelectionQueryEditor(new FSelectionQueryEditor());
             NewSelectionQueryEditor->InitSelectionQueryEditor(Mode, EditWithinLevelEditor, Query);

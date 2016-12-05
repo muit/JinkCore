@@ -3,7 +3,7 @@
 #include "SelectionQueryEditorPrivatePCH.h"
 
 #include "EdGraph_SelectionQuery.h"
-//#include "EdGraphSchema_SelectionQuery.h"
+#include "EdGraphSchema_SelectionQuery.h"
 
 #define SNAP_GRID (16) // @todo ensure this is the same as SNodePanel::GetSnapGridSize()
 
@@ -15,8 +15,9 @@ const FString FSelectionQueryDataTypes::PinType_Marker = "marker";
 UEdGraph_SelectionQuery::UEdGraph_SelectionQuery(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
-	//Schema = UEdGraphSchema_SelectionQuery::StaticClass();
+    Schema = UEdGraphSchema_SelectionQuery::StaticClass();
 }
+
 /*
 template<typename T>
 void GetChildNodes(USQGraphNode* ParentNode, TArray<T*>& OutChildren) {
@@ -45,9 +46,9 @@ void UEdGraph_SelectionQuery::RebuildGraph(USelectionQuery* SQ,/* TArray<FPropTy
     /* Enable with Root node class
 	UEdGraphNode_Root* Root;
 	GetNodeOfClass<UEdGraphNode_Root>(Root);
-	for (UEdGraphNode_Root* MarkerNode : MarkerNodes) {
-		TArray<UEdGraphNode_DungeonActorBase*> ActorNodes;
-		ActorNodes.Sort(ExecutionSortComparer());
+	for (UEdGraphNode_Root* CompositeNode : CompositeNodes) {
+		TArray<UEdGraphNode_Item*> ItemNodes;
+		ItemNodes.Sort(ExecutionSortComparer());
 	}*/
 }
 
@@ -58,7 +59,7 @@ void UEdGraph_SelectionQuery::InitializeGraph()
 		UEdGraphNode_Root* RootNode = NewObject<UEdGraphNode_Root>(this);
 		RootNode->bUserDefined = false;
         RootNode->Rename(NULL, this, REN_NonTransactional);
-        RootNode->MarkerName = "Root";
+        RootNode->Name = "Root";
 		this->AddNode(RootNode, true, false);
 
         RootNode->CreateNewGuid();
