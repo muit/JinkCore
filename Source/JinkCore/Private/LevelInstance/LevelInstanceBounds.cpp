@@ -4,7 +4,8 @@
 
 #include "Components/BoxComponent.h"
 #include "LevelInstance.h"
-#include "LIAnchorViewerComponent.h"
+#include "LIAnchorTargetHandle.h"
+
 #if WITH_EDITOR
 #include "ObjectEditorUtils.h"
 #endif
@@ -75,7 +76,6 @@ FBox ALevelInstanceBounds::CalculateLevelBounds(ULevel* InLevel)
 			}
 		}
 	}
-
 	return LevelBounds;
 }
 
@@ -179,8 +179,6 @@ void ALevelInstanceBounds::UpdateLevelBounds()
             LevelI->MarkPackageDirty();
         }
     }
-	//Avoid Anchor position change
-	UpdateAnchorViewers();
 
 	if (LevelBounds.IsValid)
 	{
@@ -261,18 +259,18 @@ void ALevelInstanceBounds::UnsubscribeFromUpdateEvents()
 #endif // WITH_EDITOR
 
 
-FLIAnchor& ALevelInstanceBounds::GetAnchorByGUID(FGuid GUID) {
-    return *Anchors.FindByPredicate([GUID](const FLIAnchor& InAnchor)
+ALIAnchorTargetHandle* ALevelInstanceBounds::GetAnchorByGUID(FGuid GUID) {
+    return *Anchors.FindByPredicate([GUID](const ALIAnchorTargetHandle* InAnchor)
 		{
-			return InAnchor.GUID == GUID;
+			return InAnchor->GUID == GUID;
 		}
 	);
 }
 
-FLIAnchor& ALevelInstanceBounds::GetAnchorByName(FName Name) {
-	return *Anchors.FindByPredicate([Name](const FLIAnchor& InAnchor)
+ALIAnchorTargetHandle* ALevelInstanceBounds::GetAnchorByName(FName Name) {
+	return *Anchors.FindByPredicate([Name](const ALIAnchorTargetHandle* InAnchor)
 		{
-			return InAnchor.Name == Name;
+			return InAnchor->Name == Name;
 		}
 	);
 }
@@ -287,51 +285,13 @@ void ALevelInstanceBounds::UpdateAnchors()
             LevelI->Anchors.Empty();
 
             //Update or create new ones
-            for (auto& Anchor : Anchors)
+            for (auto Anchor : Anchors)
             {
-                FLIAnchor NewAnchor;
-                NewAnchor.CopyFrom(Anchor);
-
-                LevelI->Anchors.Add(NewAnchor);
+                if (Anchor) {
+                    LevelI->Anchors.Add(Anchor->GetAsAnchor());
+                }
             }
             LevelI->MarkPackageDirty();
-        }
-	}
-
-    UpdateAnchorViewers();
-}
-
-/*
-void ALevelInstanceBounds::UpdateAnchorViewerPosition(FGuid GUID)
-{
-}*/
-
-void ALevelInstanceBounds::UpdateAnchorViewers()
-{
-	//Remove previous anchor viewers
-	for (auto OldViewerIt = AnchorViewers.CreateConstIterator(); OldViewerIt; ++OldViewerIt)
-	{
-		(*OldViewerIt)->DestroyComponent();
-	}
-    AnchorViewers.Empty();
-
-    for (auto& Anchor : Anchors)
-    {
-        //Create a new viewer for each anchor
-        ULIAnchorViewerComponent* AnchorViewer = NewObject<ULIAnchorViewerComponent>(this, ULIAnchorViewerComponent::StaticClass(), Anchor.Name);
-        if (AnchorViewer)
-        {
-			AnchorViewer->RegisterComponent();
-
-			FLIAnchorTypeInfo TypeInfo;
-			if (Anchor.Type.GetAnchorInfo(TypeInfo)) {
-				AnchorViewer->SetArrowColor_New(TypeInfo.Color);
-			}
-
-            AnchorViewer->AnchorGUID = Anchor.GUID;
-            AnchorViewer->SetWorldTransform(Anchor.Transform);
-            //AnchorViewer->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
-            AnchorViewers.Add(AnchorViewer);
         }
 	}
 }

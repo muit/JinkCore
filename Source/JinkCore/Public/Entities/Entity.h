@@ -264,4 +264,11 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
 	bool IsAI() const { return GetAI() != NULL; }
+
+    /**
+     * DROPS
+     */
+    //Drop SelectionQuery
+
+    //void DropItem(TAssetPtr<USelectionQuery> SelectionQuery);
 };
