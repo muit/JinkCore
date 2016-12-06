@@ -41,12 +41,91 @@ public:
 	/**
 	 * PROPERTIES
 	 */
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity")
-	float Live;
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity")
-	float MaxLive;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity")
 	FFaction Faction;
+
+
+    /**
+    * Begin ATTRIBUTES
+    */
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Attributes")
+    float Live;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Attributes")
+    float MaxLive;
+
+    /** Base Damage. */
+    UPROPERTY(EditAnywhere, Category = "Entity|Attributes")
+    float Damage;
+
+    /** Fire rate in shots/second. */
+    UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
+    float FireRate;
+
+    /** Adquired items. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
+    TArray<TSubclassOf<UItem>> Items;
+
+
+    /**
+     * Get the actor end damage.
+     * @return Modified damage.
+     */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
+    float GetDamage() const;
+    /**
+     * Get the actor base damage.
+     * @return Base damage.
+     */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
+    float GetBaseDamage() const { return Damage; }
+    /**
+     * Get the actor end fire rate.
+     * @return Modified fire rate.
+     */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
+    float GetFireRate() const;
+    /**
+     * Get the actor base fire rate.
+     * @return Base fire rate.
+     */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
+    float GetBaseFireRate() const { return FireRate; }
+    /**
+     * Add an Item to the entity.
+     * @param Class	The class of the item.
+     * @return      Id of the added item. -1 if error.
+     */
+    UFUNCTION(BlueprintCallable, Category = "Entity|Attributes")
+    int32 AddItem(TSubclassOf<UItem> Class);
+    /**
+     * Remove an Item from the entity.
+     * @param Class	The class of the removed item.
+     */
+    UFUNCTION(BlueprintCallable, Category = "Entity|Attributes")
+    void RemoveItem(TSubclassOf<UItem> Class);
+    /** Remove an Item by Id from the entity.
+     * @param Id Id of the item to be removed.
+     */
+    UFUNCTION(BlueprintCallable, Category = "Entity|Attributes", meta = (DisplayName = "Remove Item"))
+    void RemoveItemById(int32 Id);
+    /**
+    * Remove all Items of a class from the entity.
+    * @param Class The class of the removed items.
+    */
+    UFUNCTION(BlueprintCallable, Category = "Entity|Attributes")
+    void RemoveAllItems(TSubclassOf<UItem> Class);
+    /**
+    * Remove all items.
+    * @param Class	The class of the removed items.
+    */
+    UFUNCTION(BlueprintCallable, Category = "Entity|Attributes")
+    void ClearItems();
+
+    /* End ATTRIBUTES*/
+
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Movement")
 	EMovementState MovementState;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Movement")
@@ -86,9 +165,9 @@ public:
 	void Die(AController * InstigatedBy = nullptr, AEntity* Killer = nullptr);
 
 	UFUNCTION(BlueprintCallable, Category = "Entity")
-	ASpell* CastSpell(TSubclassOf<ASpell> SpellType, AEntity* Target, FVector Location, FRotator Rotation, float Damage = 0.0f);
+	ASpell* CastSpell(TSubclassOf<ASpell> SpellType, AEntity* Target, FVector Location, FRotator Rotation, float _Damage = 0.0f);
 	UFUNCTION(BlueprintCallable, Category = "Entity")
-	ASpell* CastSpellAtCaster(TSubclassOf<ASpell> SpellType, AEntity* Target = NULL, float Damage = 0.0f);
+	ASpell* CastSpellAtCaster(TSubclassOf<ASpell> SpellType, AEntity* Target = NULL, float _Damage = 0.0f);
 
 	UFUNCTION(BlueprintNativeEvent, Category = "Combat")
 	void ReceiveDamage(AActor* DamagedActor, float _Damage, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
@@ -186,47 +265,10 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
 	bool IsAI() const { return GetAI() != NULL; }
 
-
     /**
-     * ATTRIBUTES
+     * DROPS
      */
-public:
-    /** Base Damage. */
-    UPROPERTY(EditAnywhere, Category = "Entity|Attributes")
-    float Damage;
+    //Drop SelectionQuery
 
-    /** Fire rate in shots/second. */
-    UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
-    float FireRate;
-
-    /** Fire rate in shots/second. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
-    TArray<TSubclassOf<UItem>> Items;
-
-
-    /**
-    * Get the actor end damage.
-    * @return Modified damage.
-    */
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
-    float GetDamage() const;
-    /**
-    * Get the actor base damage.
-    * @return Base damage.
-    */
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
-    float GetBaseDamage() const;
-    /**
-    * Get the actor end fire rate.
-    * @return Modified fire rate.
-    */
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
-    float GetFireRate() const;
-    /**
-    * Get the actor base fire rate.
-    * @return Base fire rate.
-    */
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
-    float GetBaseFireRate() const;
-
+    //void DropItem(TAssetPtr<USelectionQuery> SelectionQuery);
 };
