@@ -5,7 +5,7 @@
 
 #define LOCTEXT_NAMESPACE "LIModule" 
 
-static ConstructorHelpers::FObjectFinderOptional<UTexture2D> TextureObject = TEXT("/Engine/EditorResources/S_Actor");
+static ConstructorHelpers::FObjectFinderOptional<UTexture2D> ModuleTextureObject = TEXT("/Engine/EditorResources/S_Actor");
 
 // Sets default values
 ALIModule::ALIModule()
@@ -17,12 +17,11 @@ ALIModule::ALIModule()
     USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
     RootComponent = SceneComponent;
 
-
 #if WITH_EDITORONLY_DATA
     SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
     if (SpriteComponent)
     {
-        SpriteComponent->Sprite = TextureObject.Get();		// Get the sprite texture from helper class object
+        SpriteComponent->Sprite = ModuleTextureObject.Get();		// Get the sprite texture from helper class object
         SpriteComponent->SpriteInfo.DisplayName = LOCTEXT("Icon", "Icon");	// Assign sprite display name
         SpriteComponent->SetupAttachment(RootComponent);	// Attach sprite to scene component
     }

@@ -16,6 +16,8 @@ class JINKCORE_API ULIAnchorViewerComponent : public UArrowComponent
 public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level Anchor")
     FGuid AnchorGUID;
+    UPROPERTY(VisibleAnywhere, Category = "Level Anchor")
+    FLIAnchor AnchorData;
 
     // Sets default values for this component's properties
     ULIAnchorViewerComponent();
@@ -30,18 +32,13 @@ public:
     virtual void PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent) override;
 #endif //WITH_EDITOR
 
-private:
-    /*
-    FLIAnchor GetLIAnchor() {
-        if (ALevelInstanceBounds* LIBoundsActor = GetLIBoundsActor()) {
-            return LIBoundsActor->GetAnchorByGUID(AnchorGUID);
-        }
-        return FLIAnchor();
-    }*/
-
-
-
 public:
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Anchor")
+    FLIAnchor GetAnchor() {
+        return AnchorData;
+    }
+
     //Attachment Interface
     UPROPERTY(VisibleAnywhere, Category = "Level Anchor|Attachment")
     bool bIsAttachmentFather;
