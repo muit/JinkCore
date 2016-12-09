@@ -6,7 +6,7 @@
 
 #define LOCTEXT_NAMESPACE "LIConector" 
 
-static ConstructorHelpers::FObjectFinderOptional<UTexture2D> ConectorTextureObject = TEXT("/Engine/EditorResources/S_Actor");
+static ConstructorHelpers::FObjectFinderOptional<UTexture2D> ConectorTextureObject = TEXT("/Engine/EditorResources/S_KHinge");
 
 // Sets default values
 ALIConector::ALIConector()
@@ -28,7 +28,7 @@ ALIConector::ALIConector()
 #endif // WITH_EDITORONLY_DATA
 }
 
-void ALIConector::SetupAttachment(FLIAnchor& A, FLIAnchor& B)
+void ALIConector::SetupConAttachment(FLIAnchor& A, FLIAnchor& B)
 {
     OnAttachment(A, B);
 }

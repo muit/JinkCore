@@ -46,7 +46,7 @@ public:
     ULIAnchorViewerComponent* AttachmentConector;
 
 
-    void SetupAttachment(ULIAnchorViewerComponent* OtherAnchor, bool IsFather);
+    void SetupAnchorAttachment(ULIAnchorViewerComponent* OtherAnchor, bool IsFather);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Anchor|Attachment")
     bool IsAttached() { 

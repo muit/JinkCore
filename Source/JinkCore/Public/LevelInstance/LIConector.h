@@ -22,7 +22,7 @@ public:
     // Sets default values for this actor's properties
 	ALIConector();
 
-    virtual void SetupAttachment(FLIAnchor& A, FLIAnchor& B);
+    virtual void SetupConAttachment(FLIAnchor& A, FLIAnchor& B);
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Anchor")
     void OnAttachment(FLIAnchor& A, FLIAnchor& B);

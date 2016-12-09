@@ -270,7 +270,7 @@ void ULevelInstanceComponent::AttachToAnchor(ULIAnchorViewerComponent * MyAnchor
 
 
     //Setup Attachment on the anchors
-    MyAnchor->SetupAttachment(OtherAnchor, false);
+    MyAnchor->SetupAnchorAttachment(OtherAnchor, false);
 
     //Spawn Conector if desired
     if (bSpawnConector) {
@@ -279,22 +279,16 @@ void ULevelInstanceComponent::AttachToAnchor(ULIAnchorViewerComponent * MyAnchor
         const FTransform SpawnTransform = MyAnchor->GetComponentTransform();
         ALIConector* ConectorActor = Cast<ALIConector>(GetWorld()->SpawnActor(TypeInfo.GetConectorType(), &SpawnTransform));
 
-        ConectorActor->SetupAttachment(MyAnchor->AnchorData, OtherAnchor->AnchorData);
+        ConectorActor->SetupConAttachment(MyAnchor->AnchorData, OtherAnchor->AnchorData);
     }
 }
 
 //~ Begin Anchors Interface
 void ULevelInstanceComponent::UpdateAnchors()
 {
-    TArray<USceneComponent*> Childrens;
-    GetChildrenComponents(true, Childrens);
-    if (Childrens.Num() > 0) {
-        //Remove previous anchor viewers
-        for (auto* Comp : Childrens)
-        {
-            if (Comp->StaticClass() == ULIAnchorViewerComponent::StaticClass())
-                Comp->DestroyComponent();
-        }
+    //Remove previous anchor viewers
+    for (auto* AnchorViewer : AnchorViewers) {
+        AnchorViewer->DestroyComponent();
     }
     AnchorViewers.Empty();
 
@@ -303,11 +297,27 @@ void ULevelInstanceComponent::UpdateAnchors()
 
     ULevelInstance* LevelI = LevelInstanceAsset.LoadSynchronous();
 
+    //Name Counts
+    TMap<FName, int32> Names;
 
     for (auto& Anchor : LevelI->Anchors)
     {
+        //Generate an unique name
+        FName UniqueName = Anchor.Name;
+        if (Names.Contains(Anchor.Name)) {
+            int32 NameCount = Names[Anchor.Name] + 1;
+            FString Count = "_" + NameCount;
+            UniqueName.AppendString(Count);
+            Names[Anchor.Name] = NameCount;
+        }
+        else {
+            Names.Add(Anchor.Name, 0);
+            FString Count = "_0";
+            UniqueName.AppendString(Count);
+        }
+
         //Create a new viewer for each anchor
-        ULIAnchorViewerComponent* AnchorViewer = NewObject<ULIAnchorViewerComponent>(GetOwner(), ULIAnchorViewerComponent::StaticClass(), Anchor.Name);
+        ULIAnchorViewerComponent* AnchorViewer = NewObject<ULIAnchorViewerComponent>(GetOwner(), ULIAnchorViewerComponent::StaticClass(), UniqueName);
         if (AnchorViewer)
         {
             AnchorViewer->RegisterComponent();
