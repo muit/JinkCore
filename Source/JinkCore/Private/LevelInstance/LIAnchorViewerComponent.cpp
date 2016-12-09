@@ -36,7 +36,7 @@ void ULIAnchorViewerComponent::PostEditChangeProperty(FPropertyChangedEvent & Pr
 {}
 #endif //WITH_EDITOR
 
-void ULIAnchorViewerComponent::SetupAttachment(ULIAnchorViewerComponent* OtherAnchor, bool IsFather)
+void ULIAnchorViewerComponent::SetupAnchorAttachment(ULIAnchorViewerComponent* OtherAnchor, bool IsFather)
 {
     if (!OtherAnchor) {
         UE_LOG(LogJinkCore, Warning, TEXT("LevelInstance: Can't setup attachment to an invalid anchor."));

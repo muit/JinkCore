@@ -43,5 +43,5 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Level Instance", meta = (DisplayName = "AttachToAnchor"))
     void AttachToAnchorByGuid(FGuid MyAnchorGUID, ULIAnchorViewerComponent* OtherAnchor);
     UFUNCTION(BlueprintCallable, Category = "Level Instance", meta = (DisplayName = "AttachToAnchor"))
-    void AttachToAnchor(ULIAnchorViewerComponent* MyAnchor, ULIAnchorViewerComponent* OtherAnchor);
+    virtual void AttachToAnchor(ULIAnchorViewerComponent* MyAnchor, ULIAnchorViewerComponent* OtherAnchor);
 };
