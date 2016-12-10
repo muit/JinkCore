@@ -27,7 +27,18 @@ public:
     UFUNCTION(BlueprintImplementableEvent, Category = "Anchor")
     void OnAttachment(FLIAnchor& A, FLIAnchor& B);
 
-
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anchor")
+    bool bClosed;
+
+    UFUNCTION(BlueprintCallable, Category = "Anchor")
+    void Open();
+    UFUNCTION(BlueprintCallable, Category = "Anchor")
+    void Close();
+
+    //Called at beginplay or when conector is opened/closed
+    UFUNCTION(BlueprintImplementableEvent, Category = "Anchor")
+    void OnOpenClose(bool _bClosed);
 };

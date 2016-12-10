@@ -26,6 +26,8 @@ ALIConector::ALIConector()
         SpriteComponent->SetupAttachment(RootComponent);	// Attach sprite to scene component
     }
 #endif // WITH_EDITORONLY_DATA
+
+    bClosed = true;
 }
 
 void ALIConector::SetupConAttachment(FLIAnchor& A, FLIAnchor& B)
@@ -37,6 +39,16 @@ void ALIConector::SetupConAttachment(FLIAnchor& A, FLIAnchor& B)
 void ALIConector::BeginPlay()
 {
 	Super::BeginPlay();
-	
+    OnOpenClose(bClosed);
+}
+void ALIConector::Open()
+{
+    bClosed = false;
+    OnOpenClose(bClosed);
+}
+void ALIConector::Close()
+{
+    bClosed = true;
+    OnOpenClose(bClosed);
 }
 #undef LOCTEXT_NAMESPACE 
