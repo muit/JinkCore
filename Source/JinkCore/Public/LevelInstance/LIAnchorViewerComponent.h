@@ -3,6 +3,7 @@
 #pragma once
 
 #include "Components/ArrowComponent.h"
+#include "LIConector.h"
 #include "LIAnchorViewerComponent.generated.h"
 
 class ALevelInstanceBounds;
@@ -43,17 +44,24 @@ public:
     UPROPERTY(VisibleAnywhere, Category = "Level Anchor|Attachment")
     bool bIsAttachmentFather;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level Anchor|Attachment")
-    ULIAnchorViewerComponent* AttachmentConector;
+    ULIAnchorViewerComponent* ConectedAttachment;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level Anchor|Attachment")
+    ALIConector* Conector;
 
 
     void SetupAnchorAttachment(ULIAnchorViewerComponent* OtherAnchor, bool IsFather);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Anchor|Attachment")
     bool IsAttached() { 
-        return AttachmentConector != nullptr;
+        return ConectedAttachment != nullptr;
     }
     UFUNCTION(BlueprintCallable, BlueprintPure,  Category = "Level Anchor|Attachment")
     bool IsAttachmentFather() {
         return IsAttached() && bIsAttachmentFather;
+    }
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Anchor|Attachment")
+        bool HaveConector() {
+        return IsAttached() && Conector != nullptr;
     }
 };

@@ -30,8 +30,12 @@ ALIConector::ALIConector()
     bClosed = true;
 }
 
-void ALIConector::SetupConAttachment(FLIAnchor& A, FLIAnchor& B)
+void ALIConector::SetupConAttachment(ULIAnchorViewerComponent* A, ULIAnchorViewerComponent* B)
 {
+    AnchorA = A;
+    AnchorB = B;
+    AnchorA->Conector = this;
+    AnchorB->Conector = this;
     OnAttachment(A, B);
 }
 

@@ -14,7 +14,8 @@ ULIAnchorViewerComponent::ULIAnchorViewerComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
     bIsAttachmentFather = false;
-    AttachmentConector = nullptr;
+    ConectedAttachment = nullptr;
+    Conector = nullptr;
 }
 
 
@@ -44,10 +45,10 @@ void ULIAnchorViewerComponent::SetupAnchorAttachment(ULIAnchorViewerComponent* O
     }
     
     //Attach this Anchor
-    AttachmentConector = OtherAnchor;
+    ConectedAttachment = OtherAnchor;
     bIsAttachmentFather = IsFather;
 
     //Attach the other Anchor
-    OtherAnchor->AttachmentConector = this;
+    OtherAnchor->ConectedAttachment = this;
     OtherAnchor->bIsAttachmentFather = !IsFather;
 }
