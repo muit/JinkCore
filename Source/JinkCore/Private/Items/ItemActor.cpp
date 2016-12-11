@@ -1,6 +1,12 @@
 // Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
+
+#if WITH_EDITOR
+#include "UnrealEd.h"
+#include "ObjectEditorUtils.h"
+#endif
+
 #include "ItemActor.h"
 
 
@@ -10,19 +16,32 @@ AItemActor::AItemActor()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+    USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
+    RootComponent = SceneComponent;
+
+    Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+    Mesh->SetupAttachment(RootComponent);
+}
+void AItemActor::OnConstruction(const FTransform& Transform) {
+    SetItemType(ItemType);
 }
 
-// Called when the game starts or when spawned
-void AItemActor::BeginPlay()
+UItem* AItemActor::GetItemDefaults()
 {
-	Super::BeginPlay();
-	
+    if (!ItemType)
+        return nullptr;
+
+    return Cast<UItem>(ItemType->GetDefaultObject());
 }
 
-// Called every frame
-void AItemActor::Tick( float DeltaTime )
+void AItemActor::SetItemType(TSubclassOf<UItem> Type)
 {
-	Super::Tick( DeltaTime );
-
+    ItemType = Type;
+    UItem* Defaults = GetItemDefaults();
+    if (Defaults) {
+        Mesh->SetStaticMesh(Defaults->Mesh);
+    }
+    else {
+        Mesh->SetStaticMesh(nullptr);
+    }
 }
-

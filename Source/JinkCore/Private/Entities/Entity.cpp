@@ -78,10 +78,33 @@ float AEntity::GetFireRate() const
 }
 int32 AEntity::AddItem(TSubclassOf<UItem> Class)
 {
-    return Items.Add(Class);
+    if (Class) {
+        if (UItem* Item = Cast<UItem>(Class->GetDefaultObject())) {
+
+            //Apply Live increment
+            MaxLive += Item->LiveIncrement;
+            Live += Item->LiveIncrement;
+
+            //Apply Damage Increment
+            Damage += Item->DamageIncrement;
+        }
+        return Items.Add(Class);
+    }
+    return 0;
 }
 void AEntity::RemoveItem(TSubclassOf<UItem> Class)
 {
+    if (Class && Items.Contains(Class)) {
+        if (UItem* Item = Cast<UItem>(Class->GetDefaultObject())) {
+
+            //Apply Live increment
+            MaxLive -= Item->LiveIncrement;
+            Live = FMath::Clamp(Live, 0.0f, MaxLive);
+
+            //Apply Damage Increment
+            Damage -= Item->DamageIncrement;
+        }
+    }
     Items.RemoveSingle(Class);
 }
 void AEntity::RemoveItemById(int32 Id)

@@ -279,7 +279,7 @@ void ULevelInstanceComponent::AttachToAnchor(ULIAnchorViewerComponent * MyAnchor
         const FTransform SpawnTransform = MyAnchor->GetComponentTransform();
         ALIConector* ConectorActor = Cast<ALIConector>(GetWorld()->SpawnActor(TypeInfo.GetConectorType(), &SpawnTransform));
 
-        ConectorActor->SetupConAttachment(MyAnchor->AnchorData, OtherAnchor->AnchorData);
+        ConectorActor->SetupConAttachment(MyAnchor, OtherAnchor);
     }
 }
 
