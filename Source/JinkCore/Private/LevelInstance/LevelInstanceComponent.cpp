@@ -8,8 +8,6 @@
 #if WITH_EDITOR
 #include "UnrealEd.h"
 #include "ObjectEditorUtils.h"
-#include "WorldBrowserModule.h"
-#include "Private/WorldBrowserPrivatePCH.h"
 #endif
 
 #include "LevelInstanceComponent.h"

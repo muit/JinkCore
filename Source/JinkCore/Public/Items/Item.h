@@ -25,10 +25,9 @@ public:
     UTexture* Icon;
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     UStaticMesh* Mesh;
-#if WITH_EDITOR
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FText DesignerNotes;
-#endif
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
     bool bUnique;
