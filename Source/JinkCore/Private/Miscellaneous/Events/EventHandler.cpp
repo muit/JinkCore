@@ -91,6 +91,10 @@ void UEventHandler::Reset()
 
 void UEventHandler::OnExecute()
 {
+    if (!World || !TimerHandle.IsValid()) {
+        return;
+    }
+
 	World->GetTimerManager().ClearTimer(TimerHandle);
 
 	if (EventDelegate.IsBound()) {

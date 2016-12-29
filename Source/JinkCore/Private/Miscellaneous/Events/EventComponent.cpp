@@ -14,7 +14,15 @@ UEventComponent::UEventComponent()
 	DefaultLength = 1;
 
 	EventHandler = Cast<UEventHandler>(UEventHandler::StaticClass()->GetDefaultObject());
-	EventHandler->Setup(this, &UEventComponent::OnExecute);
+}
+
+void UEventComponent::BeginPlay()
+{
+    EventHandler->Setup(this, &UEventComponent::OnExecute);
+
+    if (bAutoActivate) {
+        Start();
+    }
 }
 
 void UEventComponent::Start(float Length)
@@ -47,6 +55,10 @@ void UEventComponent::Reset()
 
 void UEventComponent::OnExecute(int Id)
 {
+    //
+    if (bLooping) {
+        Start();
+    }
 	Execute.Broadcast();
 }
 
