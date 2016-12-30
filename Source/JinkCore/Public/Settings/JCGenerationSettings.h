@@ -18,9 +18,9 @@ class JINKCORE_API UJCGenerationSettings : public UObject
 
 public:
     UJCGenerationSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {
-		//Add Default Anchor
-		AnchorTypes.Add(ANCHOR_None, FLIAnchorTypeInfo());
-	}
+        //Add Default Anchor
+        AnchorTypes.Add(ANCHOR_None, FLIAnchorTypeInfo());
+    }
 
     UPROPERTY(config, EditAnywhere, Category = Custom)
     TMap<FString, FLIAnchorTypeInfo> AnchorTypes;

@@ -6,6 +6,6 @@
 
 AJinkGameMode::AJinkGameMode()
 {
-	// set default pawn class to our Blueprinted character
-	DefaultPawnClass = AEntity::StaticClass();
+    // set default pawn class to our Blueprinted character
+    DefaultPawnClass = AEntity::StaticClass();
 }

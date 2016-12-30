@@ -12,15 +12,15 @@
 UCLASS(config = Game, defaultconfig)
 class JINKCORE_API UJCGeneralSettings : public UObject
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+    
 public:
-	UJCGeneralSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
+    UJCGeneralSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {}
 
-	UPROPERTY(config, EditAnywhere, Category = Custom)
-	TArray<FString> Factions;
+    UPROPERTY(config, EditAnywhere, Category = Custom)
+    TArray<FString> Factions;
 
-	/** Lenguajes List */
-	UPROPERTY(config, EditAnywhere, Category = Lenguajes)
-	TArray<FLenguajeData> Lenguajes;
+    /** Lenguajes List */
+    UPROPERTY(config, EditAnywhere, Category = Lenguajes)
+    TArray<FLenguajeData> Lenguajes;
 };

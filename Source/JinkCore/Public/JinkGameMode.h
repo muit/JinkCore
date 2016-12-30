@@ -7,12 +7,12 @@
 UCLASS()
 class JINKCORE_API AJinkGameMode : public AGameMode
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	AJinkGameMode();
+    AJinkGameMode();
 
-	FStreamableManager AssetLoader;
+    FStreamableManager AssetLoader;
 };
 
 
