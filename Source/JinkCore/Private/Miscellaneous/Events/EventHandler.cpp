@@ -12,17 +12,17 @@ FEventHandler::FEventHandler(UObject* _Outer, int _Id) : Id(_Id) {
 
 template< class UserClass >
 void FEventHandler::Bind(UserClass* Context, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod) {
-	//Bind Callback
-	EventDelegate = FEventDelegate::CreateUObject(Context, InEventMethod);
+    //Bind Callback
+    EventDelegate = FEventDelegate::CreateUObject(Context, InEventMethod);
 }
 
 void FEventHandler::Start(float _Length)
 {
-	if (IsRunning() || _Length < 0) {
-		return;
-	}
+    if (IsRunning() || _Length < 0) {
+        return;
+    }
 
-	StartInternal(_Length);
+    StartInternal(_Length);
 }
 
 void FEventHandler::StartInternal(int _Length)
@@ -41,45 +41,45 @@ void FEventHandler::StartInternal(int _Length)
 
 void FEventHandler::Pause()
 {
-	if (!IsRunning())
-		return;
+    if (!IsRunning())
+        return;
 
     bPaused = true;
 }
 
 void FEventHandler::Resume()
 {
-	if (!IsPaused()) {
+    if (!IsPaused()) {
         UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: Tried to Resume an event, but it was not paused."));
-		return;
-	}
+        return;
+    }
 
     bPaused = false;
 }
 
 void FEventHandler::Restart(float _Length)
 {
-	if (!EventDelegate.IsBound()) {
-		UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: Tried to Restart an event that is not bounded."));
-		return;
-	}
+    if (!EventDelegate.IsBound()) {
+        UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: Tried to Restart an event that is not bounded."));
+        return;
+    }
 
-	if (_Length < 0) {
-		_Length = Length;
-	}
+    if (_Length < 0) {
+        _Length = Length;
+    }
 
-	//Reset the Event
-	Reset();
+    //Reset the Event
+    Reset();
 
-	//Start the event again
-	StartInternal(_Length);
+    //Start the event again
+    StartInternal(_Length);
 }
 
 void FEventHandler::Reset()
 {
-	//Clear the Timer
+    //Clear the Timer
     delete Timer;
-	bActivated = false;
+    bActivated = false;
     bPaused = false;
 }
 
@@ -98,7 +98,7 @@ void FEventHandler::OnExecute()
 {
     Reset();
 
-	if (EventDelegate.IsBound()) {
-		EventDelegate.Execute(Id);
-	}
+    if (EventDelegate.IsBound()) {
+        EventDelegate.Execute(Id);
+    }
 }

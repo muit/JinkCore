@@ -16,7 +16,7 @@ public:
     UItem(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
     //~ Begin Item Interface
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FName DisplayName;
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FText Description;

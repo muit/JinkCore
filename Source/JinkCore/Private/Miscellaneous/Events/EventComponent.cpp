@@ -36,30 +36,30 @@ void UEventComponent::EndPlay(const EEndPlayReason::Type reason)
 
 void UEventComponent::Start(float Length)
 {
-	if (Length < 0) {
-		Length = DefaultLength;
-	}
-	EventHandler.Start(Length);
+    if (Length < 0) {
+        Length = DefaultLength;
+    }
+    EventHandler.Start(Length);
 }
 
 void UEventComponent::Pause()
 {
-	EventHandler.Pause();
+    EventHandler.Pause();
 }
 
 void UEventComponent::Resume()
 {
-	EventHandler.Resume();
+    EventHandler.Resume();
 }
 
 void UEventComponent::Restart(float Length)
 {
-	EventHandler.Restart(Length);
+    EventHandler.Restart(Length);
 }
 
 void UEventComponent::Reset()
 {
-	EventHandler.Reset();
+    EventHandler.Reset();
 }
 
 void UEventComponent::OnExecute(int Id)
@@ -68,19 +68,19 @@ void UEventComponent::OnExecute(int Id)
     if (bLooping) {
         Start();
     }
-	Execute.Broadcast();
+    Execute.Broadcast();
 }
 
 bool UEventComponent::IsRunning() {
-	return EventHandler.IsRunning();
+    return EventHandler.IsRunning();
 }
 
 bool UEventComponent::IsPaused()
 {
-	return EventHandler.IsPaused();
+    return EventHandler.IsPaused();
 }
 
 float UEventComponent::GetLength()
 {
-	return EventHandler.GetLength();
+    return EventHandler.GetLength();
 }

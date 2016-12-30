@@ -11,9 +11,9 @@
 UCLASS()
 class JINKCORE_API ADeadVolume : public ACustomVolume
 {
-	GENERATED_UCLASS_BODY()
+    GENERATED_UCLASS_BODY()
 
 protected:
-	UFUNCTION()
-	virtual void EntityEnter(AEntity* Entity) override;
+    UFUNCTION()
+    virtual void EntityEnter(AEntity* Entity) override;
 };

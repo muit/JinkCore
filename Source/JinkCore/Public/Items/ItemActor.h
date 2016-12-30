@@ -9,11 +9,11 @@
 UCLASS(Abstract)
 class JINKCORE_API AItemActor : public AActor
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+    
 public:	
-	// Sets default values for this actor's properties
-	AItemActor();
+    // Sets default values for this actor's properties
+    AItemActor();
     virtual void OnConstruction(const FTransform& Transform) override;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
@@ -27,5 +27,5 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Item")
     void SetItemType(TSubclassOf<UItem> Type);
-	
+    
 };
