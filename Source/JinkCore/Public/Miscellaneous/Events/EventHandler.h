@@ -13,7 +13,7 @@ DECLARE_DELEGATE_OneParam(FEventDelegate, int);
 USTRUCT()
 struct JINKCORE_API FEventHandler
 {
-	GENERATED_USTRUCT_BODY()
+    GENERATED_USTRUCT_BODY()
 
 public:
     FEventHandler() {
@@ -37,10 +37,10 @@ protected:
 
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
-	int Id;
-	UPROPERTY(BlueprintReadOnly, Category = "Timer")
-	bool bActivated;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
+    int Id;
+    UPROPERTY(BlueprintReadOnly, Category = "Timer")
+    bool bActivated;
 
     UPROPERTY()
     UObject* Outer;
@@ -51,32 +51,32 @@ public:
     template< class UserClass >
     void Bind(UserClass* Context, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod);
 
-	// Start the event timer
-	void Start(float Length);
+    // Start the event timer
+    void Start(float Length);
 
 private:
     void StartInternal(int Length);
 
 public:
-	// Pause the event timer
-	void Pause();
+    // Pause the event timer
+    void Pause();
 
-	// Resume the event timer
-	void Resume();
+    // Resume the event timer
+    void Resume();
 
-	//Reset the event and start it.
-	void Restart(float Length);
-	//Reset the event and start it.
-	void Reset();
+    //Reset the event and start it.
+    void Restart(float Length);
+    //Reset the event and start it.
+    void Reset();
 
-	//Called when the event is done.
-	void OnExecute();
+    //Called when the event is done.
+    void OnExecute();
 
-	// HELPERS
+    // HELPERS
     bool const IsValid() { return bValid; }
-	bool const IsRunning() { return bActivated; }
-	bool const IsPaused() { return IsRunning() && bPaused; }
-	float const GetLength() { return Length; }
+    bool const IsRunning() { return bActivated; }
+    bool const IsPaused() { return IsRunning() && bPaused; }
+    float const GetLength() { return Length; }
 
     void Tick(float DeltaTime);
 
