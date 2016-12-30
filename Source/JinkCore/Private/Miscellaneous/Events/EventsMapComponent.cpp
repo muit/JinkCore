@@ -14,55 +14,68 @@ UEventsMapComponent::UEventsMapComponent()
 	DefaultLength = 1;
 }
 
+void UEventsMapComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+    for (auto& Elem : Events)
+    {
+        FEventHandler Event = Elem.Value;
+        if (Event.IsValid()) {
+            Event.Tick(DeltaTime);
+        }
+    }
+}
+
 void UEventsMapComponent::Start(int Id, float Length)
 {
 	if (Length < 0) {
 		Length = DefaultLength;
 	}
 
-	if (!Events.Contains(Id) || !Events[Id]){
+	if (!Events.Contains(Id) || !Events[Id].IsValid()){
 		// Create and setup event
-		UEventHandler* Event = Cast<UEventHandler>(UEventHandler::StaticClass()->GetDefaultObject());
-		Event->Setup(this, &UEventsMapComponent::OnExecute, Id);
+		FEventHandler Event = FEventHandler(this, Id);
+		Event.Bind<UEventsMapComponent>(this, &UEventsMapComponent::OnExecute);
 
 		// Add the event to the map and start it
 		Events.Add(Id, Event);
-		Event->Start(Length);
+		Event.Start(Length);
 	}
 }
 
 void UEventsMapComponent::Pause(int Id)
 {
-	UEventHandler* Event = Events[Id];
-	if (!Event)
-		return;
-	Event->Pause();
+    FEventHandler Event = Events[Id];
+    if (!Event.IsValid())
+        return;
+
+	Event.Pause();
 }
 
 void UEventsMapComponent::Resume(int Id)
 {
-	UEventHandler* Event = Events[Id];
-	if (!Event)
-		return;
-	Event->Resume();
+    FEventHandler Event = Events[Id];
+    if (!Event.IsValid())
+        return;
+
+	Event.Resume();
 }
 
 void UEventsMapComponent::Restart(int Id, float Length)
 {
-	UEventHandler* Event = Events[Id];
-	if (!Event)
+	FEventHandler Event = Events[Id];
+	if (!Event.IsValid())
 		return;
 
-	Event->Restart(Length);
+	Event.Restart(Length);
 }
 
 void UEventsMapComponent::Reset(int Id)
 {
-	UEventHandler* Event = Events[Id];
-	if (!Event)
+	FEventHandler Event = Events[Id];
+	if (!Event.IsValid())
 		return;
 
-	Event->Reset();
+	Event.Reset();
 }
 
 void UEventsMapComponent::OnExecute(int Id)
@@ -71,24 +84,24 @@ void UEventsMapComponent::OnExecute(int Id)
 }
 
 bool UEventsMapComponent::IsRunning(int Id) {
-	UEventHandler* Event = Events[Id];
-	if (!Event) 
+	FEventHandler Event = Events[Id];
+	if (!Event.IsValid())
 		return false;
-	return Event->IsRunning();
+	return Event.IsRunning();
 }
 
 bool UEventsMapComponent::IsPaused(int Id)
 {
-	UEventHandler* Event = Events[Id];
-	if (!Event) 
+	FEventHandler Event = Events[Id];
+	if (!Event.IsValid()) 
 		return false;
-	return Event->IsPaused();
+	return Event.IsPaused();
 }
 
 float UEventsMapComponent::GetLength(int Id)
 {
-	UEventHandler* Event = Events[Id];
-	if (!Event) 
+	FEventHandler Event = Events[Id];
+	if (!Event.IsValid())
 		return -1;
-	return Event->GetLength();
+	return Event.GetLength();
 }

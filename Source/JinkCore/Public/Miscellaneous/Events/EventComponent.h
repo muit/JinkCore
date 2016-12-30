@@ -26,13 +26,15 @@ public:
     bool bLooping;
 
 	// Handle that manages the timer
-	UEventHandler* EventHandler;
+	FEventHandler EventHandler;
 
     virtual void BeginPlay() override;
+    virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+    virtual void EndPlay(const EEndPlayReason::Type reason) override;
 
     /** Start the event timer. 
     * Won't do anything if it's already running.
-    * @param Length Set the event duration (Optional). By default the component Lenght will be used.
+    * @param Length Set the event duration (Optional). By default the event Lenght will be used.
     */
 	UFUNCTION(BlueprintCallable, Category = "Event")
 	void Start(float Length = -1);
@@ -48,7 +50,7 @@ public:
 	void Resume();
 
 	/** Reset the event and start it again from the start.
-    * @param Length Set the event duration (Optional). By default the component Lenght will be used.
+    * @param Length Set the event duration (Optional). By default the last length will be used.
     */
 	UFUNCTION(BlueprintCallable, Category = "Event")
 	void Restart(float Length = -1);
