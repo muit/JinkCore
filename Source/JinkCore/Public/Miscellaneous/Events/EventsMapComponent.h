@@ -17,6 +17,8 @@ class JINKCORE_API UEventsMapComponent : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UEventsMapComponent();
+
+    virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	
 
 	//The default length in seconds that will be used for the timer.
@@ -24,7 +26,7 @@ public:
 	float DefaultLength;
 
 	// Handle to manage the timer
-	TMap<int, UEventHandler*> Events;
+	TMap<int, FEventHandler> Events;
 
 
 	// Start the event timer

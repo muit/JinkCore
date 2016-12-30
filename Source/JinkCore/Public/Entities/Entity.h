@@ -91,39 +91,48 @@ public:
      */
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
     float GetBaseFireRate() const { return FireRate; }
+    /* End ATTRIBUTES*/
+
+
     /**
-     * Add an Item to the entity.
-     * @param Class	The class of the item.
-     * @return      Id of the added item. -1 if error.
-     */
-    UFUNCTION(BlueprintCallable, Category = "Entity|Attributes")
-    int32 AddItem(TSubclassOf<UItem> Class);
+    * Begin ITEMS
+    */
+
     /**
-     * Remove an Item from the entity.
-     * @param Class	The class of the removed item.
-     */
+    * Add an Item to the entity.
+    * @param Class	The class of the item.
+    * @return      Id of the added item. -1 if error.
+    */
     UFUNCTION(BlueprintCallable, Category = "Entity|Attributes")
-    void RemoveItem(TSubclassOf<UItem> Class);
+    int32 AddItem(TSubclassOf<UItem> Type);
+
+    /**
+    * Remove an Item from the entity.
+    * @param Class	The class of the removed item.
+    */
+    UFUNCTION(BlueprintCallable, Category = "Entity|Attributes")
+    void RemoveItem(TSubclassOf<UItem> Type);
+
     /** Remove an Item by Id from the entity.
-     * @param Id Id of the item to be removed.
-     */
+    * @param Id Id of the item to be removed.
+    */
     UFUNCTION(BlueprintCallable, Category = "Entity|Attributes", meta = (DisplayName = "Remove Item"))
     void RemoveItemById(int32 Id);
+
     /**
     * Remove all Items of a class from the entity.
     * @param Class The class of the removed items.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Attributes")
-    void RemoveAllItems(TSubclassOf<UItem> Class);
+    void RemoveAllItems(TSubclassOf<UItem> Type);
+
     /**
     * Remove all items.
     * @param Class	The class of the removed items.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Attributes")
     void ClearItems();
-
-    /* End ATTRIBUTES*/
-
+    /* End ITEMS*/
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Movement")
@@ -248,6 +257,8 @@ public:
 
 
 	//EVENTS
+    void JustDied_Internal(AController * InstigatedBy, AEntity* Killer);
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
 	void JustDied(AController * InstigatedBy, AEntity* Killer);
 	UPROPERTY(BlueprintAssignable, Category = "Combat")

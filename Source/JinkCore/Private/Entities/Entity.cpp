@@ -52,12 +52,9 @@ void AEntity::Tick( float DeltaTime )
 float AEntity::GetDamage() const
 {
     float ModDamage = Damage;
-    for (auto& ItemClass : Items) {
-        if (ItemClass) {
-            UItem* Item = Cast<UItem>(ItemClass->GetDefaultObject());
-            if (Item) {
-                ModDamage += Item->DamageIncrement;
-            }
+    for (auto& ItemType : Items) {
+        if(UItem* Item = UItem::GetObject(ItemType)) {
+            ModDamage += Item->DamageIncrement;
         }
     }
     return ModDamage;
@@ -66,60 +63,64 @@ float AEntity::GetDamage() const
 float AEntity::GetFireRate() const
 {
     float ModFireRate = FireRate;
-    for (auto& ItemClass : Items) {
-        if (ItemClass) {
-            UItem* Item = Cast<UItem>(ItemClass->GetDefaultObject());
-            if (Item) {
-                ModFireRate *= Item->FireRateCof;
-            }
+    for (auto& ItemType : Items) {
+        if (UItem* Item = UItem::GetObject(ItemType)) {
+            ModFireRate *= Item->FireRateCof;
         }
     }
     return ModFireRate;
 }
-int32 AEntity::AddItem(TSubclassOf<UItem> Class)
+/** End ATTRIBUTES*/
+
+/**
+* Begin ITEMS
+*/
+int32 AEntity::AddItem(TSubclassOf<UItem> Type)
 {
-    if (Class) {
-        if (UItem* Item = Cast<UItem>(Class->GetDefaultObject())) {
-
-            //Apply Live increment
-            MaxLive += Item->LiveIncrement;
-            Live += Item->LiveIncrement;
-
-            //Apply Damage Increment
-            Damage += Item->DamageIncrement;
-        }
-        return Items.Add(Class);
+    if (UItem* Item = UItem::GetObject(Type)) {
+        Item->ApplyEntityModifications(this);
+        return Items.Add(Type);
     }
     return 0;
 }
-void AEntity::RemoveItem(TSubclassOf<UItem> Class)
+void AEntity::RemoveItem(TSubclassOf<UItem> Type)
 {
-    if (Class && Items.Contains(Class)) {
-        if (UItem* Item = Cast<UItem>(Class->GetDefaultObject())) {
-
-            //Apply Live increment
-            MaxLive -= Item->LiveIncrement;
-            Live = FMath::Clamp(Live, 0.0f, MaxLive);
-
-            //Apply Damage Increment
-            Damage -= Item->DamageIncrement;
+    if (Type && Items.Contains(Type)) {
+        if (UItem* Item = UItem::GetObject(Type)) {
+            Item->UndoEntityModifications(this);
         }
     }
-    Items.RemoveSingle(Class);
+    Items.RemoveSingle(Type);
 }
 void AEntity::RemoveItemById(int32 Id)
 {
+    if (Items.IsValidIndex(Id)) {
+        if (UItem* Item = UItem::GetObject(Items[Id])) {
+            Item->UndoEntityModifications(this);
+        }
+    }
+
     Items.RemoveAt(Id);
 }
-void AEntity::RemoveAllItems(TSubclassOf<UItem> Class)
+void AEntity::RemoveAllItems(TSubclassOf<UItem> Type)
 {
-    Items.Remove(Class);
+    int32 RemovedAmount = Items.Remove(Type);
+    for (int32 I = 0; I < RemovedAmount; I++) {
+        if (UItem* Item = UItem::GetObject(Type)) {
+            Item->UndoEntityModifications(this);
+        }
+    }
 }
 void AEntity::ClearItems()
 {
+    for (auto& ItemType : Items) {
+        if (UItem* Item = UItem::GetObject(ItemType)) {
+            Item->UndoEntityModifications(this);
+        }
+    }
     Items.Empty();
 }
-/** End ATTRIBUTES*/
+/** End ITEMS*/
 
 
 
@@ -201,13 +202,7 @@ void AEntity::Die(AController * InstigatedBy, AEntity * Killer)
 
 	Live = 0;
 
-	JustDied(InstigatedBy, Killer);
-	JustDiedDelegate.Broadcast(InstigatedBy, Cast<AEntity>(Killer));
-	if (IsPlayerControlled()) {
-	}
-	else if (ABasic_Con* AI = GetAI()) {
-		AI->JustDied_Internal(InstigatedBy, Killer);
-	}
+    JustDied_Internal(InstigatedBy, Killer);
 }
 
 ASpell* AEntity::CastSpell(TSubclassOf<ASpell> SpellType, AEntity* Target, FVector Location, FRotator Rotation, float _Damage)
@@ -252,13 +247,7 @@ void AEntity::ReceiveDamage_Implementation(AActor * DamagedActor, float _Damage,
 			Killer = Cast<AEntity>(DamageCauser);
 		}
 
-		JustDied(InstigatedBy, Killer);
-		JustDiedDelegate.Broadcast(InstigatedBy, Killer);
-		if (IsPlayerControlled()) {
-		}
-		else if (ABasic_Con* AI = GetAI()) {
-			AI->JustDied_Internal(InstigatedBy, Killer);
-		}
+		JustDied_Internal(InstigatedBy, Killer);
 	}
 }
 
@@ -339,3 +328,21 @@ bool AEntity::CheckApplyAnyDamage_Implementation(AActor * DamagedActor, float _D
 //RECEIVE CHECKS
 bool AEntity::CheckReceiveDamage_Implementation(AActor * DamagedActor, float _Damage, const class UDamageType * DamageType, AActor * DamageCauser)
 { return true; }
+
+
+void AEntity::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
+{
+    for (auto& ItemType : Items) {
+        if (UItem* Item = UItem::GetObject(ItemType)) {
+            Item->HolderJustDied(this, InstigatedBy, Killer);
+        }
+    }
+
+    JustDied(InstigatedBy, Killer);
+    JustDiedDelegate.Broadcast(InstigatedBy, Killer);
+    if (IsPlayerControlled()) {
+    }
+    else if (ABasic_Con* AI = GetAI()) {
+        AI->JustDied_Internal(InstigatedBy, Killer);
+    }
+}

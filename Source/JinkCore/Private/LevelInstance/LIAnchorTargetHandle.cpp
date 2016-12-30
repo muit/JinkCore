@@ -14,13 +14,15 @@
 ALIAnchorTargetHandle::ALIAnchorTargetHandle(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
+#if WITH_EDITOR
     UArrowComponent* Arrow = GetArrowComponent();
     Arrow->SetVisibility(true);
     Arrow->ArrowSize = 3;
     Arrow->bIsScreenSizeScaled = true;
     Arrow->ScreenSize = 0.0025f;
-    
+
     UpdateLIBounds();
+#endif //WITH_EDITOR
 
     Name = "Conector";
     GUID = FGuid::NewGuid();

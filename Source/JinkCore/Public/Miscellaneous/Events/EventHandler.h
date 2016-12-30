@@ -10,59 +10,77 @@ DECLARE_DELEGATE_OneParam(FEventDelegate, int);
 /**
  * 
  */
-UCLASS()
-class JINKCORE_API UEventHandler : public UObject
+USTRUCT()
+struct JINKCORE_API FEventHandler
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 
 public:
-	UEventHandler();
-	template< class UserClass >
-	void Setup(UserClass* Context, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod, int _Id = 0);
+    FEventHandler() {
+        bValid = false;
+        bActivated = false;
+        Id = 0;
+    }
+
+    FEventHandler(UObject* _Outer, int _Id);
+
+protected:
+    UPROPERTY()
+    bool bValid;
+    UPROPERTY()
+    bool bPaused;
+
+    FTimer* Timer;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Timer")
+    float Length;
+
+public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
 	int Id;
 	UPROPERTY(BlueprintReadOnly, Category = "Timer")
 	bool bActivated;
 
+    UPROPERTY()
+    UObject* Outer;
 
-	UWorld* World;
-	// Handle to manage the timer
-	FTimerHandle TimerHandle;
-	//Delegate called on execution
-	FEventDelegate EventDelegate;
+    FEventDelegate EventDelegate;
+
+
+    template< class UserClass >
+    void Bind(UserClass* Context, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod);
 
 	// Start the event timer
-	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void Start(float Length);
 
+private:
+    void StartInternal(int Length);
+
+public:
 	// Pause the event timer
-	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void Pause();
 
 	// Resume the event timer
-	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void Resume();
 
 	//Reset the event and start it.
-	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void Restart(float Length);
 	//Reset the event and start it.
-	UFUNCTION(BlueprintCallable, Category = "Timer")
 	void Reset();
 
 	//Called when the event is done.
-	UFUNCTION()
 	void OnExecute();
 
 	// HELPERS
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Timer")
-	bool const IsRunning();
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Timer")
-	bool const IsPaused();
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Timer")
-	float const GetLength();
+    bool const IsValid() { return bValid; }
+	bool const IsRunning() { return bActivated; }
+	bool const IsPaused() { return IsRunning() && bPaused; }
+	float const GetLength() { return Length; }
 
-private:
-	void StartInternal(int Length);
+    void Tick(float DeltaTime);
+
+    virtual class UWorld* GetWorld() const{
+        return  Outer ? Outer->GetWorld() : nullptr;;
+    }
 };
