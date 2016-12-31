@@ -8,6 +8,7 @@ FEventHandler::FEventHandler(UObject* _Outer, int _Id) : Id(_Id) {
     bActivated = false;
     bPaused = false;
     Outer = _Outer;
+    Length = 1;
 }
 
 template< class UserClass >
@@ -18,14 +19,10 @@ void FEventHandler::Bind(UserClass* Context, typename FEventDelegate::TUObjectMe
 
 void FEventHandler::Start(float _Length)
 {
-    if (IsRunning() || _Length < 0) {
-        return;
-    }
-
     StartInternal(_Length);
 }
 
-void FEventHandler::StartInternal(int _Length)
+void FEventHandler::StartInternal(float _Length)
 {
     if (IsRunning() || _Length < 0) {
         return;
