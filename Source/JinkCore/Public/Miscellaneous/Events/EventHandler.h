@@ -20,6 +20,7 @@ public:
         bValid = false;
         bActivated = false;
         Id = 0;
+        Length = 1;
     }
 
     FEventHandler(UObject* _Outer, int _Id);
@@ -55,7 +56,7 @@ public:
     void Start(float Length);
 
 private:
-    void StartInternal(int Length);
+    void StartInternal(float Length);
 
 public:
     // Pause the event timer

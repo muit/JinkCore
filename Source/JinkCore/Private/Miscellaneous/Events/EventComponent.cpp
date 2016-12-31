@@ -36,6 +36,8 @@ void UEventComponent::EndPlay(const EEndPlayReason::Type reason)
 
 void UEventComponent::Start(float Length)
 {
+    Activate();
+
     if (Length < 0) {
         Length = DefaultLength;
     }

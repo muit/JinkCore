@@ -32,12 +32,20 @@ public:
     virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
     virtual void EndPlay(const EEndPlayReason::Type reason) override;
 
+    /** Start the event timer.
+    * Won't do anything if it's already running.
+    * @param Length Set the event duration (Optional). By default the event Lenght will be used.
+    */
+    UFUNCTION(BlueprintCallable, meta = (DisplayName = "Start"), Category = "Event")
+    void StartTimespan(FTimespan Timespan) {
+        Start((float)Timespan.GetMilliseconds() / 1000.0f);
+    }
     /** Start the event timer. 
     * Won't do anything if it's already running.
     * @param Length Set the event duration (Optional). By default the event Lenght will be used.
     */
     UFUNCTION(BlueprintCallable, Category = "Event")
-    void Start(float Length = -1);
+    void Start(float Length = -1.0f);
 
     /** Pause the event timer.
     */
@@ -52,8 +60,15 @@ public:
     /** Reset the event and start it again from the start.
     * @param Length Set the event duration (Optional). By default the last length will be used.
     */
+    UFUNCTION(BlueprintCallable, meta = (DisplayName = "Restart"), Category = "Event")
+    void RestartTimespan(FTimespan Timespan) {
+        Restart((float)Timespan.GetMilliseconds() / 1000.0f);
+    }
+    /** Reset the event and start it again from the start.
+    * @param Length Set the event duration (Optional). By default the last length will be used.
+    */
     UFUNCTION(BlueprintCallable, Category = "Event")
-    void Restart(float Length = -1);
+    void Restart(float Length = -1.0f);
 
     /** Reset The event.
     */
