@@ -75,7 +75,7 @@ void FEventHandler::Restart(float _Length)
 void FEventHandler::Reset()
 {
     //Clear the Timer
-    delete Timer;
+    Timer = nullptr;
     bActivated = false;
     bPaused = false;
 }
