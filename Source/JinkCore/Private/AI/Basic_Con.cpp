@@ -44,12 +44,22 @@ void ABasic_Con::Possess(APawn* InPawn)
 void ABasic_Con::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
     if (!GetMe())
         return;
 
-    if (!GetMe()->IsAlive() || !IsInCombat())
+    if (!GetMe()->IsAlive())
         return;
 
+    if (IsInCombat()) {
+        //Call combat ticks
+        CombatTick(DeltaTime);
+        CombatTickEvent(DeltaTime);
+    }
+}
+
+void ABasic_Con::CombatTick(float DeltaSeconds)
+{
     if (!Target->IsAlive()) {
         StopCombat();
         return;

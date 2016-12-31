@@ -26,6 +26,8 @@ public:
     // Called every frame
     virtual void Tick(float DeltaSeconds) override;
 
+    virtual void CombatTick(float DeltaSeconds);
+
     UPROPERTY(BlueprintReadOnly, Category = "AI")
     AEntity* Me;
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "AI")
@@ -77,6 +79,8 @@ public:
     bool BeforeEnterCombat(AEntity* _Target);
     UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
     void EnterCombat(AEntity* _Target);
+    UFUNCTION(BlueprintImplementableEvent, meta = (DisplayName = "Combat Tick"), Category = "Combat")
+    void CombatTickEvent(float DeltaSeconds);
     UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
     void EndCombat(AEntity* _Target);
     UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
