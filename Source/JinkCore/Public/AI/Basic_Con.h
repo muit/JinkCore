@@ -4,6 +4,7 @@
 
 #include "AIController.h"
 #include "Entity.h"
+#include "Miscellaneous/Events/EventComponent.h"
 #include "Basic_Con.generated.h"
 
 /**
@@ -36,6 +37,7 @@ public:
         return Me;
     }
 
+
     /**
     * COMBAT
     */
@@ -66,7 +68,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Combat")
     bool SetTarget(AEntity* Victim); 
     UFUNCTION(BlueprintCallable, Category = "Combat")
-    void StopCombat();
+    void StopCombat(bool reset = false);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Combat")
     bool IsValidTarget(AEntity* Entity);
@@ -95,6 +97,28 @@ public:
     void JustDied(AController * InstigatedBy, AEntity* Killer);
 
 
+    /**
+    * NON COMBAT
+    */
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    UEventComponent* RecoveryEvent;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|NoCombat")
+    bool bRecoverLiveOutOfCombat;
+    //Amount of live recovered per second
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|NoCombat")
+    float LiveRestorePercent;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combat|NoCombat|Advanced")
+    bool bRecoverEvenInCombat;
+
+    UFUNCTION()
+    void StartLiveRestore();
+private:
+    UFUNCTION()
+    void RestoreLive();
+
+
+public:
     /**
      * UTIL
      */

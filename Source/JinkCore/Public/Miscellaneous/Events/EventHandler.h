@@ -53,10 +53,10 @@ public:
     void Bind(UserClass* Context, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod);
 
     // Start the event timer
-    void Start(float Length);
+    bool Start(float Length);
 
 private:
-    void StartInternal(float Length);
+    bool StartInternal(float Length);
 
 public:
     // Pause the event timer
