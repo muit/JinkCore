@@ -34,14 +34,14 @@ void UEventComponent::EndPlay(const EEndPlayReason::Type reason)
     EventHandler.Reset();
 }
 
-void UEventComponent::Start(float Length)
+bool UEventComponent::Start(float Length)
 {
     Activate();
 
     if (Length < 0) {
         Length = DefaultLength;
     }
-    EventHandler.Start(Length);
+    return EventHandler.Start(Length);
 }
 
 void UEventComponent::Pause()
@@ -66,7 +66,6 @@ void UEventComponent::Reset()
 
 void UEventComponent::OnExecute(int Id)
 {
-    //
     if (bLooping) {
         Start();
     }

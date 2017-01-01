@@ -45,7 +45,7 @@ public:
     * @param Length Set the event duration (Optional). By default the event Lenght will be used.
     */
     UFUNCTION(BlueprintCallable, Category = "Event")
-    void Start(float Length = -1.0f);
+    bool Start(float Length = -1.0f);
 
     /** Pause the event timer.
     */

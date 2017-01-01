@@ -19,6 +19,17 @@ ABasic_Con::ABasic_Con(const FObjectInitializer& ObjectInitializer)
     IsMovingToTarget = true;
     StartsFollowing = true;
     bLookAtTargetWhileMele = true;
+
+    bRecoverLiveOutOfCombat = true;
+    LiveRestorePercent = 13;
+    bRecoverEvenInCombat = false;
+
+    RecoveryEvent = CreateDefaultSubobject<UEventComponent>(TEXT("LiveRecoveryEvent"));
+    RecoveryEvent->bLooping = true;
+    RecoveryEvent->DefaultLength = 0.5f;
+    //Bind restore function
+    RecoveryEvent->Execute.AddDynamic(this, &ABasic_Con::RestoreLive);
+    AddOwnedComponent(RecoveryEvent);
 }
 
 // Called when the game starts or when spawned
@@ -44,12 +55,29 @@ void ABasic_Con::Possess(APawn* InPawn)
 void ABasic_Con::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
     if (!GetMe())
         return;
 
-    if (!GetMe()->IsAlive() || !IsInCombat())
+    if (!GetMe()->IsAlive())
         return;
 
+    if (IsInCombat()) {
+        //Call combat ticks
+        CombatTick(DeltaTime);
+        CombatTickEvent(DeltaTime);
+    }
+    else 
+    {
+        //No combat tick
+        if (GetMe()->Live < GetMe()->MaxLive) {
+            StartLiveRestore();
+        }
+    }
+}
+
+void ABasic_Con::CombatTick(float DeltaSeconds)
+{
     if (!Target->IsAlive()) {
         StopCombat();
         return;
@@ -99,7 +127,10 @@ bool ABasic_Con::AttackStart(AEntity * Victim)
 
     if (!GetMe()->IsAlive())
         return false;
-        
+    
+    //Stop Live Recovery
+    RecoveryEvent->Reset();
+
     if (!IsInCombat()) {
         if (IsValidTarget(Victim) && Victim != Target) {
             //Call Before Combat Start and use it as a validation
@@ -129,14 +160,16 @@ bool ABasic_Con::SetTarget(AEntity * Victim) {
     return false;
 }
 
-void ABasic_Con::StopCombat()
+void ABasic_Con::StopCombat(bool reset)
 {
     if (IsInCombat()) {
         AEntity* OldTarget = Target;
         Target = nullptr;
         MoveToLocation(HomeLocation);
-        //Restore live
-        GetMe()->Live = GetMe()->MaxLive;
+
+        if (reset) {
+            GetMe()->Live = GetMe()->MaxLive;
+        }
         EndCombat(OldTarget);
     }
 }
@@ -158,4 +191,28 @@ void ABasic_Con::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
 
 bool ABasic_Con::BeforeEnterCombat_Implementation(AEntity* Entity) {
     return true;
+}
+
+void ABasic_Con::StartLiveRestore()
+{
+    if (bRecoverLiveOutOfCombat) {
+        if ((!IsInCombat() || bRecoverEvenInCombat) && GetMe()->IsAlive()) {
+            RecoveryEvent->Start();
+        }
+    }
+}
+
+void ABasic_Con::RestoreLive()
+{
+    const float MaxLive = GetMe()->MaxLive;
+
+    if (GetMe()->Live >= MaxLive) {
+        RecoveryEvent->Reset();
+        return;
+    }
+
+    //Calculate live increment by percent & event length
+    const float NewLive = GetMe()->Live + MaxLive*(LiveRestorePercent/100) * RecoveryEvent->GetLength();
+
+    GetMe()->Live = FMath::Clamp(NewLive, 0.0f, MaxLive);
 }

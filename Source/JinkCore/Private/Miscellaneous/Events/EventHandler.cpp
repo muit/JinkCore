@@ -17,15 +17,15 @@ void FEventHandler::Bind(UserClass* Context, typename FEventDelegate::TUObjectMe
     EventDelegate = FEventDelegate::CreateUObject(Context, InEventMethod);
 }
 
-void FEventHandler::Start(float _Length)
+bool FEventHandler::Start(float _Length)
 {
-    StartInternal(_Length);
+    return StartInternal(_Length);
 }
 
-void FEventHandler::StartInternal(float _Length)
+bool FEventHandler::StartInternal(float _Length)
 {
     if (IsRunning() || _Length < 0) {
-        return;
+        return false;
     }
 
     bActivated = true;
@@ -33,6 +33,8 @@ void FEventHandler::StartInternal(float _Length)
 
     Timer = new FTimer();
     Length = _Length;
+
+    return true;
 }
 
 
@@ -75,7 +77,7 @@ void FEventHandler::Restart(float _Length)
 void FEventHandler::Reset()
 {
     //Clear the Timer
-    delete Timer;
+    Timer = nullptr;
     bActivated = false;
     bPaused = false;
 }
