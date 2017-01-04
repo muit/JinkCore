@@ -13,11 +13,11 @@ class ULinearForceComponent : public USceneComponent
 	GENERATED_UCLASS_BODY()
 
 	/** The radius to apply the force or impulse in */
-	UPROPERTY(interp, EditAnywhere, BlueprintReadWrite, Category=RadialForceComponent)
-	float Radius;
+	UPROPERTY(interp, EditAnywhere, BlueprintReadWrite, Category=LinearForceComponent)
+	FVector Extent;
 
 	/** How the force or impulse should fall off as object are further away from the center */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=RadialForceComponent)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=LinearForceComponent)
 	TEnumAsByte<enum ERadialImpulseFalloff> Falloff;
 
 	/** How strong the impulse should be */
@@ -57,7 +57,7 @@ class ULinearForceComponent : public USceneComponent
 
 protected:
 	/** The object types that are affected by this radial force */
-	UPROPERTY(EditAnywhere, Category=RadialForceComponent)
+	UPROPERTY(EditAnywhere, Category=LinearForceComponent)
 	TArray<TEnumAsByte<enum EObjectTypeQuery> > ObjectTypesToAffect;
 
 	/** Cached object query params derived from ObjectTypesToAffect */

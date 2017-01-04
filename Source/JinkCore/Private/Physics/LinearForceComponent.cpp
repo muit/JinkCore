@@ -21,6 +21,7 @@ ULinearForceComponent::ULinearForceComponent(const FObjectInitializer& ObjectIni
 	ImpulseStrength = 1000.0f;
 	ForceStrength = 10.0f;
 	bAutoActivate = true;
+    Extent = FVector(50.0f, 50.0f, 50.0f);
 
 	// by default we affect all 'dynamic' objects that can currently be affected by forces
 	AddCollisionChannelToAffect(ECC_Pawn);
@@ -122,7 +123,7 @@ void ULinearForceComponent::FireImpulse()
 		Params.AddIgnoredActor(GetOwner());
 	}
 
-	GetWorld()->OverlapMultiByObjectType(Overlaps, Origin, FQuat::Identity, CollisionObjectQueryParams, FCollisionShape::MakeSphere(Radius), Params);
+	GetWorld()->OverlapMultiByObjectType(Overlaps, Origin, FQuat::Identity, CollisionObjectQueryParams, FCollisionShape::MakeBox(Extent), Params);
 
 	// A component can have multiple physics presences (e.g. destructible mesh components).
 	// The component should handle the radial force for all of the physics objects it contains
@@ -144,12 +145,14 @@ void ULinearForceComponent::FireImpulse()
 		{
 			if(UDestructibleComponent* DestructibleComponent = Cast<UDestructibleComponent>(PrimitiveComponent))
 			{
-				DestructibleComponent->ApplyRadiusDamage(DestructibleDamage, Origin, Radius, ImpulseStrength, Falloff == RIF_Constant);
+                //DestructibleComponent->ApplyDamage(DestructibleDamage, Origin, )
+				//DestructibleComponent->ApplyRadiusDamage(, Origin, Radius, ImpulseStrength, Falloff == RIF_Constant);
 			}
 		}
 
 		// Apply impulse
-		PrimitiveComponent->AddRadialImpulse(Origin, Radius, ImpulseStrength, Falloff, bImpulseVelChange);
+        //PrimitiveComponent->AddImpulse();
+		//PrimitiveComponent->AddRadialImpulse(Origin, Radius, ImpulseStrength, Falloff, bImpulseVelChange);
 
 		// See if this is a target for a movement component, if so apply the impulse to it
 		TInlineComponentArray<UMovementComponent*> MovementComponents;
