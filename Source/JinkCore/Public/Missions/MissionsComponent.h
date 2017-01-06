@@ -12,8 +12,8 @@ enum class EMissionState: uint8
 {
     MS_NOT_STARTED UMETA(DisplayName = "Not Started"),
     MS_IN_PROGRESS UMETA(DisplayName = "In Progress"),
-    MS_SUCCESS	   UMETA(DisplayName = "Success"),
-    MS_FAILURE	   UMETA(DisplayName = "Failure")
+    MS_SUCCESS       UMETA(DisplayName = "Success"),
+    MS_FAILURE       UMETA(DisplayName = "Failure")
 };
 
 USTRUCT(Blueprintable)
@@ -72,7 +72,7 @@ class JINKCORE_API UMissionsComponent : public UActorComponent
 {
     GENERATED_BODY()
 
-public:	
+public:    
     // Sets default values for this component's properties
     UMissionsComponent();
 

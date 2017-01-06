@@ -12,7 +12,7 @@ class ULIAnchorViewerComponent;
 UCLASS(BlueprintType, meta = (DisplayName = "Level Instance Conector"))
 class JINKCORE_API ALIConector : public AActor
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
     UBillboardComponent* SpriteComponent;
     // Icon sprite
@@ -20,7 +20,7 @@ class JINKCORE_API ALIConector : public AActor
 
 public:
     // Sets default values for this actor's properties
-	ALIConector();
+    ALIConector();
 
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level Anchor|Attachment")
@@ -34,8 +34,8 @@ public:
     UFUNCTION(BlueprintImplementableEvent, Category = "Anchor")
     void OnAttachment(ULIAnchorViewerComponent* A, ULIAnchorViewerComponent* B);
 
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anchor")
     bool bClosed;

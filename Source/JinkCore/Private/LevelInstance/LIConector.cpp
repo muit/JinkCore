@@ -11,8 +11,8 @@ static ConstructorHelpers::FObjectFinderOptional<UTexture2D> ConectorTextureObje
 // Sets default values
 ALIConector::ALIConector()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+     // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+    PrimaryActorTick.bCanEverTick = true;
 
     USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
     RootComponent = SceneComponent;
@@ -21,9 +21,9 @@ ALIConector::ALIConector()
     SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
     if (SpriteComponent)
     {
-        SpriteComponent->Sprite = ConectorTextureObject.Get();		// Get the sprite texture from helper class object
-        SpriteComponent->SpriteInfo.DisplayName = LOCTEXT("Icon", "Icon");	// Assign sprite display name
-        SpriteComponent->SetupAttachment(RootComponent);	// Attach sprite to scene component
+        SpriteComponent->Sprite = ConectorTextureObject.Get();        // Get the sprite texture from helper class object
+        SpriteComponent->SpriteInfo.DisplayName = LOCTEXT("Icon", "Icon");    // Assign sprite display name
+        SpriteComponent->SetupAttachment(RootComponent);    // Attach sprite to scene component
     }
 #endif // WITH_EDITORONLY_DATA
 
@@ -42,7 +42,7 @@ void ALIConector::SetupConAttachment(ULIAnchorViewerComponent* A, ULIAnchorViewe
 // Called when the game starts or when spawned
 void ALIConector::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
     OnOpenClose(bClosed);
 }
 void ALIConector::Open()
