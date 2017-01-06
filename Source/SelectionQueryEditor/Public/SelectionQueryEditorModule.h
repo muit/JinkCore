@@ -1,9 +1,11 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 #pragma once
 
 #include "SelectionQueryEditorPrivatePCH.h"
 #include "PropertyEditorModule.h"
+
 #include "AIGraphTypes.h"
+#include "EdGraphUtilities.h"
  
 DECLARE_LOG_CATEGORY_EXTERN(LogSelectionQueryEditor, All, All)
  
@@ -39,4 +41,7 @@ private:
     TArray< TSharedPtr<IAssetTypeActions> > CreatedAssetTypeActions;
 
     TSharedPtr<struct FGraphNodeClassHelper> ClassCache;
+
+public:
+    TSharedPtr<FGraphPanelNodeFactory> GraphPanelNodeFactory;
 };

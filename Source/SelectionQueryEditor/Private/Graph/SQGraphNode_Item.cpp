@@ -1,4 +1,4 @@
-// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "SelectionQueryEditorPrivatePCH.h"
 #include "SQItemNode.h"
@@ -9,7 +9,7 @@ USQGraphNode_Item::USQGraphNode_Item(const FObjectInitializer& ObjectInitializer
 
 void USQGraphNode_Item::AllocateDefaultPins()
 {
-    CreatePin(EGPD_Input, TEXT("Transition"), TEXT(""), NULL, false, false, TEXT("In"));
+    CreatePin(EGPD_Input, FSelectionQueryDataTypes::PinCategory_SingleComposite, TEXT(""), NULL, false, false, TEXT("In"));
 }
 
 FText USQGraphNode_Item::GetNodeTitle(ENodeTitleType::Type TitleType) const
@@ -29,6 +29,15 @@ FText USQGraphNode_Item::GetNodeTitle(ENodeTitleType::Type TitleType) const
 
     return Super::GetNodeTitle(TitleType);
 }
+
+UObject* USQGraphNode_Item::GetThumbnailAssetObject()
+{
+    if (USQItemNode* ItemNode = Cast<USQItemNode>(NodeInstance)) {
+        return ItemNode->Item.LoadSynchronous();
+    }
+    return nullptr;
+}
+
 
 void USQGraphNode_Item::GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const
 {

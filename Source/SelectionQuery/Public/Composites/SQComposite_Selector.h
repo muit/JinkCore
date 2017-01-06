@@ -22,8 +22,5 @@ class SELECTIONQUERY_API USQComposite_Selector: public USQCompositeNode
 
 
 public:
-    UPROPERTY(EditAnywhere, Category = "Selector")
-    float SelectorClass;
-
     virtual USQItemNode* Run() override;
 };

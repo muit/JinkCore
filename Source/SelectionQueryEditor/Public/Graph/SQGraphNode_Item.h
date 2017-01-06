@@ -1,4 +1,4 @@
-// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #pragma once
 #include "SQGraphNode_Item.generated.h"
@@ -15,4 +15,6 @@ class USQGraphNode_Item : public USQGraphNode
     virtual void GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const override;
 
     //virtual bool CanPlaceBreakpoints() const override { return true; }
+
+    virtual UObject* GetThumbnailAssetObject();
 };

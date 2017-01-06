@@ -1,10 +1,10 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "SelectionQueryEditorPrivatePCH.h"
 
 #include "Asset/AssetTypeAction_SelectionQuery.h"
+#include "Graph/Nodes/GraphNodePanelFactory_SelectionQuery.h"
 
-//#include "ContentBrowserExtensions/ContentBrowserExtensions.h"
 
 DEFINE_LOG_CATEGORY(LogSelectionQueryEditor)
  
@@ -14,11 +14,18 @@ void FSelectionQueryEditorModule::StartupModule()
 {
     UE_LOG(LogSelectionQueryEditor, Warning, TEXT("SelectionQueryEditor: Log Started"));
 
+    FSQEditorThumbnailPool::Create();
+
     RegisterPropertyTypeCustomizations();
 
     // Register asset types
     IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
     RegisterAssetTypeAction(AssetTools, MakeShareable(new FAssetTypeAction_SelectionQuery));
+
+
+    // Register custom graph nodes
+    GraphPanelNodeFactory = MakeShareable(new FGraphPanelNodeFactory_SelectionQuery);
+    FEdGraphUtilities::RegisterVisualNodeFactory(GraphPanelNodeFactory);
 }
  
 void FSelectionQueryEditorModule::ShutdownModule()

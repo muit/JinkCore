@@ -1,4 +1,4 @@
-// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "SelectionQueryEditorPrivatePCH.h"
 #include "GraphEditorActions.h"
@@ -7,7 +7,6 @@
 #include "BlueprintEditorUtils.h"
 
 #include "SelectionQuery.h"
-//#include "SQCompositeNode.h"
 
 #include "Toolkits/IToolkitHost.h"
 #include "Editor/WorkspaceMenuStructure/Public/WorkspaceMenuStructureModule.h"
@@ -19,6 +18,8 @@
 #define LOCTEXT_NAMESPACE "SelectionQueryEditor"
 
 const FName SQEditorAppName = FName(TEXT("SelectionQueryEditorApp"));
+
+TSharedPtr<FSQEditorThumbnailPool> FSQEditorThumbnailPool::Instance;
 
 const FName FSelectionQueryEditorTabs::UpdateGraphId( TEXT( "SelectionQueryEditor_UpdateGraph" ) );
 const FName FSelectionQueryEditorTabs::PropertiesId( TEXT( "SelectionQueryEditor_Properties" ) );
@@ -188,8 +189,9 @@ void FSelectionQueryEditor::DeleteSelectedNodes()
 
 bool FSelectionQueryEditor::CanDeleteNode(class UEdGraphNode* Node)
 {
-    bool CanDelete = true;
-    /**
+    bool CanDelete = Node->CanUserDeleteNode();
+
+    /*
     if (UEdGraphNode_RootNode* MarkerNode = Cast<UEdGraphNode_RootNode>(Node)) {
         CanDelete = MarkerNode->bUserDefined;
     }*/
@@ -344,14 +346,6 @@ void FSelectionQueryEditor::PasteNodesHere(const FVector2D& Location)
     for (TSet<UEdGraphNode*>::TIterator It(PastedNodes); It; ++It)
     {
         UEdGraphNode* Node = *It;
-        /*if (UEdGraphNode_CompositeNode* MeshNode = Cast<UEdGraphNode_DungeonMesh>(Node))
-        {
-            // TODO: Handle
-        }
-        else if (UEdGraphNode_ItemNode* MarkerNode = Cast<UEdGraphNode_DungeonMarker>(Node))
-        {
-            // TODO: Handle
-        }*/
 
         // Select the newly pasted stuff
         GraphEditor->SetNodeSelection(Node, true);
@@ -364,9 +358,6 @@ void FSelectionQueryEditor::PasteNodesHere(const FVector2D& Location)
         // Give new node a different Guid from the old one
         Node->CreateNewGuid();
     }
-
-    // TODO: Implement
-    //UpdatePropAfterGraphChange();
 
     // Update UI
     GraphEditor->NotifyGraphChanged();
@@ -543,19 +534,21 @@ void FSelectionQueryEditor::OnSelectedNodesChanged(const TSet<class UObject*>& N
             {
                 if (GraphNode->IsA(USQGraphNode_Root::StaticClass()))
                 {
-                    Selection.Add(GraphNode);
+                    Selection.Add(Query);
                 }
                 else if (GraphNode->IsA(USQGraphNode_Composite::StaticClass()))
                 {
-                    USQCompositeNode* QueryComposite = Cast<USQCompositeNode>(GraphNode->NodeInstance);
-                    if (QueryComposite)
+                    if (USQCompositeNode* QueryComposite = Cast<USQCompositeNode>(GraphNode->NodeInstance))
                     {
                         Selection.Add(QueryComposite);
                     }
                 }
-                else
+                else if (GraphNode->IsA(USQGraphNode_Item::StaticClass()))
                 {
-                    Selection.Add(GraphNode);
+                    if (USQItemNode* QueryItem = Cast<USQItemNode>(GraphNode->NodeInstance))
+                    {
+                        Selection.Add(QueryItem);
+                    }
                 }
             }
         }

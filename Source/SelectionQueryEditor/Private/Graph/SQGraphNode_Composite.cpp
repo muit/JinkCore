@@ -1,4 +1,4 @@
-// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "SelectionQueryEditorPrivatePCH.h"
 #include "ScopedTransaction.h"
@@ -16,8 +16,8 @@ USQGraphNode_Composite::USQGraphNode_Composite(const FObjectInitializer& ObjectI
 
 void USQGraphNode_Composite::AllocateDefaultPins()
 {
-    CreatePin(EGPD_Input,  TEXT("Transition"), TEXT(""), NULL, false, false, TEXT("In"));
-    CreatePin(EGPD_Output, TEXT("Transition"), TEXT(""), NULL, false, false, TEXT("Out"));
+    CreatePin(EGPD_Input, FSelectionQueryDataTypes::PinCategory_MultipleNodes, TEXT(""), NULL, false, false, TEXT("In"));
+    CreatePin(EGPD_Output, FSelectionQueryDataTypes::PinCategory_MultipleNodes, TEXT(""), NULL, false, false, TEXT("Out"));
 }
 
 FText USQGraphNode_Composite::GetNodeTitle(ENodeTitleType::Type TitleType) const

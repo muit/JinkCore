@@ -1,4 +1,4 @@
-// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #pragma once
 
@@ -7,8 +7,22 @@
 #include "Toolkits/AssetEditorManager.h"
 #include "IDetailsView.h"
 #include "Tickable.h"
+#include "AssetThumbnail.h"
 
 class USelectionQuery;
+
+class FSQEditorThumbnailPool : public FAssetThumbnailPool {
+public:
+    FSQEditorThumbnailPool(int NumObjectsInPool) : FAssetThumbnailPool(NumObjectsInPool) {}
+
+    static TSharedPtr<FSQEditorThumbnailPool> Get() { return Instance; }
+    static void Create() {
+        Instance = MakeShareable(new FSQEditorThumbnailPool(512));
+    }
+private:
+    static TSharedPtr<FSQEditorThumbnailPool> Instance;
+};
+
 
 struct FSelectionQueryEditorTabs
 {
@@ -17,7 +31,7 @@ struct FSelectionQueryEditorTabs
     static const FName PropertiesId;
 };
 
-class USelectionQuery;
+
 
 class FSelectionQueryEditor : public ISelectionQueryEditor, public FNotifyHook, public FTickableGameObject
 {

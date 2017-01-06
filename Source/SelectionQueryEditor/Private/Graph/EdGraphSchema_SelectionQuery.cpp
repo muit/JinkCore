@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "SelectionQueryEditorPrivatePCH.h"
 
@@ -10,6 +10,7 @@
 
 #include "EdGraphSchema_SelectionQuery.h"
 
+#include "SQItemNode.h"
 #include "SQCompositeNode.h"
 
 
@@ -75,7 +76,7 @@ UEdGraphNode* FSQSchemaAction_NewNode::PerformAction(class UEdGraph* ParentGraph
     {
         ResultNode = PerformAction(ParentGraph, FromPins[0], Location, bSelectNewNode);
 
-        // Try autowiring the rest of the pins
+        // Try auto wiring the rest of the pins
         for (int32 Index = 1; Index < FromPins.Num(); ++Index)
         {
             ResultNode->AutowireNewNode(FromPins[Index]);
@@ -102,16 +103,6 @@ void FSQSchemaAction_NewNode::AddReferencedObjects(FReferenceCollector& Collecto
 UEdGraphSchema_SelectionQuery::UEdGraphSchema_SelectionQuery(const FObjectInitializer& ObjectInitializer)
     : Super(ObjectInitializer)
 {
-}
-
-void UEdGraphSchema_SelectionQuery::GetActionList(TArray<TSharedPtr<FEdGraphSchemaAction> >& OutActions, const UEdGraph* Graph, UEdGraph* OwnerOfTemporaries) const
-{
-    //TODO: Add Node Creation actions
-    SQSchemaUtils::AddAction<USQGraphNode_Composite>(TEXT("Add Selector"), TEXT("Add a selector to the graph"), OutActions, OwnerOfTemporaries);
-    SQSchemaUtils::AddAction<USQGraphNode_Item>(TEXT("Add Item"), TEXT("Add an selectable item."), OutActions, OwnerOfTemporaries);
-
-
-    //UEdGraphSchema_Extensions::Get().CreateCustomActions(OutActions, Graph, OwnerOfTemporaries);
 }
 
 void UEdGraphSchema_SelectionQuery::CreateDefaultNodesForGraph(UEdGraph& Graph) const
@@ -159,22 +150,32 @@ void UEdGraphSchema_SelectionQuery::GetGraphContextActions(FGraphContextMenuBuil
 
         ContextMenuBuilder.Append(CompositesBuilder);
     }
+    
+    if (bAllowItems)
+    {
+        FCategorizedGraphActionListBuilder ItemsBuilder(TEXT("Items"));
 
-    FFormatNamedArguments Args;
-    const FName AttrName("Attributes");
-    Args.Add(TEXT("Attribute"), FText::FromName(AttrName));
-    const UEdGraphPin* FromPin = ContextMenuBuilder.FromPin;
+        TArray<FGraphNodeClassData> NodeClasses;
+        ClassCache->GatherClasses(USQItemNode::StaticClass(), NodeClasses);
 
-    if (FromPin) {
-        //Check Action types
-    }
+        //Add Base Item Class
+        FString DeprecatedMessage;
+        NodeClasses.Add(FGraphNodeClassData(USQItemNode::StaticClass(), DeprecatedMessage));
 
-    const UEdGraph* Graph = ContextMenuBuilder.CurrentGraph;
-    TArray<TSharedPtr<FEdGraphSchemaAction> > Actions;
-    GetActionList(Actions, Graph, ContextMenuBuilder.OwnerOfTemporaries);
+        for (const auto& NodeClass : NodeClasses)
+        {
+            const FText NodeTypeName = FText::FromString(FName::NameToDisplayString(NodeClass.ToString(), false));
 
-    for (TSharedPtr<FEdGraphSchemaAction> Action : Actions) {
-        ContextMenuBuilder.AddAction(Action);
+            TSharedPtr<FSQSchemaAction_NewNode> AddOpAction = SQSchemaUtils::AddNewNodeAction(ItemsBuilder, NodeClass.GetCategory(), NodeTypeName, "");
+
+            UClass* GraphNodeClass = USQGraphNode_Item::StaticClass();
+
+            USQGraphNode* OpNode = NewObject<USQGraphNode>(ContextMenuBuilder.OwnerOfTemporaries, GraphNodeClass);
+            OpNode->ClassData = NodeClass;
+            AddOpAction->NodeTemplate = OpNode;
+        }
+
+        ContextMenuBuilder.Append(ItemsBuilder);
     }
 }
 
@@ -348,12 +349,11 @@ bool UEdGraphSchema_SelectionQuery::TryCreateConnection(UEdGraphPin* A, UEdGraph
     bool ConnectionMade = UEdGraphSchema::TryCreateConnection(A, B);
     if (ConnectionMade) {
         UEdGraphPin* OutputPin = (A->Direction == EEdGraphPinDirection::EGPD_Output) ? A : B;
-        /*
+        
         USQGraphNode* OutputNode = Cast<USQGraphNode>(OutputPin->GetOwningNode());
         if (OutputNode) {
-            OutputNode->UpdateChildExecutionOrder();
             OutputNode->GetGraph()->NotifyGraphChanged();
-        }*/
+        }
     }
 
     return ConnectionMade;

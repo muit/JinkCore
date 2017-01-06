@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "SelectionQueryEditorPrivatePCH.h"
 
@@ -15,7 +15,7 @@ FSQConnectionDrawingPolicy::FSQConnectionDrawingPolicy(int32 InBackLayerID, int3
 {
 }
 
-static const FLinearColor DefaultColor = FLinearColor::Yellow;
+static const FLinearColor DefaultColor = FLinearColor::White;
 
 void FSQConnectionDrawingPolicy::DetermineWiringStyle(UEdGraphPin* OutputPin, UEdGraphPin* InputPin, /*inout*/ FConnectionParams& Params)
 {
@@ -55,7 +55,7 @@ void FSQConnectionDrawingPolicy::DrawPreviewConnector(const FGeometry& PinGeomet
 
     DetermineWiringStyle(Pin, NULL, /*inout*/ Params);
 
-    //Make Preview Conection Darker
+    //Make Preview Connection Darker
     Params.WireColor = DefaultColor + FLinearColor(0.3f, 0.3f, 0.3f);
 
     DrawSplineWithArrow(StartPoint, EndPoint, Params);

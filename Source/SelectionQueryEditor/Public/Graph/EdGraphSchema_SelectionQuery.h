@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 #pragma once
 
 #include "EdGraphSchema_SelectionQuery.generated.h"
@@ -55,8 +55,6 @@ class UEdGraphSchema_SelectionQuery : public UEdGraphSchema {
     virtual bool TryCreateConnection(UEdGraphPin* A, UEdGraphPin* B) const override;
     // End EdGraphSchema interface
 
-    void GetActionList(TArray<TSharedPtr<FEdGraphSchemaAction> >& OutActions, const UEdGraph* Graph, UEdGraph* OwnerOfTemporaries) const;
-
 private:
     bool ContainsCycles(const UEdGraphPin* A, const UEdGraphPin* B, TArray<FString>& OutCyclePath) const;
 
@@ -64,15 +62,6 @@ private:
 
 class SELECTIONQUERYEDITOR_API SQSchemaUtils {
 public:
-    template<typename T>
-    static void AddAction(FString Title, FString Tooltip, TArray<TSharedPtr<FEdGraphSchemaAction> >& OutActions, UEdGraph* OwnerOfTemporaries) {
-        const FText MenuDesc = FText::FromString(Title);
-        const FText Category = FText::FromString(TEXT("Selection Query"));
-        TSharedPtr<FSQSchemaAction_NewNode> NewActorNodeAction = AddNewNodeAction(OutActions, Category, MenuDesc, Tooltip);
-        T* ActorNode = NewObject<T>(OwnerOfTemporaries);
-        NewActorNodeAction->NodeTemplate = ActorNode;
-    }
-
     static TSharedPtr<FSQSchemaAction_NewNode> AddNewNodeAction(TArray<TSharedPtr<FEdGraphSchemaAction> >& OutActions, const FText& Category, const FText& MenuDesc, const FString& Tooltip)
     {
         TSharedPtr<FSQSchemaAction_NewNode> NewAction = TSharedPtr<FSQSchemaAction_NewNode>(new FSQSchemaAction_NewNode(Category, MenuDesc, Tooltip, 0));
@@ -84,7 +73,6 @@ public:
     {
         TSharedPtr<FSQSchemaAction_NewNode> NewAction = TSharedPtr<FSQSchemaAction_NewNode>(new FSQSchemaAction_NewNode(Category, MenuDesc, Tooltip, 0));
         ContextMenuBuilder.AddAction(NewAction);
-
         return NewAction;
     }
 };

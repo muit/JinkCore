@@ -18,14 +18,11 @@ public:
     UPROPERTY(EditDefaultsOnly, Category=Option)
     FString OptionName;
 
-    /** type of generated items */
-    UPROPERTY()
-    TSubclassOf<UObject> ItemValue;
+    /** type of selected items */
+    UPROPERTY(EditAnywhere, Category = "Item")
+    TAssetPtr<UObject> Item;
 
     virtual FString GetItem() const { return TEXT("None"); }
 
     virtual void PostLoad() override;
-
-    /** @return name of node */
-    FString GetNodeName() const;
 };

@@ -28,8 +28,11 @@ class SELECTIONQUERY_API USelectionQuery : public UObject
 protected:
     friend class USelectionQueryManager;
 
-    UPROPERTY()
+    UPROPERTY(EditAnywhere, Category = "Selection Query")
     FName QueryName;
+
+    UPROPERTY(EditAnywhere, Category = "Selection Query")
+    bool bIsActorQuery;
 
 public:
     virtual  void PostInitProperties() override;
