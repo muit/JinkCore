@@ -38,38 +38,38 @@ FSelectionQueryEditor::~FSelectionQueryEditor()
 // Begin IToolkit interface
 void FSelectionQueryEditor::RegisterTabSpawners(const TSharedRef<class FTabManager>& InTabManager)
 {
-	WorkspaceMenuCategory = InTabManager->AddLocalWorkspaceMenuCategory(LOCTEXT("WorkspaceMenu_SelectionQueryEditor", "Selection Query Editor"));
-	auto WorkspaceMenuCategoryRef = WorkspaceMenuCategory.ToSharedRef();
+    WorkspaceMenuCategory = InTabManager->AddLocalWorkspaceMenuCategory(LOCTEXT("WorkspaceMenu_SelectionQueryEditor", "Selection Query Editor"));
+    auto WorkspaceMenuCategoryRef = WorkspaceMenuCategory.ToSharedRef();
 
-	FAssetEditorToolkit::RegisterTabSpawners(InTabManager);
+    FAssetEditorToolkit::RegisterTabSpawners(InTabManager);
 
-	InTabManager->RegisterTabSpawner(FSelectionQueryEditorTabs::UpdateGraphId, FOnSpawnTab::CreateSP(this, &FSelectionQueryEditor::SpawnTab_UpdateGraph) )
-		.SetDisplayName( NSLOCTEXT("SelectionQueryEditor", "Graph", "Graph") )
-		.SetGroup(WorkspaceMenuCategoryRef)
-		.SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "GraphEditor.EventGraph_16x"));
+    InTabManager->RegisterTabSpawner(FSelectionQueryEditorTabs::UpdateGraphId, FOnSpawnTab::CreateSP(this, &FSelectionQueryEditor::SpawnTab_UpdateGraph) )
+        .SetDisplayName( NSLOCTEXT("SelectionQueryEditor", "Graph", "Graph") )
+        .SetGroup(WorkspaceMenuCategoryRef)
+        .SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "GraphEditor.EventGraph_16x"));
 
-	InTabManager->RegisterTabSpawner(FSelectionQueryEditorTabs::PropertiesId, FOnSpawnTab::CreateSP(this, &FSelectionQueryEditor::SpawnTab_Properties) )
-		.SetDisplayName( NSLOCTEXT("SelectionQueryEditor", "PropertiesTab", "Details" ) )
-		.SetGroup(WorkspaceMenuCategoryRef)
-		.SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "LevelEditor.Tabs.Details"));
+    InTabManager->RegisterTabSpawner(FSelectionQueryEditorTabs::PropertiesId, FOnSpawnTab::CreateSP(this, &FSelectionQueryEditor::SpawnTab_Properties) )
+        .SetDisplayName( NSLOCTEXT("SelectionQueryEditor", "PropertiesTab", "Details" ) )
+        .SetGroup(WorkspaceMenuCategoryRef)
+        .SetIcon(FSlateIcon(FEditorStyle::GetStyleSetName(), "LevelEditor.Tabs.Details"));
 }
 void FSelectionQueryEditor::UnregisterTabSpawners(const TSharedRef<class FTabManager>& InTabManager)
 {
-	FAssetEditorToolkit::UnregisterTabSpawners(InTabManager);
+    FAssetEditorToolkit::UnregisterTabSpawners(InTabManager);
 
-	InTabManager->UnregisterTabSpawner(FSelectionQueryEditorTabs::PropertiesId);
-	InTabManager->UnregisterTabSpawner(FSelectionQueryEditorTabs::UpdateGraphId);
+    InTabManager->UnregisterTabSpawner(FSelectionQueryEditorTabs::PropertiesId);
+    InTabManager->UnregisterTabSpawner(FSelectionQueryEditorTabs::UpdateGraphId);
 }
 // End IToolkit interface
 
 // Begin FAssetEditorToolkit interface
 FName FSelectionQueryEditor::GetToolkitFName() const
 {
-	return FName("Selection Query");
+    return FName("Selection Query");
 }
 FText FSelectionQueryEditor::GetBaseToolkitName() const
 {
-	return LOCTEXT("AppLabel", "SelectionQuery");
+    return LOCTEXT("AppLabel", "SelectionQuery");
 }
 FText FSelectionQueryEditor::GetToolkitName() const
 {
@@ -81,7 +81,7 @@ FLinearColor FSelectionQueryEditor::GetWorldCentricTabColorScale() const
 }
 FString FSelectionQueryEditor::GetWorldCentricTabPrefix() const
 {
-	return LOCTEXT("WorldCentricTabPrefix", "SelectionQuery ").ToString();
+    return LOCTEXT("WorldCentricTabPrefix", "SelectionQuery ").ToString();
 }
 // End FAssetEditorToolkit interface
 
@@ -430,11 +430,11 @@ void FSelectionQueryEditor::HandleGraphChanged()
 /** Create new tab for the supplied graph - don't call this directly, call SExplorer->FindTabForGraph.*/
 TSharedRef<SGraphEditor> FSelectionQueryEditor::CreateGraphEditorWidget(UEdGraph* InGraph)
 {
-	check(InGraph != NULL);
-	
-	// Create the appearance info
-	FGraphAppearanceInfo AppearanceInfo;
-	AppearanceInfo.CornerText = LOCTEXT("AppearanceCornerText", "SELECTION QUERY");
+    check(InGraph != NULL);
+    
+    // Create the appearance info
+    FGraphAppearanceInfo AppearanceInfo;
+    AppearanceInfo.CornerText = LOCTEXT("AppearanceCornerText", "SELECTION QUERY");
 
     GraphEditorCommands = MakeShareable(new FUICommandList);
     {
@@ -471,41 +471,41 @@ TSharedRef<SGraphEditor> FSelectionQueryEditor::CreateGraphEditorWidget(UEdGraph
 
 
 
-	SGraphEditor::FGraphEditorEvents InEvents;
-	InEvents.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateSP(this, &FSelectionQueryEditor::OnSelectedNodesChanged);
+    SGraphEditor::FGraphEditorEvents InEvents;
+    InEvents.OnSelectionChanged = SGraphEditor::FOnSelectionChanged::CreateSP(this, &FSelectionQueryEditor::OnSelectedNodesChanged);
 
-	// Make title bar
-	TSharedRef<SWidget> TitleBarWidget = 
-		SNew(SBorder)
-		.BorderImage( FEditorStyle::GetBrush( TEXT("Graph.TitleBackground") ) )
-		.HAlign(HAlign_Fill)
-		[
-			SNew(SHorizontalBox)
-			+SHorizontalBox::Slot()
-			.HAlign(HAlign_Center)
-			.FillWidth(1.f)
-			[
-				SNew(STextBlock)
-				.Text(LOCTEXT("TheQueryGraphLabel", "Query Graph"))
-				.TextStyle( FEditorStyle::Get(), TEXT("GraphBreadcrumbButtonText") )
-			]
-		];
+    // Make title bar
+    TSharedRef<SWidget> TitleBarWidget = 
+        SNew(SBorder)
+        .BorderImage( FEditorStyle::GetBrush( TEXT("Graph.TitleBackground") ) )
+        .HAlign(HAlign_Fill)
+        [
+            SNew(SHorizontalBox)
+            +SHorizontalBox::Slot()
+            .HAlign(HAlign_Center)
+            .FillWidth(1.f)
+            [
+                SNew(STextBlock)
+                .Text(LOCTEXT("TheQueryGraphLabel", "Query Graph"))
+                .TextStyle( FEditorStyle::Get(), TEXT("GraphBreadcrumbButtonText") )
+            ]
+        ];
 
     //Crash: Need to Setup Schema
 
-	// Make full graph editor
-	return SNew(SGraphEditor)
-		.AdditionalCommands(GraphEditorCommands)
-		.Appearance(AppearanceInfo)
-		.TitleBar(TitleBarWidget)
-		.GraphToEdit(InGraph)
-		.GraphEvents(InEvents);
+    // Make full graph editor
+    return SNew(SGraphEditor)
+        .AdditionalCommands(GraphEditorCommands)
+        .Appearance(AppearanceInfo)
+        .TitleBar(TitleBarWidget)
+        .GraphToEdit(InGraph)
+        .GraphEvents(InEvents);
 }
 
 
 TSharedRef<SDockTab> FSelectionQueryEditor::SpawnTab_UpdateGraph( const FSpawnTabArgs& Args )
 {
-	check( Args.GetTabId().TabType == FSelectionQueryEditorTabs::UpdateGraphId);
+    check( Args.GetTabId().TabType == FSelectionQueryEditorTabs::UpdateGraphId);
 
     return SNew(SDockTab)
         .Label(LOCTEXT("SelectionQueryGraph", "Selection Query"))
@@ -517,58 +517,58 @@ TSharedRef<SDockTab> FSelectionQueryEditor::SpawnTab_UpdateGraph( const FSpawnTa
 
 TSharedRef<SDockTab> FSelectionQueryEditor::SpawnTab_Properties(const FSpawnTabArgs& Args)
 {
-	check( Args.GetTabId() == FSelectionQueryEditorTabs::PropertiesId);
+    check( Args.GetTabId() == FSelectionQueryEditorTabs::PropertiesId);
 
-	CreateInternalWidgets();
+    CreateInternalWidgets();
 
-	return SNew(SDockTab)
-		.Icon(FEditorStyle::GetBrush("SoundClassEditor.Tabs.Properties"))
-		.Label(LOCTEXT("DetailsTab_Title", "Details"))
-		[
-			DetailsView.ToSharedRef()
-		];
+    return SNew(SDockTab)
+        .Icon(FEditorStyle::GetBrush("SoundClassEditor.Tabs.Properties"))
+        .Label(LOCTEXT("DetailsTab_Title", "Details"))
+        [
+            DetailsView.ToSharedRef()
+        ];
 }
 
 void FSelectionQueryEditor::OnSelectedNodesChanged(const TSet<class UObject*>& NewSelection)
 {
-	TArray<UObject*> Selection;
+    TArray<UObject*> Selection;
 
-	//SelectedNodesCount = NewSelection.Num();
-	if (NewSelection.Num())
-	{
-		for(TSet<class UObject*>::TConstIterator SetIt(NewSelection);SetIt;++SetIt)
-		{
+    //SelectedNodesCount = NewSelection.Num();
+    if (NewSelection.Num())
+    {
+        for(TSet<class UObject*>::TConstIterator SetIt(NewSelection);SetIt;++SetIt)
+        {
             USQGraphNode* GraphNode = Cast<USQGraphNode>(*SetIt);
-			if (GraphNode)
-			{
-				if (GraphNode->IsA(USQGraphNode_Root::StaticClass()))
-				{
-					Selection.Add(GraphNode);
-				}
-				else if (GraphNode->IsA(USQGraphNode_Composite::StaticClass()))
-				{
-					USQCompositeNode* QueryComposite = Cast<USQCompositeNode>(GraphNode->NodeInstance);
-					if (QueryComposite)
-					{
-						Selection.Add(QueryComposite);
-					}
-				}
-				else
-				{
-					Selection.Add(GraphNode);
-				}
-			}
-		}
-	}
+            if (GraphNode)
+            {
+                if (GraphNode->IsA(USQGraphNode_Root::StaticClass()))
+                {
+                    Selection.Add(GraphNode);
+                }
+                else if (GraphNode->IsA(USQGraphNode_Composite::StaticClass()))
+                {
+                    USQCompositeNode* QueryComposite = Cast<USQCompositeNode>(GraphNode->NodeInstance);
+                    if (QueryComposite)
+                    {
+                        Selection.Add(QueryComposite);
+                    }
+                }
+                else
+                {
+                    Selection.Add(GraphNode);
+                }
+            }
+        }
+    }
 
-	if (Selection.Num() == 1)
-	{
-		DetailsView->SetObjects(Selection);
-	}
-	else
-	{
-		DetailsView->SetObject(NULL);
-	}
+    if (Selection.Num() == 1)
+    {
+        DetailsView->SetObjects(Selection);
+    }
+    else
+    {
+        DetailsView->SetObject(NULL);
+    }
 }
 
 void FSelectionQueryEditor::CreateInternalWidgets()
@@ -581,16 +581,16 @@ void FSelectionQueryEditor::CreateInternalWidgets()
 
 void FSelectionQueryEditor::SaveAsset_Execute()
 {
-	// modify SQ asset
-	if (GraphEditor.IsValid() && GraphEditor->GetCurrentGraph() != NULL)
-	{
-		//let's find root node
-		//UEdGraph_SelectionQuery* EdGraph = Cast<UEdGraph_SelectionQuery>(UpdateGraphEditor->GetCurrentGraph());
-		//EdGraph->UpdateAsset();
-	}
+    // modify SQ asset
+    if (GraphEditor.IsValid() && GraphEditor->GetCurrentGraph() != NULL)
+    {
+        //let's find root node
+        //UEdGraph_SelectionQuery* EdGraph = Cast<UEdGraph_SelectionQuery>(UpdateGraphEditor->GetCurrentGraph());
+        //EdGraph->UpdateAsset();
+    }
 
-	// save it
-	ISelectionQueryEditor::SaveAsset_Execute();
+    // save it
+    ISelectionQueryEditor::SaveAsset_Execute();
 }
 
 #undef LOCTEXT_NAMESPACE
