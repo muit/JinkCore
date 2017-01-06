@@ -11,7 +11,7 @@ class JINKCORE_API AItemActor : public AActor
 {
     GENERATED_BODY()
     
-public:	
+public:    
     // Sets default values for this actor's properties
     AItemActor();
     virtual void OnConstruction(const FTransform& Transform) override;

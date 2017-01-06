@@ -20,6 +20,6 @@ class JINKCORE_API ULevelInstanceFunctionLibrary : public UBlueprintFunctionLibr
 public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance|Anchor")
     static bool GetTypeInfo(FLIAnchorType AnchorType, FLIAnchorTypeInfo& Info);
-	
-	
+    
+    
 };

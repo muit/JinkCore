@@ -10,12 +10,12 @@
 bool FLIAnchorType::GetAnchorInfo(FLIAnchorTypeInfo& Info) {
     const UJCGenerationSettings* Settings = GetDefault<UJCGenerationSettings>();
 
-	if (Settings->AnchorTypes.Contains(Name)) {
-		Info = Settings->AnchorTypes[Name];
-		//If the type is not found, return default type info.
-		return true;
-	}
+    if (Settings->AnchorTypes.Contains(Name)) {
+        Info = Settings->AnchorTypes[Name];
+        //If the type is not found, return default type info.
+        return true;
+    }
 
-	Info = FLIAnchorTypeInfo();
-	return false;
+    Info = FLIAnchorTypeInfo();
+    return false;
 }

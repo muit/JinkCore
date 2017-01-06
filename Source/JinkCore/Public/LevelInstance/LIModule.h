@@ -10,7 +10,7 @@
 UCLASS(Blueprintable, meta = (DisplayName = "Level Instance Module"))
 class JINKCORE_API ALIModule : public AActor
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
     UBillboardComponent* SpriteComponent;
     // Icon sprite
@@ -26,14 +26,14 @@ public:
     bool bSpawnLevelOnPlay;
     
     // Sets default values for this actor's properties
-	ALIModule();
+    ALIModule();
     virtual void OnConstruction(const FTransform& Transform) override;
 
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-	
-	// Called every frame
-	virtual void Tick( float DeltaSeconds ) override;
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
+    
+    // Called every frame
+    virtual void Tick( float DeltaSeconds ) override;
 
 
     UFUNCTION(BlueprintCallable, Category = "Level Instance")

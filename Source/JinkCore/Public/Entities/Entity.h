@@ -16,9 +16,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FJustDiedSignature, AController*, I
 UENUM(BlueprintType)
 enum class EMovementState : uint8
 {
-    MS_None	    UMETA(DisplayName = "None"),
-    MS_Walk 	UMETA(DisplayName = "Walk"),
-    MS_Run  	UMETA(DisplayName = "Run")
+    MS_None        UMETA(DisplayName = "None"),
+    MS_Walk     UMETA(DisplayName = "Walk"),
+    MS_Run      UMETA(DisplayName = "Run")
 };
 
 
@@ -100,7 +100,7 @@ public:
 
     /**
     * Add an Item to the entity.
-    * @param Class	The class of the item.
+    * @param Class    The class of the item.
     * @return      Id of the added item. -1 if error.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Attributes")
@@ -108,7 +108,7 @@ public:
 
     /**
     * Remove an Item from the entity.
-    * @param Class	The class of the removed item.
+    * @param Class    The class of the removed item.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Attributes")
     void RemoveItem(TSubclassOf<UItem> Type);
@@ -128,7 +128,7 @@ public:
 
     /**
     * Remove all items.
-    * @param Class	The class of the removed items.
+    * @param Class    The class of the removed items.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Attributes")
     void ClearItems();

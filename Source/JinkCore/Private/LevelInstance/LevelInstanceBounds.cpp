@@ -16,26 +16,26 @@
 static const FVector DefaultLevelSize = FVector(1000.f);
 
 ALevelInstanceBounds::ALevelInstanceBounds(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 {
-	UBoxComponent* BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent0"));
-	RootComponent = BoxComponent;
-	RootComponent->Mobility = EComponentMobility::Movable;
-	RootComponent->RelativeScale3D = DefaultLevelSize;
+    UBoxComponent* BoxComponent = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComponent0"));
+    RootComponent = BoxComponent;
+    RootComponent->Mobility = EComponentMobility::Movable;
+    RootComponent->RelativeScale3D = DefaultLevelSize;
 
-	bAutoUpdateBounds = true;
+    bAutoUpdateBounds = true;
 
-	BoxComponent->bDrawOnlyIfSelected = true;
-	BoxComponent->bUseAttachParentBound = false;
-	BoxComponent->bUseEditorCompositing = true;
-	BoxComponent->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
-	BoxComponent->InitBoxExtent(FVector(0.5f, 0.5f, 0.5f));
+    BoxComponent->bDrawOnlyIfSelected = true;
+    BoxComponent->bUseAttachParentBound = false;
+    BoxComponent->bUseEditorCompositing = true;
+    BoxComponent->SetCollisionProfileName(UCollisionProfile::NoCollision_ProfileName);
+    BoxComponent->InitBoxExtent(FVector(0.5f, 0.5f, 0.5f));
 
-	bCanBeDamaged = false;
+    bCanBeDamaged = false;
 
 #if WITH_EDITOR
-	bLevelBoundsDirty = true;
-	bUsingDefaultBounds = false;
+    bLevelBoundsDirty = true;
+    bUsingDefaultBounds = false;
 
     UpdateAnchors();
 #endif
@@ -43,68 +43,68 @@ ALevelInstanceBounds::ALevelInstanceBounds(const FObjectInitializer& ObjectIniti
 
 void ALevelInstanceBounds::PostLoad()
 {
-	Super::PostLoad();
+    Super::PostLoad();
 }
 
 FBox ALevelInstanceBounds::GetComponentsBoundingBox(bool bNonColliding) const
 {
-	checkf(RootComponent != nullptr, TEXT("LevelInstanceBounds actor with null root component: %s"), *GetPathNameSafe(this));
-	FVector BoundsCenter = RootComponent->GetComponentLocation();
-	FVector BoundsExtent = RootComponent->ComponentToWorld.GetScale3D() * 0.5f;
-	return FBox(BoundsCenter - BoundsExtent,
-		BoundsCenter + BoundsExtent);
+    checkf(RootComponent != nullptr, TEXT("LevelInstanceBounds actor with null root component: %s"), *GetPathNameSafe(this));
+    FVector BoundsCenter = RootComponent->GetComponentLocation();
+    FVector BoundsExtent = RootComponent->ComponentToWorld.GetScale3D() * 0.5f;
+    return FBox(BoundsCenter - BoundsExtent,
+        BoundsCenter + BoundsExtent);
 }
 
 FBox ALevelInstanceBounds::CalculateLevelBounds(ULevel* InLevel)
 {
-	FBox LevelBounds = FBox(0);
+    FBox LevelBounds = FBox(0);
 
-	if (InLevel)
-	{
-		// Iterate over all level actors
-		for (int32 ActorIndex = 0; ActorIndex < InLevel->Actors.Num(); ++ActorIndex)
-		{
-			AActor* Actor = InLevel->Actors[ActorIndex];
-			if (Actor && Actor->IsLevelBoundsRelevant())
-			{
-				// Sum up components bounding boxes
-				FBox ActorBox = Actor->GetComponentsBoundingBox(true);
-				if (ActorBox.IsValid)
-				{
-					LevelBounds += ActorBox;
-				}
-			}
-		}
-	}
-	return LevelBounds;
+    if (InLevel)
+    {
+        // Iterate over all level actors
+        for (int32 ActorIndex = 0; ActorIndex < InLevel->Actors.Num(); ++ActorIndex)
+        {
+            AActor* Actor = InLevel->Actors[ActorIndex];
+            if (Actor && Actor->IsLevelBoundsRelevant())
+            {
+                // Sum up components bounding boxes
+                FBox ActorBox = Actor->GetComponentsBoundingBox(true);
+                if (ActorBox.IsValid)
+                {
+                    LevelBounds += ActorBox;
+                }
+            }
+        }
+    }
+    return LevelBounds;
 }
 
 #if WITH_EDITOR
 void ALevelInstanceBounds::PostEditUndo()
 {
-	Super::PostEditUndo();
+    Super::PostEditUndo();
 
     UpdateAnchors();
-	MarkLevelBoundsDirty();
+    MarkLevelBoundsDirty();
 }
 
 void ALevelInstanceBounds::PostEditMove(bool bFinished)
 {
-	Super::PostEditMove(bFinished);
+    Super::PostEditMove(bFinished);
 
-	MarkLevelBoundsDirty();
+    MarkLevelBoundsDirty();
 }
 
 void ALevelInstanceBounds::PostEditChangeProperty(FPropertyChangedEvent& PropertyChangedEvent)
 {
-	Super::PostEditChangeProperty(PropertyChangedEvent);
+    Super::PostEditChangeProperty(PropertyChangedEvent);
 
-	MarkLevelBoundsDirty();
+    MarkLevelBoundsDirty();
 
-	// Detect Anchors update
-	static const FName NAME_LevelInstance = FName(TEXT("Level Instance"));
+    // Detect Anchors update
+    static const FName NAME_LevelInstance = FName(TEXT("Level Instance"));
 
-	if (PropertyChangedEvent.Property != NULL) {
+    if (PropertyChangedEvent.Property != NULL) {
         if (FObjectEditorUtils::GetCategoryFName(PropertyChangedEvent.MemberProperty) == NAME_LevelInstance)
         {
             FName PropName = PropertyChangedEvent.MemberProperty->GetFName();
@@ -113,65 +113,65 @@ void ALevelInstanceBounds::PostEditChangeProperty(FPropertyChangedEvent& Propert
                 UpdateAnchors();
             }
         }
-	}
+    }
 }
 
 void ALevelInstanceBounds::PostRegisterAllComponents()
 {
-	Super::PostRegisterAllComponents();
+    Super::PostRegisterAllComponents();
 
-	if (!IsTemplate())
-	{
-		//LevelInstance->BoundsActor = this;
-		SubscribeToUpdateEvents();
-	}
+    if (!IsTemplate())
+    {
+        //LevelInstance->BoundsActor = this;
+        SubscribeToUpdateEvents();
+    }
 }
 
 void ALevelInstanceBounds::PostUnregisterAllComponents()
 {
-	if (!IsTemplate())
-	{
-		UnsubscribeFromUpdateEvents();
-	}
+    if (!IsTemplate())
+    {
+        UnsubscribeFromUpdateEvents();
+    }
 
-	Super::PostUnregisterAllComponents();
+    Super::PostUnregisterAllComponents();
 }
 
 void ALevelInstanceBounds::Tick(float DeltaTime)
 {
-	if (bLevelBoundsDirty)
-	{
-		UpdateLevelBounds();
-		bLevelBoundsDirty = false;
-	}
+    if (bLevelBoundsDirty)
+    {
+        UpdateLevelBounds();
+        bLevelBoundsDirty = false;
+    }
 }
 
 TStatId ALevelInstanceBounds::GetStatId() const
 {
-	RETURN_QUICK_DECLARE_CYCLE_STAT(ALevelInstanceBounds, STATGROUP_Tickables);
+    RETURN_QUICK_DECLARE_CYCLE_STAT(ALevelInstanceBounds, STATGROUP_Tickables);
 }
 
 bool ALevelInstanceBounds::IsTickable() const
 {
-	if (GIsEditor && bAutoUpdateBounds && !IsTemplate())
-	{
-		UWorld* World = GetWorld();
-		return (World && World->WorldType == EWorldType::Editor);
-	}
+    if (GIsEditor && bAutoUpdateBounds && !IsTemplate())
+    {
+        UWorld* World = GetWorld();
+        return (World && World->WorldType == EWorldType::Editor);
+    }
 
-	return false;
+    return false;
 }
 
 bool ALevelInstanceBounds::IsTickableInEditor() const
 {
-	return IsTickable();
+    return IsTickable();
 }
 
 void ALevelInstanceBounds::UpdateLevelBounds()
 {
-	FBox LevelBounds = CalculateLevelBounds(GetLevel());
+    FBox LevelBounds = CalculateLevelBounds(GetLevel());
 
-	/** Update Level Instance Bounds in the asset  */
+    /** Update Level Instance Bounds in the asset  */
     if (!LevelInstance.IsNull()) {
         ULevelInstance* LevelI = LevelInstance.LoadSynchronous();
         if (LevelI) {
@@ -180,106 +180,106 @@ void ALevelInstanceBounds::UpdateLevelBounds()
         }
     }
 
-	if (LevelBounds.IsValid)
-	{
-		FVector LevelCenter = LevelBounds.GetCenter();
-		FVector LevelSize = LevelBounds.GetSize();
+    if (LevelBounds.IsValid)
+    {
+        FVector LevelCenter = LevelBounds.GetCenter();
+        FVector LevelSize = LevelBounds.GetSize();
 
-		SetActorTransform(FTransform(FQuat::Identity, LevelCenter, LevelSize));
-		bUsingDefaultBounds = false;
-	}
-	else
-	{
-		SetActorTransform(FTransform(FQuat::Identity, FVector::ZeroVector, DefaultLevelSize));
-		bUsingDefaultBounds = true;
-	}
+        SetActorTransform(FTransform(FQuat::Identity, LevelCenter, LevelSize));
+        bUsingDefaultBounds = false;
+    }
+    else
+    {
+        SetActorTransform(FTransform(FQuat::Identity, FVector::ZeroVector, DefaultLevelSize));
+        bUsingDefaultBounds = true;
+    }
 
-	//BroadcastLevelBoundsUpdated();
+    //BroadcastLevelBoundsUpdated();
 }
 
 void ALevelInstanceBounds::MarkLevelBoundsDirty()
 {
-	bLevelBoundsDirty = true;
+    bLevelBoundsDirty = true;
 }
 
 bool ALevelInstanceBounds::IsUsingDefaultBounds() const
 {
-	return bUsingDefaultBounds;
+    return bUsingDefaultBounds;
 }
 
 void ALevelInstanceBounds::UpdateLevelBoundsImmediately()
 {
-	// This is used to get accurate bounds right when spawned.
-	// This can't be done in PostActorCreated because the SpawnLocation interferes with the root component transform
-	UpdateLevelBounds();
+    // This is used to get accurate bounds right when spawned.
+    // This can't be done in PostActorCreated because the SpawnLocation interferes with the root component transform
+    UpdateLevelBounds();
 }
 
 void ALevelInstanceBounds::OnLevelActorMoved(AActor* InActor)
 {
-	if (InActor->GetOuter() == GetOuter())
-	{
-		if (InActor == this)
-		{
-			//BroadcastLevelBoundsUpdated();
-		}
-		else
-		{
-			MarkLevelBoundsDirty();
-		}
-	}
+    if (InActor->GetOuter() == GetOuter())
+    {
+        if (InActor == this)
+        {
+            //BroadcastLevelBoundsUpdated();
+        }
+        else
+        {
+            MarkLevelBoundsDirty();
+        }
+    }
 }
 
 void ALevelInstanceBounds::OnLevelActorAddedRemoved(AActor* InActor)
 {
-	if (InActor->GetOuter() == GetOuter())
-	{
-		MarkLevelBoundsDirty();
-	}
+    if (InActor->GetOuter() == GetOuter())
+    {
+        MarkLevelBoundsDirty();
+    }
 }
 
 void ALevelInstanceBounds::SubscribeToUpdateEvents()
 {
-	// Subscribe only in editor worlds
-	if (!GetWorld()->IsGameWorld())
-	{
-		UnsubscribeFromUpdateEvents();
+    // Subscribe only in editor worlds
+    if (!GetWorld()->IsGameWorld())
+    {
+        UnsubscribeFromUpdateEvents();
 
-		OnLevelActorMovedDelegateHandle = GEngine->OnActorMoved().AddUObject(this, &ALevelInstanceBounds::OnLevelActorMoved);
-		OnLevelActorDeletedDelegateHandle = GEngine->OnLevelActorDeleted().AddUObject(this, &ALevelInstanceBounds::OnLevelActorAddedRemoved);
-		OnLevelActorAddedDelegateHandle = GEngine->OnLevelActorAdded().AddUObject(this, &ALevelInstanceBounds::OnLevelActorAddedRemoved);
-	}
+        OnLevelActorMovedDelegateHandle = GEngine->OnActorMoved().AddUObject(this, &ALevelInstanceBounds::OnLevelActorMoved);
+        OnLevelActorDeletedDelegateHandle = GEngine->OnLevelActorDeleted().AddUObject(this, &ALevelInstanceBounds::OnLevelActorAddedRemoved);
+        OnLevelActorAddedDelegateHandle = GEngine->OnLevelActorAdded().AddUObject(this, &ALevelInstanceBounds::OnLevelActorAddedRemoved);
+    }
 }
 
 void ALevelInstanceBounds::UnsubscribeFromUpdateEvents()
 {
-	GEngine->OnActorMoved().Remove(OnLevelActorMovedDelegateHandle);
-	GEngine->OnLevelActorDeleted().Remove(OnLevelActorDeletedDelegateHandle);
-	GEngine->OnLevelActorAdded().Remove(OnLevelActorAddedDelegateHandle);
+    GEngine->OnActorMoved().Remove(OnLevelActorMovedDelegateHandle);
+    GEngine->OnLevelActorDeleted().Remove(OnLevelActorDeletedDelegateHandle);
+    GEngine->OnLevelActorAdded().Remove(OnLevelActorAddedDelegateHandle);
 }
 #endif // WITH_EDITOR
 
 
 ALIAnchorTargetHandle* ALevelInstanceBounds::GetAnchorByGUID(FGuid GUID) {
     return *Anchors.FindByPredicate([GUID](const ALIAnchorTargetHandle* InAnchor)
-		{
-			return InAnchor->GUID == GUID;
-		}
-	);
+        {
+            return InAnchor->GUID == GUID;
+        }
+    );
 }
 
 ALIAnchorTargetHandle* ALevelInstanceBounds::GetAnchorByName(FName Name) {
-	return *Anchors.FindByPredicate([Name](const ALIAnchorTargetHandle* InAnchor)
-		{
-			return InAnchor->Name == Name;
-		}
-	);
+    return *Anchors.FindByPredicate([Name](const ALIAnchorTargetHandle* InAnchor)
+        {
+            return InAnchor->Name == Name;
+        }
+    );
 }
 
 #if WITH_EDITOR
 void ALevelInstanceBounds::UpdateAnchors()
 {
-	if (!LevelInstance.IsNull()) {
-		ULevelInstance* LevelI = LevelInstance.LoadSynchronous();
+    if (!LevelInstance.IsNull()) {
+        ULevelInstance* LevelI = LevelInstance.LoadSynchronous();
         if (LevelI) {
             //Remove unknown anchors
             LevelI->Anchors.Empty();
@@ -293,6 +293,6 @@ void ALevelInstanceBounds::UpdateAnchors()
             }
             LevelI->MarkPackageDirty();
         }
-	}
+    }
 }
 #endif //WITH_EDITOR

@@ -11,14 +11,14 @@
 USTRUCT(BlueprintType, meta = (DisplayName = "Level Instance Anchor Type Info"))
 struct FLIAnchorTypeInfo
 {
-	GENERATED_USTRUCT_BODY()
+    GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anchor Type")
-	FColor Color;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Anchor Type")
+    FColor Color;
 
-	UPROPERTY(EditAnywhere, Category = "Anchor Type")
-	TSubclassOf<ALIConector> Conector;
-	
+    UPROPERTY(EditAnywhere, Category = "Anchor Type")
+    TSubclassOf<ALIConector> Conector;
+    
 public:
 
     UClass* GetConectorType() {
@@ -26,6 +26,6 @@ public:
     }
 
 
-	FLIAnchorTypeInfo() : Color(FColor::Orange)
-	{}
+    FLIAnchorTypeInfo() : Color(FColor::Orange)
+    {}
 };

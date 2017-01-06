@@ -9,7 +9,7 @@
 int32 ULevelInstance::InstanceIdCount = 0;
 
 ULevelInstance::ULevelInstance(const FObjectInitializer & ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 {
     //** Level Settings */
     bShouldBeLoaded = true;
@@ -21,27 +21,27 @@ ULevelInstance::ULevelInstance(const FObjectInitializer & ObjectInitializer)
 }
 
 void ULevelInstance::SetupBounds() {
-	if (InstancedLevel) {
-		//Get all instance bounds actors
-		TArray<AActor*> BoundsActors;
-		UWorld* IWorld = InstancedLevel.LoadSynchronous();
-		if (IWorld) {
-			for (TActorIterator<AActor> It(IWorld, TSubclassOf<ALevelInstanceBounds>()); It; ++It) {
-				AActor* Actor = *It;
-				if (!Actor->IsPendingKill()) {
-					BoundsActors.Add(Actor);
-				}
-			}
-		}
-		//Destroy them
-		for (auto ActorIt = BoundsActors.CreateConstIterator(); ActorIt; ++ActorIt) {
-			if (AActor* Actor = *ActorIt) {
-				Actor->Destroy();
-			}
-		}
+    if (InstancedLevel) {
+        //Get all instance bounds actors
+        TArray<AActor*> BoundsActors;
+        UWorld* IWorld = InstancedLevel.LoadSynchronous();
+        if (IWorld) {
+            for (TActorIterator<AActor> It(IWorld, TSubclassOf<ALevelInstanceBounds>()); It; ++It) {
+                AActor* Actor = *It;
+                if (!Actor->IsPendingKill()) {
+                    BoundsActors.Add(Actor);
+                }
+            }
+        }
+        //Destroy them
+        for (auto ActorIt = BoundsActors.CreateConstIterator(); ActorIt; ++ActorIt) {
+            if (AActor* Actor = *ActorIt) {
+                Actor->Destroy();
+            }
+        }
 
-		//Spawn a level instance bounds actor
-		ALevelInstanceBounds* BoundsActor = InstancedLevel->SpawnActor<ALevelInstanceBounds>();
-		BoundsActor->LevelInstance = this;
-	}
+        //Spawn a level instance bounds actor
+        ALevelInstanceBounds* BoundsActor = InstancedLevel->SpawnActor<ALevelInstanceBounds>();
+        BoundsActor->LevelInstance = this;
+    }
 }

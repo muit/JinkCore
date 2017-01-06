@@ -6,26 +6,26 @@
 #include "LevelInstanceFactory.h"
 
 ULevelInstanceFactory::ULevelInstanceFactory(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 {
-	SupportedClass = ULevelInstance::StaticClass();
-	Formats.Add(TEXT("t3d;Unreal World"));
+    SupportedClass = ULevelInstance::StaticClass();
+    Formats.Add(TEXT("t3d;Unreal World"));
 
-	bText = true;
-	bCreateNew = true;
-	bEditorImport = true;
-	bEditAfterNew = true;
+    bText = true;
+    bCreateNew = true;
+    bEditorImport = true;
+    bEditAfterNew = true;
 }
 
 UObject* ULevelInstanceFactory::FactoryCreateNew(UClass* Class, UObject* InParent, FName Name, EObjectFlags Flags, UObject* Context, FFeedbackContext* Warn)
 {
-	ULevelInstance* LevelI = NewObject<ULevelInstance>(InParent, ULevelInstance::StaticClass(), Name, Flags);
-	
-	if (InitialLevel != nullptr)
-	{
-		LevelI->InstancedLevel = InitialLevel;
-		LevelI->SetupBounds();
-	}
+    ULevelInstance* LevelI = NewObject<ULevelInstance>(InParent, ULevelInstance::StaticClass(), Name, Flags);
+    
+    if (InitialLevel != nullptr)
+    {
+        LevelI->InstancedLevel = InitialLevel;
+        LevelI->SetupBounds();
+    }
 
-	return LevelI;
+    return LevelI;
 }

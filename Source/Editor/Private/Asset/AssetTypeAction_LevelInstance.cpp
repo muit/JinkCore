@@ -15,26 +15,26 @@
 
 FText FAssetTypeAction_LevelInstance::GetName() const
 {
-	return LOCTEXT("FAssetTypeAction_LevelInstanceName", "Level Instance");
+    return LOCTEXT("FAssetTypeAction_LevelInstanceName", "Level Instance");
 }
 
 FColor FAssetTypeAction_LevelInstance::GetTypeColor() const
 {
-	return FColor(244, 116, 66);
+    return FColor(244, 116, 66);
 }
 
 UClass* FAssetTypeAction_LevelInstance::GetSupportedClass() const
 {
-	return ULevelInstance::StaticClass();
+    return ULevelInstance::StaticClass();
 }
 
 uint32 FAssetTypeAction_LevelInstance::GetCategories()
 {
-	if (FJinkCoreModule* JC = FJinkCoreModule::GetInstance()) {
-		return JC->GetJCAssetCategoryBit();
-	}
-	// If JinkCore module is not found use Miscellaneous 
-	return EAssetTypeCategories::Misc;
+    if (FJinkCoreModule* JC = FJinkCoreModule::GetInstance()) {
+        return JC->GetJCAssetCategoryBit();
+    }
+    // If JinkCore module is not found use Miscellaneous 
+    return EAssetTypeCategories::Misc;
 }
 
 void FAssetTypeAction_LevelInstance::GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder)

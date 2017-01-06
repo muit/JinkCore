@@ -16,24 +16,24 @@ struct FLIAnchorTypeInfo;
 USTRUCT(BlueprintType)
 struct JINKCORE_API FLIAnchorType
 {
-	GENERATED_USTRUCT_BODY()
+    GENERATED_USTRUCT_BODY()
 
-	FLIAnchorType() : Id(0), Name(ANCHOR_None)
-	{}
+    FLIAnchorType() : Id(0), Name(ANCHOR_None)
+    {}
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anchor Type")
-	int32 Id;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anchor Type")
-	FString Name;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anchor Type")
+    int32 Id;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anchor Type")
+    FString Name;
 
 
-	FORCEINLINE bool operator==(const FLIAnchorType& Other) const {
-		return Other.Id == Id;
-	}
+    FORCEINLINE bool operator==(const FLIAnchorType& Other) const {
+        return Other.Id == Id;
+    }
 
-	FORCEINLINE bool operator!=(const FLIAnchorType& Other) const {
-		return !Other.Id == Id;
-	}
+    FORCEINLINE bool operator!=(const FLIAnchorType& Other) const {
+        return !Other.Id == Id;
+    }
 
-	bool GetAnchorInfo(FLIAnchorTypeInfo& Info);
+    bool GetAnchorInfo(FLIAnchorTypeInfo& Info);
 };
