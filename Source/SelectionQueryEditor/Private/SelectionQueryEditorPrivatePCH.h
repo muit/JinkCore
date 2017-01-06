@@ -7,6 +7,7 @@
 #include "UnrealEd.h"
 #include "SGraphPin.h"
 #include "SGraphNode.h"
+#include "AIGraphTypes.h"
 
 #include "SelectionQuery.h"
 
@@ -15,6 +16,7 @@
 #include "SQGraphNode_Composite.h"
 #include "SQGraphNode_Item.h"
 #include "SQGraphNode_Root.h"
+#include "SelectionQuery/Public/Composites/SQComposite_Selector.h"
 
 
 #include "SelectionQueryEditorModule.h"

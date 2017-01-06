@@ -22,7 +22,12 @@ void USQGraphNode_Composite::AllocateDefaultPins()
 
 FText USQGraphNode_Composite::GetNodeTitle(ENodeTitleType::Type TitleType) const
 {
-	return FText::FromString(NodeName.Len() ? NodeName : "[INVALID]");
+    const USQNode* MyNode = Cast<USQNode>(NodeInstance);
+    if (MyNode != NULL)
+    {
+        return FText::FromString(MyNode->GetNodeName());
+    }
+    return Super::GetNodeTitle(TitleType);
 }
 
 void USQGraphNode_Composite::GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const

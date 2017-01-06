@@ -2,6 +2,7 @@
 
 #include "SelectionQueryPrivatePCH.h"
 #include "Composites/SQComposite_Selector.h"
+#include "SQItemNode.h"
 
 USQComposite_Selector::USQComposite_Selector(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -9,10 +10,12 @@ USQComposite_Selector::USQComposite_Selector(const FObjectInitializer& ObjectIni
 }
 
 #if WITH_EDITOR
-
 FName USQComposite_Selector::GetNodeIconName() const
 {
 	return FName("BTEditor.Graph.BTNode.Composite.Selector.Icon");
 }
-
 #endif
+
+USQItemNode* USQComposite_Selector::Run() {
+    return nullptr;
+}

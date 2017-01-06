@@ -25,6 +25,8 @@ void FSelectionQueryEditorModule::ShutdownModule()
 {
 	UE_LOG(LogSelectionQueryEditor, Warning, TEXT("SelectionQueryEditor: Log Ended"));
 
+    ClassCache.Reset();
+
 	// Unregister all the asset types
 	if (FModuleManager::Get().IsModuleLoaded("AssetTools"))
 	{
@@ -49,6 +51,20 @@ void FSelectionQueryEditorModule::RegisterCustomPropertyTypeLayout(FName Propert
 	static FName PropertyEditor("PropertyEditor");
 	FPropertyEditorModule& PropertyModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>(PropertyEditor);
 	PropertyModule.RegisterCustomPropertyTypeLayout(PropertyTypeName, PropertyTypeLayoutDelegate);
+}
+
+TSharedRef<ISelectionQueryEditor> FSelectionQueryEditorModule::CreateSelectionQueryEditor(const EToolkitMode::Type Mode, const TSharedPtr< IToolkitHost >& InitToolkitHost, USelectionQuery* Query)
+{
+    if (!ClassCache.IsValid())
+    {
+        ClassCache = MakeShareable(new FGraphNodeClassHelper(USQNode::StaticClass()));
+        FGraphNodeClassHelper::AddObservedBlueprintClasses(USQComposite_Selector::StaticClass());
+        ClassCache->UpdateAvailableBlueprintClasses();
+    }
+
+    TSharedRef<FSelectionQueryEditor> NewSelectionQueryEditor(new FSelectionQueryEditor());
+    NewSelectionQueryEditor->InitSelectionQueryEditor(Mode, InitToolkitHost, Query);
+    return NewSelectionQueryEditor;
 }
 
 #undef LOCTEXT_NAMESPACE

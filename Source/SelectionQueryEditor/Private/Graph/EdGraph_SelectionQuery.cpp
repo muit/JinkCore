@@ -9,13 +9,16 @@
 
 #define LOCTEXT_NAMESPACE "SelectionQueryGraph"
 
-const FString FSelectionQueryDataTypes::PinType_Mesh = "mesh";
-const FString FSelectionQueryDataTypes::PinType_Marker = "marker";
+const FString FSelectionQueryDataTypes::PinCategory_MultipleNodes = "MultipleNodes";
+const FString FSelectionQueryDataTypes::PinCategory_SingleComposite = "Composite";
+const FString FSelectionQueryDataTypes::PinCategory_SingleItem = "Item";
+
 
 UEdGraph_SelectionQuery::UEdGraph_SelectionQuery(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
 {
     Schema = UEdGraphSchema_SelectionQuery::StaticClass();
+    
 }
 
 template<typename T>

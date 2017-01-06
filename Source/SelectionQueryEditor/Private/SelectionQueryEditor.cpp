@@ -538,14 +538,14 @@ void FSelectionQueryEditor::OnSelectedNodesChanged(const TSet<class UObject*>& N
 	{
 		for(TSet<class UObject*>::TConstIterator SetIt(NewSelection);SetIt;++SetIt)
 		{
-            /*USelectionQueryGraphNode* GraphNode = Cast<USelectionQueryGraphNode>(*SetIt);
+            USQGraphNode* GraphNode = Cast<USQGraphNode>(*SetIt);
 			if (GraphNode)
 			{
-				if (GraphNode->IsA(USelectionQueryGraphNode_Root::StaticClass()))
+				if (GraphNode->IsA(USQGraphNode_Root::StaticClass()))
 				{
 					Selection.Add(GraphNode);
 				}
-				else if (GraphNode->IsA(USelectionQueryGraphNode_Composite::StaticClass()))
+				else if (GraphNode->IsA(USQGraphNode_Composite::StaticClass()))
 				{
 					USQCompositeNode* QueryComposite = Cast<USQCompositeNode>(GraphNode->NodeInstance);
 					if (QueryComposite)
@@ -557,7 +557,7 @@ void FSelectionQueryEditor::OnSelectedNodesChanged(const TSet<class UObject*>& N
 				{
 					Selection.Add(GraphNode);
 				}
-			}*/
+			}
 		}
 	}
 
@@ -576,7 +576,7 @@ void FSelectionQueryEditor::CreateInternalWidgets()
     FPropertyEditorModule& DetailsViewModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>("PropertyEditor");
     const FDetailsViewArgs DetailsViewArgs(false, false, true, FDetailsViewArgs::ObjectsUseNameArea, false);
     DetailsView = DetailsViewModule.CreateDetailView(DetailsViewArgs);
-    //DetailsView->SetObject(NULL);
+    DetailsView->SetObject(NULL);
 }
 
 void FSelectionQueryEditor::SaveAsset_Execute()
@@ -585,7 +585,7 @@ void FSelectionQueryEditor::SaveAsset_Execute()
 	if (GraphEditor.IsValid() && GraphEditor->GetCurrentGraph() != NULL)
 	{
 		//let's find root node
-		//USelectionQueryGraph* EdGraph = Cast<USelectionQueryGraph>(UpdateGraphEditor->GetCurrentGraph());
+		//UEdGraph_SelectionQuery* EdGraph = Cast<UEdGraph_SelectionQuery>(UpdateGraphEditor->GetCurrentGraph());
 		//EdGraph->UpdateAsset();
 	}
 

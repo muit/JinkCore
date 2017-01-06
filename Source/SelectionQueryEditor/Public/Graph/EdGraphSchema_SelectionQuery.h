@@ -44,6 +44,8 @@ UCLASS()
 class UEdGraphSchema_SelectionQuery : public UEdGraphSchema {
 	GENERATED_UCLASS_BODY()
 
+    virtual void CreateDefaultNodesForGraph(UEdGraph& Graph) const;
+
 	// Begin EdGraphSchema interface
 	virtual void GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const override;
 	virtual const FPinConnectionResponse CanCreateConnection(const UEdGraphPin* A, const UEdGraphPin* B) const override;
@@ -77,5 +79,13 @@ public:
 		OutActions.Add(NewAction);
 		return NewAction;
 	}
+
+    static TSharedPtr<FSQSchemaAction_NewNode> AddNewNodeAction(FGraphActionListBuilderBase& ContextMenuBuilder, const FText& Category, const FText& MenuDesc, const FString& Tooltip)
+    {
+        TSharedPtr<FSQSchemaAction_NewNode> NewAction = TSharedPtr<FSQSchemaAction_NewNode>(new FSQSchemaAction_NewNode(Category, MenuDesc, Tooltip, 0));
+        ContextMenuBuilder.AddAction(NewAction);
+
+        return NewAction;
+    }
 };
 

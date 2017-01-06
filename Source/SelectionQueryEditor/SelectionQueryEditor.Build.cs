@@ -41,6 +41,7 @@ public class SelectionQueryEditor : ModuleRules
                 "Slate",
                 "EditorStyle",
                 "UnrealEd",
+                "AIGraph",
                 "KismetWidgets",
                 "GraphEditor",
                 "Kismet"

@@ -4,8 +4,9 @@
 #include "EdGraph_SelectionQuery.generated.h"
 
 struct FSelectionQueryDataTypes {
-	static const FString PinType_Mesh;
-	static const FString PinType_Marker;
+    static const FString PinCategory_MultipleNodes;
+    static const FString PinCategory_SingleComposite;
+    static const FString PinCategory_SingleItem;
 };
 
 struct FSQGraphBuildError {
@@ -25,10 +26,9 @@ public:
 
 	/** Add a listener for OnGraphChanged events */
 	FDelegateHandle AddOnNodePropertyChangedHandler(const FOnGraphChanged::FDelegate& InHandler);
-
 	/** Remove a listener for OnGraphChanged events */
 	void RemoveOnNodePropertyChangedHandler(FDelegateHandle Handle);
-
+    /** Notify OnGraphChanged events */
 	void NotifyNodePropertyChanged(const FEdGraphEditAction& InAction);
 
 private:

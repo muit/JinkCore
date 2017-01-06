@@ -11,3 +11,7 @@ void USQItemNode::PostLoad()
 {
 	Super::PostLoad();
 }
+
+FString GetNodeName() {
+    return "Item";
+}

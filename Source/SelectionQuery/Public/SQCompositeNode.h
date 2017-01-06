@@ -42,6 +42,8 @@ class SELECTIONQUERY_API USQCompositeNode : public USQNode
 	int32 GetChildrenNum() const;
 
 	virtual void PostLoad() override;
+
+    virtual USQItemNode* Run();
 };
 
 

@@ -36,8 +36,9 @@ void FAssetTypeAction_SelectionQuery::OpenAssetEditor(const TArray<UObject*>& In
     {
         USelectionQuery* Query = Cast<USelectionQuery>(Object);
         if (Query) {
-            TSharedRef<FSelectionQueryEditor> NewSelectionQueryEditor(new FSelectionQueryEditor());
-            NewSelectionQueryEditor->InitSelectionQueryEditor(Mode, EditWithinLevelEditor, Query);
+
+            FSelectionQueryEditorModule& SelectionQueryEditorModule = FModuleManager::LoadModuleChecked<FSelectionQueryEditorModule>("SelectionQueryEditor");
+            TSharedRef< ISelectionQueryEditor > NewEditor = SelectionQueryEditorModule.CreateSelectionQueryEditor(EToolkitMode::Standalone, EditWithinLevelEditor, Query);
         }
     }
 }

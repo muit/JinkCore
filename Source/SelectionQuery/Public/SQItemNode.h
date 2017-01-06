@@ -25,4 +25,7 @@ public:
 	virtual FString GetItem() const { return TEXT("None"); }
 
 	virtual void PostLoad() override;
+
+    /** @return name of node */
+    FString GetNodeName() const;
 };

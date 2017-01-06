@@ -3,6 +3,7 @@
 
 #include "SelectionQueryEditorPrivatePCH.h"
 #include "PropertyEditorModule.h"
+#include "AIGraphTypes.h"
  
 DECLARE_LOG_CATEGORY_EXTERN(LogSelectionQueryEditor, All, All)
  
@@ -11,8 +12,11 @@ class FSelectionQueryEditorModule: public IModuleInterface
 public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
-	
 
+
+    TSharedRef<ISelectionQueryEditor> CreateSelectionQueryEditor(const EToolkitMode::Type Mode, const TSharedPtr< IToolkitHost >& InitToolkitHost, USelectionQuery* Query);
+
+    TSharedPtr<struct FGraphNodeClassHelper> GetClassCache() { return ClassCache; }
 
 private:
 	void RegisterPropertyTypeCustomizations();
@@ -31,7 +35,8 @@ private:
 		CreatedAssetTypeActions.Add(Action);
 	}
 
-
 	/** All created asset type actions.  Cached here so that we can unregister them during shutdown. */
 	TArray< TSharedPtr<IAssetTypeActions> > CreatedAssetTypeActions;
+
+    TSharedPtr<struct FGraphNodeClassHelper> ClassCache;
 };

@@ -7,9 +7,10 @@
 
 #include "EdGraph/EdGraphPin.h"
 #include "EdGraph/EdGraph.h"
-//#include "EdGraphSchema_Extensions.h"
 
 #include "EdGraphSchema_SelectionQuery.h"
+
+#include "SQCompositeNode.h"
 
 
 #define LOCTEXT_NAMESPACE "EdGraphSchema_SelectionQuery"
@@ -80,8 +81,7 @@ UEdGraphNode* FSQSchemaAction_NewNode::PerformAction(class UEdGraph* ParentGraph
 			ResultNode->AutowireNewNode(FromPins[Index]);
 		}
 	}
-	else
-	{
+	else {
 		ResultNode = PerformAction(ParentGraph, NULL, Location, bSelectNewNode);
 	}
 
@@ -96,6 +96,8 @@ void FSQSchemaAction_NewNode::AddReferencedObjects(FReferenceCollector& Collecto
 	Collector.AddReferencedObject(NodeTemplate);
 }
 /////////////////////////////////////////////////////////
+
+
 
 UEdGraphSchema_SelectionQuery::UEdGraphSchema_SelectionQuery(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer)
@@ -112,9 +114,52 @@ void UEdGraphSchema_SelectionQuery::GetActionList(TArray<TSharedPtr<FEdGraphSche
 	//UEdGraphSchema_Extensions::Get().CreateCustomActions(OutActions, Graph, OwnerOfTemporaries);
 }
 
+void UEdGraphSchema_SelectionQuery::CreateDefaultNodesForGraph(UEdGraph& Graph) const
+{
+    FGraphNodeCreator<USQGraphNode_Root> NodeCreator(Graph);
+    USQGraphNode_Root* MyNode = NodeCreator.CreateNode();
+    NodeCreator.Finalize();
+    SetNodeMetaData(MyNode, FNodeMetadata::DefaultGraphNode);
+}
 
 void UEdGraphSchema_SelectionQuery::GetGraphContextActions(FGraphContextMenuBuilder& ContextMenuBuilder) const
 {
+    const FString PinCategory = ContextMenuBuilder.FromPin ?
+        ContextMenuBuilder.FromPin->PinType.PinCategory :
+        FSelectionQueryDataTypes::PinCategory_MultipleNodes;
+
+    const bool bNoParent = (ContextMenuBuilder.FromPin == NULL);
+
+    const bool bOnlyComposites = (PinCategory == FSelectionQueryDataTypes::PinCategory_SingleComposite);
+    const bool bOnlyItems = (PinCategory == FSelectionQueryDataTypes::PinCategory_SingleItem);
+    const bool bAllowComposites = bNoParent || !bOnlyItems || bOnlyComposites;
+    const bool bAllowItems = bNoParent || !bOnlyComposites || bOnlyItems;
+
+    FSelectionQueryEditorModule& EditorModule = FModuleManager::GetModuleChecked<FSelectionQueryEditorModule>(TEXT("SelectionQueryEditor"));
+    FGraphNodeClassHelper* ClassCache = EditorModule.GetClassCache().Get();
+
+    if (bAllowComposites) {
+        FCategorizedGraphActionListBuilder CompositesBuilder(TEXT("Composites"));
+
+        TArray<FGraphNodeClassData> NodeClasses;
+        ClassCache->GatherClasses(USQCompositeNode::StaticClass(), NodeClasses);
+
+        for (const auto& NodeClass : NodeClasses)
+        {
+            const FText NodeTypeName = FText::FromString(FName::NameToDisplayString(NodeClass.ToString(), false));
+
+            TSharedPtr<FSQSchemaAction_NewNode> AddOpAction = SQSchemaUtils::AddNewNodeAction(CompositesBuilder, NodeClass.GetCategory(), NodeTypeName, "");
+
+            UClass* GraphNodeClass = USQGraphNode_Composite::StaticClass();
+
+            USQGraphNode* OpNode = NewObject<USQGraphNode>(ContextMenuBuilder.OwnerOfTemporaries, GraphNodeClass);
+            OpNode->ClassData = NodeClass;
+            AddOpAction->NodeTemplate = OpNode;
+        }
+
+        ContextMenuBuilder.Append(CompositesBuilder);
+    }
+
 	FFormatNamedArguments Args;
 	const FName AttrName("Attributes");
 	Args.Add(TEXT("Attribute"), FText::FromName(AttrName));
