@@ -12,19 +12,19 @@
 UCLASS(Abstract)
 class SELECTIONQUERY_API USQItemNode : public USQNode
 {
-	GENERATED_UCLASS_BODY()
+    GENERATED_UCLASS_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category=Option)
-	FString OptionName;
+    UPROPERTY(EditDefaultsOnly, Category=Option)
+    FString OptionName;
 
-	/** type of generated items */
-	UPROPERTY()
-	TSubclassOf<UObject> ItemValue;
+    /** type of generated items */
+    UPROPERTY()
+    TSubclassOf<UObject> ItemValue;
 
-	virtual FString GetItem() const { return TEXT("None"); }
+    virtual FString GetItem() const { return TEXT("None"); }
 
-	virtual void PostLoad() override;
+    virtual void PostLoad() override;
 
     /** @return name of node */
     FString GetNodeName() const;

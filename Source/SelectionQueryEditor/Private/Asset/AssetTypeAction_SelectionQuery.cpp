@@ -15,17 +15,17 @@
 
 FText FAssetTypeAction_SelectionQuery::GetName() const
 {
-	return LOCTEXT("FAssetTypeAction_SelectionQueryName", "Selection Query");
+    return LOCTEXT("FAssetTypeAction_SelectionQueryName", "Selection Query");
 }
 
 FColor FAssetTypeAction_SelectionQuery::GetTypeColor() const
 {
-	return FColor(50, 255, 190);
+    return FColor(50, 255, 190);
 }
 
 UClass* FAssetTypeAction_SelectionQuery::GetSupportedClass() const
 {
-	return USelectionQuery::StaticClass();
+    return USelectionQuery::StaticClass();
 }
 
 void FAssetTypeAction_SelectionQuery::OpenAssetEditor(const TArray<UObject*>& InObjects, TSharedPtr<class IToolkitHost> EditWithinLevelEditor)
@@ -45,11 +45,11 @@ void FAssetTypeAction_SelectionQuery::OpenAssetEditor(const TArray<UObject*>& In
 
 uint32 FAssetTypeAction_SelectionQuery::GetCategories()
 {
-	if (FJinkCoreModule* JC = FJinkCoreModule::GetInstance()) {
-		return JC->GetJCAssetCategoryBit();
-	}
-	// If JinkCore module is not found use Miscellaneous 
-	return EAssetTypeCategories::Misc;
+    if (FJinkCoreModule* JC = FJinkCoreModule::GetInstance()) {
+        return JC->GetJCAssetCategoryBit();
+    }
+    // If JinkCore module is not found use Miscellaneous 
+    return EAssetTypeCategories::Misc;
 }
 
 void FAssetTypeAction_SelectionQuery::GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder)

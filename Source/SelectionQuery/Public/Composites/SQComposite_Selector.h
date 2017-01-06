@@ -17,7 +17,7 @@ class SELECTIONQUERY_API USQComposite_Selector: public USQCompositeNode
     GENERATED_UCLASS_BODY()
 
 #if WITH_EDITOR
-	virtual FName GetNodeIconName() const override;
+    virtual FName GetNodeIconName() const override;
 #endif
 
 

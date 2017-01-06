@@ -12,15 +12,15 @@ class USQCompositeNode;
 USTRUCT()
 struct FSQCompositeChild
 {
-	GENERATED_USTRUCT_BODY()
+    GENERATED_USTRUCT_BODY()
 
 public:
-	/** child node */
-	UPROPERTY()
-	USQCompositeNode* ChildComposite;
+    /** child node */
+    UPROPERTY()
+    USQCompositeNode* ChildComposite;
 
-	UPROPERTY()
-	USQItemNode* ChildItem;
+    UPROPERTY()
+    USQItemNode* ChildItem;
 
     bool ChildIsComposite();
 };
@@ -28,20 +28,20 @@ public:
 UCLASS(Abstract)
 class SELECTIONQUERY_API USQCompositeNode : public USQNode
 {
-	GENERATED_UCLASS_BODY()
+    GENERATED_UCLASS_BODY()
 
-	/** child nodes */
-	UPROPERTY()
-	TArray<FSQCompositeChild> Children;
+    /** child nodes */
+    UPROPERTY()
+    TArray<FSQCompositeChild> Children;
 
 
-	/** @return child node at given index */
-	USQNode* GetChildNode(int32 Index) const;
+    /** @return child node at given index */
+    USQNode* GetChildNode(int32 Index) const;
 
-	/** @return children count */
-	int32 GetChildrenNum() const;
+    /** @return children count */
+    int32 GetChildrenNum() const;
 
-	virtual void PostLoad() override;
+    virtual void PostLoad() override;
 
     virtual USQItemNode* Run();
 };
@@ -66,5 +66,5 @@ FORCEINLINE USQNode* USQCompositeNode::GetChildNode(int32 Index) const
 
 FORCEINLINE int32 USQCompositeNode::GetChildrenNum() const
 {
-	return Children.Num();
+    return Children.Num();
 }

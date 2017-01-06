@@ -6,13 +6,13 @@
 
 USQComposite_Selector::USQComposite_Selector(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	NodeName = "Selector";
+    NodeName = "Selector";
 }
 
 #if WITH_EDITOR
 FName USQComposite_Selector::GetNodeIconName() const
 {
-	return FName("BTEditor.Graph.BTNode.Composite.Selector.Icon");
+    return FName("BTEditor.Graph.BTNode.Composite.Selector.Icon");
 }
 #endif
 

@@ -9,7 +9,7 @@ USQItemNode::USQItemNode(const FObjectInitializer& ObjectInitializer) : Super(Ob
 
 void USQItemNode::PostLoad()
 {
-	Super::PostLoad();
+    Super::PostLoad();
 }
 
 FString GetNodeName() {

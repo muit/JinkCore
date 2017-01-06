@@ -7,12 +7,12 @@
 
 USQCompositeNode::USQCompositeNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	NodeName = "UnknownComposite";
+    NodeName = "UnknownComposite";
 }
 
 void USQCompositeNode::PostLoad()
 {
-	Super::PostLoad();
+    Super::PostLoad();
 }
 
 USQItemNode* USQCompositeNode::Run()

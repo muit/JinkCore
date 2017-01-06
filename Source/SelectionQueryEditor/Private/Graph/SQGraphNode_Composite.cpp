@@ -10,14 +10,14 @@
 #define LOCTEXT_NAMESPACE "SelectionQueryEditor"
 
 USQGraphNode_Composite::USQGraphNode_Composite(const FObjectInitializer& ObjectInitializer)
-	: Super(ObjectInitializer)
+    : Super(ObjectInitializer)
 {
 }
 
 void USQGraphNode_Composite::AllocateDefaultPins()
 {
-	CreatePin(EGPD_Input,  TEXT("Transition"), TEXT(""), NULL, false, false, TEXT("In"));
-	CreatePin(EGPD_Output, TEXT("Transition"), TEXT(""), NULL, false, false, TEXT("Out"));
+    CreatePin(EGPD_Input,  TEXT("Transition"), TEXT(""), NULL, false, false, TEXT("In"));
+    CreatePin(EGPD_Output, TEXT("Transition"), TEXT(""), NULL, false, false, TEXT("Out"));
 }
 
 FText USQGraphNode_Composite::GetNodeTitle(ENodeTitleType::Type TitleType) const

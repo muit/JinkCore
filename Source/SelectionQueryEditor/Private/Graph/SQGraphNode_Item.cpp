@@ -9,7 +9,7 @@ USQGraphNode_Item::USQGraphNode_Item(const FObjectInitializer& ObjectInitializer
 
 void USQGraphNode_Item::AllocateDefaultPins()
 {
-	CreatePin(EGPD_Input, TEXT("Transition"), TEXT(""), NULL, false, false, TEXT("In"));
+    CreatePin(EGPD_Input, TEXT("Transition"), TEXT(""), NULL, false, false, TEXT("In"));
 }
 
 FText USQGraphNode_Item::GetNodeTitle(ENodeTitleType::Type TitleType) const
@@ -32,6 +32,6 @@ FText USQGraphNode_Item::GetNodeTitle(ENodeTitleType::Type TitleType) const
 
 void USQGraphNode_Item::GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const
 {
-	//AddContextMenuActionsDecorators(Context);
-	//AddContextMenuActionsServices(Context);
+    //AddContextMenuActionsDecorators(Context);
+    //AddContextMenuActionsServices(Context);
 }

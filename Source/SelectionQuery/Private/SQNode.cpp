@@ -12,10 +12,10 @@
 
 USQNode::USQNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-	ParentNode = NULL;
+    ParentNode = NULL;
 
 #if USE_SelectionQuery_DEBUGGER
-	NextExecutionNode = NULL;
+    NextExecutionNode = NULL;
 #endif
 }
 
@@ -26,12 +26,12 @@ void USQNode::OnInstanceDestroyed(USelectionQueryComponent& OwnerComp) { // empt
 
 FString USQNode::GetNodeName() const
 {
-	return NodeName/*.Len() ? NodeName : USelectionQueryTypes::GetShortTypeName(this)*/;
+    return NodeName/*.Len() ? NodeName : USelectionQueryTypes::GetShortTypeName(this)*/;
 }
 
 FString USQNode::GetStaticDescription() const
 {
-	// short type name
+    // short type name
     return "";//USelectionQueryTypes::GetShortTypeName(this);
 }
 
@@ -39,12 +39,12 @@ FString USQNode::GetStaticDescription() const
 
 FName USQNode::GetNodeIconName() const
 {
-	return NAME_None;
+    return NAME_None;
 }
 
 bool USQNode::UsesBlueprint() const
 {
-	return false;
+    return false;
 }
 
 #endif

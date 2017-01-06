@@ -22,7 +22,7 @@ class SELECTIONQUERY_API USelectionQuery : public UObject
 #if WITH_EDITORONLY_DATA
     /** Graph for query */
     UPROPERTY()
-    UEdGraph*	EdGraph;
+    UEdGraph*    EdGraph;
 #endif
 
 protected:

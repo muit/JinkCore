@@ -12,9 +12,9 @@ DEFINE_LOG_CATEGORY(LogSelectionQueryEditor)
  
 void FSelectionQueryEditorModule::StartupModule()
 {
-	UE_LOG(LogSelectionQueryEditor, Warning, TEXT("SelectionQueryEditor: Log Started"));
+    UE_LOG(LogSelectionQueryEditor, Warning, TEXT("SelectionQueryEditor: Log Started"));
 
-	RegisterPropertyTypeCustomizations();
+    RegisterPropertyTypeCustomizations();
 
     // Register asset types
     IAssetTools& AssetTools = FModuleManager::LoadModuleChecked<FAssetToolsModule>("AssetTools").Get();
@@ -23,20 +23,20 @@ void FSelectionQueryEditorModule::StartupModule()
  
 void FSelectionQueryEditorModule::ShutdownModule()
 {
-	UE_LOG(LogSelectionQueryEditor, Warning, TEXT("SelectionQueryEditor: Log Ended"));
+    UE_LOG(LogSelectionQueryEditor, Warning, TEXT("SelectionQueryEditor: Log Ended"));
 
     ClassCache.Reset();
 
-	// Unregister all the asset types
-	if (FModuleManager::Get().IsModuleLoaded("AssetTools"))
-	{
-		IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
-		for (int32 Index = 0; Index < CreatedAssetTypeActions.Num(); ++Index)
-		{
-			AssetTools.UnregisterAssetTypeActions(CreatedAssetTypeActions[Index].ToSharedRef());
-		}
-	}
-	CreatedAssetTypeActions.Empty();
+    // Unregister all the asset types
+    if (FModuleManager::Get().IsModuleLoaded("AssetTools"))
+    {
+        IAssetTools& AssetTools = FModuleManager::GetModuleChecked<FAssetToolsModule>("AssetTools").Get();
+        for (int32 Index = 0; Index < CreatedAssetTypeActions.Num(); ++Index)
+        {
+            AssetTools.UnregisterAssetTypeActions(CreatedAssetTypeActions[Index].ToSharedRef());
+        }
+    }
+    CreatedAssetTypeActions.Empty();
 }
 
 void FSelectionQueryEditorModule::RegisterPropertyTypeCustomizations()
@@ -46,11 +46,11 @@ void FSelectionQueryEditorModule::RegisterPropertyTypeCustomizations()
 
 void FSelectionQueryEditorModule::RegisterCustomPropertyTypeLayout(FName PropertyTypeName, FOnGetPropertyTypeCustomizationInstance PropertyTypeLayoutDelegate)
 {
-	check(PropertyTypeName != NAME_None);
+    check(PropertyTypeName != NAME_None);
 
-	static FName PropertyEditor("PropertyEditor");
-	FPropertyEditorModule& PropertyModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>(PropertyEditor);
-	PropertyModule.RegisterCustomPropertyTypeLayout(PropertyTypeName, PropertyTypeLayoutDelegate);
+    static FName PropertyEditor("PropertyEditor");
+    FPropertyEditorModule& PropertyModule = FModuleManager::GetModuleChecked<FPropertyEditorModule>(PropertyEditor);
+    PropertyModule.RegisterCustomPropertyTypeLayout(PropertyTypeName, PropertyTypeLayoutDelegate);
 }
 
 TSharedRef<ISelectionQueryEditor> FSelectionQueryEditorModule::CreateSelectionQueryEditor(const EToolkitMode::Type Mode, const TSharedPtr< IToolkitHost >& InitToolkitHost, USelectionQuery* Query)

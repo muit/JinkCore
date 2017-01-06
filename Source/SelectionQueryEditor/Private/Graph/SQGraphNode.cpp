@@ -76,5 +76,5 @@ UEdGraph_SelectionQuery* USQGraphNode::GetSQGraph()
 
 bool USQGraphNode::CanCreateUnderSpecifiedSchema(const UEdGraphSchema* DesiredSchema) const
 {
-	return DesiredSchema->GetClass()->IsChildOf(UEdGraphSchema_SelectionQuery::StaticClass());
+    return DesiredSchema->GetClass()->IsChildOf(UEdGraphSchema_SelectionQuery::StaticClass());
 }

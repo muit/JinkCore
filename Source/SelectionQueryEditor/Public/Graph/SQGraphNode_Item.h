@@ -7,12 +7,12 @@
 UCLASS()
 class USQGraphNode_Item : public USQGraphNode
 {
-	GENERATED_UCLASS_BODY()
+    GENERATED_UCLASS_BODY()
 
-	virtual void AllocateDefaultPins() override;
-	virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
-	/** Gets a list of actions that can be done to this particular node */
-	virtual void GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const override;
+    virtual void AllocateDefaultPins() override;
+    virtual FText GetNodeTitle(ENodeTitleType::Type TitleType) const override;
+    /** Gets a list of actions that can be done to this particular node */
+    virtual void GetContextMenuActions(const FGraphNodeContextMenuBuilder& Context) const override;
 
-	//virtual bool CanPlaceBreakpoints() const override { return true; }
+    //virtual bool CanPlaceBreakpoints() const override { return true; }
 };

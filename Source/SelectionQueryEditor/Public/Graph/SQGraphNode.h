@@ -36,7 +36,7 @@ class SELECTIONQUERYEDITOR_API USQGraphNode : public UEdGraphNode
     void InitializeInstance();
 
     //~ Begin UEdGraphNode Interface
-	virtual void PostPlacedNewNode() override;
+    virtual void PostPlacedNewNode() override;
     virtual bool CanDuplicateNode() const override;
     virtual bool CanUserDeleteNode() const override;
     //~ End UEdGraphNode Interface
