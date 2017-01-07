@@ -13,7 +13,13 @@ USQGraphNode::USQGraphNode(const FObjectInitializer& ObjectInitializer) : Super(
 
 void USQGraphNode::InitializeInstance()
 {
-    // empty in base class
+    USQNode* Node = Cast<USQNode>(NodeInstance);
+    USelectionQuery* SQAsset = Node ? Cast<USelectionQuery>(Node->GetOuter()) : nullptr;
+    if (Node && SQAsset)
+    {
+        Node->InitializeFromAsset(*SQAsset);
+        Node->InitializeNode(NULL, MAX_uint16, 0);
+    }
 }
 
 //~ Begin UEdGraphNode Interface

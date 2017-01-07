@@ -309,7 +309,7 @@ void FSelectionQueryEditor::PasteNodes()
 void FSelectionQueryEditor::PasteNodesHere(const FVector2D& Location)
 {
     // Undo/Redo support
-    const FScopedTransaction Transaction(NSLOCTEXT("DungeonArchitect", "DungeonEditorPaste", "Dungeon Editor: Paste"));
+    const FScopedTransaction Transaction(NSLOCTEXT("SelectionQuery", "SelectionQueryEditorPaste", "Selection Query Editor: Paste"));
     // TODO: Notify the data model of modification
     //Material->MaterialGraph->Modify();
     //Material->Modify();
@@ -534,6 +534,7 @@ void FSelectionQueryEditor::OnSelectedNodesChanged(const TSet<class UObject*>& N
             {
                 if (GraphNode->IsA(USQGraphNode_Root::StaticClass()))
                 {
+                    //Show Query details
                     Selection.Add(Query);
                 }
                 else if (GraphNode->IsA(USQGraphNode_Composite::StaticClass()))

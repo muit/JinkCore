@@ -13,6 +13,7 @@
 USQNode::USQNode(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
     ParentNode = NULL;
+    QueryAsset = NULL;
 
 #if USE_SelectionQuery_DEBUGGER
     NextExecutionNode = NULL;
@@ -24,9 +25,16 @@ void USQNode::OnInstanceCreated(USelectionQueryComponent& OwnerComp) { //empty i
 void USQNode::OnInstanceDestroyed(USelectionQueryComponent& OwnerComp) { // empty in base class }
 */
 
-FString USQNode::GetNodeName() const
+void USQNode::InitializeNode(USQCompositeNode * InParentNode, uint16 InExecutionIndex, uint8 InGraphDepth)
 {
-    return NodeName/*.Len() ? NodeName : USelectionQueryTypes::GetShortTypeName(this)*/;
+    ParentNode = InParentNode;
+    ExecutionIndex = InExecutionIndex;
+    GraphDepth = InGraphDepth;
+}
+
+void USQNode::InitializeFromAsset(USelectionQuery & Asset)
+{
+    QueryAsset = &Asset;
 }
 
 FString USQNode::GetStaticDescription() const
@@ -36,7 +44,6 @@ FString USQNode::GetStaticDescription() const
 }
 
 #if WITH_EDITOR
-
 FName USQNode::GetNodeIconName() const
 {
     return NAME_None;
@@ -46,5 +53,9 @@ bool USQNode::UsesBlueprint() const
 {
     return false;
 }
-
 #endif
+
+FString USQNode::GetNodeName() const
+{
+    return NodeName/*.Len() ? NodeName : USelectionQueryTypes::GetShortTypeName(this)*/;
+}

@@ -14,6 +14,9 @@ class SELECTIONQUERY_API USQItem_Actor: public USQItemNode
 {
     GENERATED_UCLASS_BODY()
 
+public:
     UPROPERTY(EditAnywhere, Category = "Item")
-    TAssetPtr<AActor> Item;
+    TSubclassOf<AActor> Item;
+
+    virtual UObject* GetThumbnailAssetObject() override;
 };

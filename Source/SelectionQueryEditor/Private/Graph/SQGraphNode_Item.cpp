@@ -33,8 +33,8 @@ FText USQGraphNode_Item::GetNodeTitle(ENodeTitleType::Type TitleType) const
 
 UObject* USQGraphNode_Item::GetThumbnailAssetObject()
 {
-    if (USQItem_Actor* ItemNode = Cast<USQItem_Actor>(NodeInstance)) {
-        return ItemNode->Item.LoadSynchronous();
+    if (USQItemNode* ItemNode = Cast<USQItemNode>(NodeInstance)) {
+        return ItemNode->GetThumbnailAssetObject();
     }
     return nullptr;
 }

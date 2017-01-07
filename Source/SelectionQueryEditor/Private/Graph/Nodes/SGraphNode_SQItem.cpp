@@ -8,6 +8,7 @@
 #include "SelectionQueryEditor.h"
 #include "Graph/SQGraphNode.h"
 #include "SNumericEntryBox.h"
+#include "SLevelOfDetailBranchNode.h"
 
 #include "SGraphNodeSQ.h"
 
@@ -102,7 +103,7 @@ private:
 
 void SGraphNode_SQItem::Construct(const FArguments& InArgs, USQGraphNode_Item* InNode)
 {
-	ThumbnailSize = FIntPoint(128, 128);
+	ThumbnailSize = FIntPoint(96, 96);
 	GraphNode = InNode;
 	EdActorNode = InNode;
 	SetCursor(EMouseCursor::CardinalCross);
@@ -163,48 +164,172 @@ bool SGraphNode_SQItem::GetValue(FObjectOrAssetData& OutValue) const
 
 void SGraphNode_SQItem::UpdateGraphNode()
 {
-	InputPins.Empty();
-	OutputPins.Empty();
+    InputPins.Empty();
+    OutputPins.Empty();
 
-	// Reset variables that are going to be exposed, in case we are refreshing an already setup node.
-	RightNodeBox.Reset();
-	LeftNodeBox.Reset();
-	OutputPinBox.Reset();
+    // Reset variables that are going to be exposed, in case we are refreshing an already setup node.
+    RightNodeBox.Reset();
+    LeftNodeBox.Reset();
+    OutputPinBox.Reset();
 
-	const FSlateBrush* NodeTypeIcon = GetNameIcon();
+    const FSlateBrush* NodeTypeIcon = GetNameIcon();
 
-	FLinearColor TitleShadowColor(0.6f, 0.6f, 0.6f);
-	TSharedPtr<SErrorText> ErrorText;
-	TSharedPtr<SNodeTitle> NodeTitle = SNew(SNodeTitle, GraphNode);
+    FLinearColor BackgroundColor(0.1f, 0.1f, 0.1f);
 
-	IndexOverlay = SNew(SMeshGraphNodeIndex)
-		.ToolTipText(this, &SGraphNode_SQItem::GetIndexTooltipText)
-		.Visibility(this, &SGraphNode_SQItem::GetIndexVisibility)
-		.Text(this, &SGraphNode_SQItem::GetIndexText)
-		.OnHoverStateChanged(this, &SGraphNode_SQItem::OnIndexHoverStateChanged)
-		.OnGetIndexColor(this, &SGraphNode_SQItem::GetIndexColor);
+    TSharedPtr<SErrorText> ErrorText;
+    TSharedPtr<STextBlock> DescriptionText;
+    TSharedPtr<SNodeTitle> NodeTitle = SNew(SNodeTitle, GraphNode);
 
-	this->ContentScale.Bind(this, &SGraphNode::GetContentScale);
-	this->GetOrAddSlot(ENodeZone::Center)
-		.HAlign(HAlign_Center)
-		.VAlign(VAlign_Center)
-		[
-			SNew(SBorder)
-			.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
-			.Padding(0)
-			.BorderBackgroundColor(this, &SGraphNode_SQItem::GetBorderBackgroundColor)
-			[
-				SNew(SOverlay)
+    TWeakPtr<SNodeTitle> WeakNodeTitle = NodeTitle;
+    auto GetNodeTitlePlaceholderWidth = [WeakNodeTitle]() -> FOptionalSize
+    {
+        TSharedPtr<SNodeTitle> NodeTitlePin = WeakNodeTitle.Pin();
+        const float DesiredWidth = (NodeTitlePin.IsValid()) ? NodeTitlePin->GetTitleSize().X : 0.0f;
+        return FMath::Max(75.0f, DesiredWidth);
+    };
+    auto GetNodeTitlePlaceholderHeight = [WeakNodeTitle]() -> FOptionalSize
+    {
+        TSharedPtr<SNodeTitle> NodeTitlePin = WeakNodeTitle.Pin();
+        const float DesiredHeight = (NodeTitlePin.IsValid()) ? NodeTitlePin->GetTitleSize().Y : 0.0f;
+        return FMath::Max(22.0f, DesiredHeight);
+    };
 
-				// INPUT PIN AREA
-				+ SOverlay::Slot()
-				.HAlign(HAlign_Fill)
-				.VAlign(VAlign_Top)
-				[
-					SAssignNew(LeftNodeBox, SVerticalBox)
+    const FMargin NodePadding = FMargin(8.0f);
+
+    IndexOverlay = SNew(SMeshGraphNodeIndex)
+        .ToolTipText(this, &SGraphNode_SQItem::GetIndexTooltipText)
+        .Visibility(this, &SGraphNode_SQItem::GetIndexVisibility)
+        .Text(this, &SGraphNode_SQItem::GetIndexText)
+        .OnHoverStateChanged(this, &SGraphNode_SQItem::OnIndexHoverStateChanged)
+        .OnGetIndexColor(this, &SGraphNode_SQItem::GetIndexColor);
+
+    this->ContentScale.Bind(this, &SGraphNode::GetContentScale);
+    this->GetOrAddSlot(ENodeZone::Center)
+        .HAlign(HAlign_Fill)
+        .VAlign(VAlign_Center)
+        [
+            SNew(SBorder)
+            .BorderImage(FEditorStyle::GetBrush("Graph.StateNode.Body"))
+            .Padding(0.0f)
+            .BorderBackgroundColor(this, &SGraphNode_SQItem::GetBorderBackgroundColor)
+            [
+                SNew(SOverlay)
+
+                // Pins and node details
+                + SOverlay::Slot()
+                .HAlign(HAlign_Fill)
+                .VAlign(VAlign_Fill)
+                [
+                    SNew(SVerticalBox)
+
+                    // INPUT PIN AREA
+                    + SVerticalBox::Slot()
+                    .AutoHeight()
+                    [
+                        SNew(SBox)
+                        .MinDesiredHeight(NodePadding.Top)
+                        [
+                            SAssignNew(LeftNodeBox, SVerticalBox)
+                        ]
+                    ]
+
+                    // STATE NAME AREA
+                    + SVerticalBox::Slot()
+                    .Padding(FMargin(NodePadding.Left, 0.0f, NodePadding.Right, 0.0f))
+                    [
+                        SAssignNew(NodeBody, SBorder)
+                        .BorderImage(FEditorStyle::GetBrush("BTEditor.Graph.BTNode.Body"))
+                        .BorderBackgroundColor(BackgroundColor)
+                        .HAlign(HAlign_Fill)
+                        .VAlign(VAlign_Center)
+                        .Visibility(EVisibility::SelfHitTestInvisible)
+                        [
+                            SNew(SVerticalBox)
+                            + SVerticalBox::Slot()
+                            .AutoHeight()
+                            [
+                                SNew(SLevelOfDetailBranchNode)
+                                .UseLowDetailSlot(this, &SGraphNode_SQItem::UseLowDetailNodeTitles)
+                                .LowDetail()
+                                [
+                                    SNew(SBox)
+                                    .WidthOverride_Lambda(GetNodeTitlePlaceholderWidth)
+                                    .HeightOverride_Lambda(GetNodeTitlePlaceholderHeight)
+                                ]
+                                .HighDetail()
+                                [
+                                    SNew(SHorizontalBox)
+                                    + SHorizontalBox::Slot()
+                                    .AutoWidth()
+                                    .VAlign(VAlign_Center)
+                                    [
+                                        SNew(SImage)
+                                        .Image(this, &SGraphNode_SQItem::GetNameIcon)
+                                    ]
+
+                                    + SHorizontalBox::Slot()
+                                    .Padding(FMargin(4.0f, 0.0f, 4.0f, 0.0f))
+                                    [
+                                        SNew(SVerticalBox)
+                                        + SVerticalBox::Slot()
+                                        .AutoHeight()
+                                        [
+                                            SAssignNew(InlineEditableText, SInlineEditableTextBlock)
+                                            .Style(FEditorStyle::Get(), "Graph.StateNode.NodeTitleInlineEditableText")
+                                            .Text(NodeTitle.Get(), &SNodeTitle::GetHeadTitle)
+                                            .OnVerifyTextChanged(this, &SGraphNode_SQItem::OnVerifyNameTextChanged)
+                                            .OnTextCommitted(this, &SGraphNode_SQItem::OnNameTextCommited)
+                                            .IsReadOnly(this, &SGraphNode_SQItem::IsNameReadOnly)
+                                            .IsSelected(this, &SGraphNode_SQItem::IsSelectedExclusively)
+                                        ]
+
+                                        + SVerticalBox::Slot()
+                                        .AutoHeight()
+                                        [
+                                            NodeTitle.ToSharedRef()
+                                        ]
+                                    ]
+                                ]
+                            ]
+
+                            // THUMBNAIL AREA
+                            + SVerticalBox::Slot()
+                            .AutoHeight()
+                            .Padding(7.0f)
+                            [
+                                SNew(SBorder)
+                                .BorderImage(FEditorStyle::GetBrush("BTEditor.Graph.BTNode.Body"))
+                                .BorderBackgroundColor(BackgroundColor)
+                                .HAlign(HAlign_Center)
+                                .VAlign(VAlign_Center)
+                                [
+                                    SNew(SVerticalBox)
+                                    // Thumbnail Slot
+                                    + SVerticalBox::Slot()
+                                    .FillHeight(1.0f)
+                                    [
+                                        SNew(SBox)
+                                        .WidthOverride(ThumbnailSize.X)
+                                        .HeightOverride(ThumbnailSize.Y)
+                                        [
+                                            AssetThumbnail->MakeThumbnailWidget()
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                    + SVerticalBox::Slot()
+                    .AutoHeight()
+                    [
+                        // DESCRIPTION MESSAGE
+                        SAssignNew(DescriptionText, STextBlock)
+                        .Visibility(this, &SGraphNode_SQItem::GetDescriptionVisibility)
+                        .Text(this, &SGraphNode_SQItem::GetDescription)
+                    ]
 				]
 
-				// OUTPUT PIN AREA
+				/*// OUTPUT PIN AREA
 				+ SOverlay::Slot()
 				.HAlign(HAlign_Fill)
 				.VAlign(VAlign_Bottom)
@@ -218,35 +343,12 @@ void SGraphNode_SQItem::UpdateGraphNode()
 					[
 						SAssignNew(OutputPinBox, SHorizontalBox)
 					]
-				]
+				]*/
 
-
-				// THUMBNAIL AREA
-				+ SOverlay::Slot()
-					.HAlign(HAlign_Center)
-					.VAlign(VAlign_Center)
-					.Padding(10.0f)
-					[
-						SNew(SBorder)
-						.BorderImage(FEditorStyle::GetBrush("Graph.StateNode.ColorSpill"))
-						.BorderBackgroundColor(TitleShadowColor)
-						.HAlign(HAlign_Center)
-						.VAlign(VAlign_Center)
-						[
-							SNew(SVerticalBox)
-							// Thumbnail Slot
-							+ SVerticalBox::Slot()
-							.FillHeight(1.0f)
-							[
-								SNew(SBox)
-								.WidthOverride(ThumbnailSize.X)
-								.HeightOverride(ThumbnailSize.Y)
-								[
-									AssetThumbnail->MakeThumbnailWidget()
-								]
-							]
-						]
-					]
+                
+				//+ SOverlay::Slot()
+				//.HAlign(HAlign_Center)
+				//.VAlign(VAlign_Center)
 			]
 		];
 
@@ -330,6 +432,19 @@ void SGraphNode_SQItem::CreatePinWidgets()
             AddPin(NewPin.ToSharedRef());
         }
     }
+}
+
+FText SGraphNode_SQItem::GetDescription() const
+{
+    USQGraphNode* MyNode = CastChecked<USQGraphNode>(GraphNode);
+    return MyNode ? MyNode->GetDescription() : FText::GetEmpty();
+}
+
+EVisibility SGraphNode_SQItem::GetDescriptionVisibility() const
+{
+    // LOD this out once things get too small
+    TSharedPtr<SGraphPanel> MyOwnerPanel = GetOwnerPanel();
+    return (!MyOwnerPanel.IsValid() || MyOwnerPanel->GetCurrentLOD() > EGraphRenderingLOD::LowDetail) ? EVisibility::Visible : EVisibility::Collapsed;
 }
 
 void SGraphNode_SQItem::AddPin(const TSharedRef<SGraphPin>& PinToAdd)

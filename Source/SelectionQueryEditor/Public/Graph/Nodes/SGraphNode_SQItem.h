@@ -77,11 +77,17 @@ private:
 	void OnIndexHoverStateChanged(bool bHovered);
 
 protected:
+    virtual FText GetDescription() const;
+    virtual EVisibility GetDescriptionVisibility() const;
+
 	FSlateColor GetBorderBackgroundColor() const;
 	virtual const FSlateBrush* GetNameIcon() const;
 
 	USQGraphNode_Item* EdActorNode;
 	FIntPoint ThumbnailSize;
+
+    /** The node body widget, cached here so we can determine its size when we want ot position our overlays */
+    TSharedPtr<SBorder> NodeBody;
 
 	TSharedPtr<SHorizontalBox> OutputPinBox;
 	/** Thumbnail for the asset */

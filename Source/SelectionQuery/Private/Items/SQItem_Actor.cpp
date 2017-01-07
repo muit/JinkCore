@@ -7,3 +7,11 @@ USQItem_Actor::USQItem_Actor(const FObjectInitializer& ObjectInitializer) : Supe
 {
     NodeName = "Actor";
 }
+
+UObject * USQItem_Actor::GetThumbnailAssetObject()
+{
+    if (!Item)
+        return nullptr;
+
+    return Item->GetClass();
+}

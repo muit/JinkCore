@@ -26,6 +26,12 @@ class SELECTIONQUERYEDITOR_API USQGraphNode : public UEdGraphNode
     UPROPERTY()
     UObject* NodeInstance;
 
+    UPROPERTY(transient)
+    USQGraphNode* ParentNode;
+
+    UPROPERTY()
+    TArray<USQGraphNode*> SubNodes;
+
     /** if set, all modifications (including delete/cut) are disabled */
     UPROPERTY()
     FString NodeName;
