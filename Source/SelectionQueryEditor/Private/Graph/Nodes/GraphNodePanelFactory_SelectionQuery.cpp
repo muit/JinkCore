@@ -10,12 +10,12 @@ FGraphPanelNodeFactory_SelectionQuery::FGraphPanelNodeFactory_SelectionQuery()
 
 TSharedPtr<class SGraphNode> FGraphPanelNodeFactory_SelectionQuery::CreateNode(UEdGraphNode* Node) const
 {
-	if (USQGraphNode_Item* ActorNode = Cast<USQGraphNode_Item>(Node))
+	/*if (USQGraphNode_Item* ActorNode = Cast<USQGraphNode_Item>(Node))
 	{
 		TSharedPtr<SGraphNode_SQItem> SNode = SNew(SGraphNode_SQItem, ActorNode);
 		ActorNode->PropertyObserver = SNode;
 		return SNode;
-	}
+	}*/
 	/*else if (USQGraphNode_Composite* CompositeNode = Cast<USQGraphNode_Composite>(Node))
 	{
 		TSharedPtr<SGraphNode_SQComposite> SNode = SNew(SGraphNode_SQComposite, CompositeNode);

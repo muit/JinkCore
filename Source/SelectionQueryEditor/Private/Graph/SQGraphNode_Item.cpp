@@ -2,6 +2,7 @@
 
 #include "SelectionQueryEditorPrivatePCH.h"
 #include "SQItemNode.h"
+#include "SQItem_Actor.h"
 
 USQGraphNode_Item::USQGraphNode_Item(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -32,7 +33,7 @@ FText USQGraphNode_Item::GetNodeTitle(ENodeTitleType::Type TitleType) const
 
 UObject* USQGraphNode_Item::GetThumbnailAssetObject()
 {
-    if (USQItemNode* ItemNode = Cast<USQItemNode>(NodeInstance)) {
+    if (USQItem_Actor* ItemNode = Cast<USQItem_Actor>(NodeInstance)) {
         return ItemNode->Item.LoadSynchronous();
     }
     return nullptr;

@@ -18,10 +18,6 @@ public:
     UPROPERTY(EditDefaultsOnly, Category=Option)
     FString OptionName;
 
-    /** type of selected items */
-    UPROPERTY(EditAnywhere, Category = "Item")
-    TAssetPtr<UObject> Item;
-
     virtual FString GetItem() const { return TEXT("None"); }
 
     virtual void PostLoad() override;

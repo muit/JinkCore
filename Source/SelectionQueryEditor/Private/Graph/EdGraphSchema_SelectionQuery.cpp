@@ -159,8 +159,8 @@ void UEdGraphSchema_SelectionQuery::GetGraphContextActions(FGraphContextMenuBuil
         ClassCache->GatherClasses(USQItemNode::StaticClass(), NodeClasses);
 
         //Add Base Item Class
-        FString DeprecatedMessage;
-        NodeClasses.Add(FGraphNodeClassData(USQItemNode::StaticClass(), DeprecatedMessage));
+        //FString DeprecatedMessage;
+        //NodeClasses.Add(FGraphNodeClassData(USQItemNode::StaticClass(), DeprecatedMessage));
 
         for (const auto& NodeClass : NodeClasses)
         {
@@ -308,14 +308,42 @@ FString Combine(const TArray<FString> Array, FString Separator) {
 
 const FPinConnectionResponse UEdGraphSchema_SelectionQuery::CanCreateConnection(const UEdGraphPin* A, const UEdGraphPin* B) const
 {
-    // Make sure the input is connecting to an output
-    if (A->Direction == B->Direction) {
-        return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, TEXT("Not allowed"));
+    // Make sure the pins are not on the same node
+    if (A->GetOwningNode() == B->GetOwningNode())
+    {
+        return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, LOCTEXT("PinErrorSameNode", "Both are on the same node"));
     }
 
-    // Make sure the data types match
-    if (A->PinType.PinCategory != B->PinType.PinCategory) {
-        return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, TEXT("Not allowed"));
+    // Compare the directions
+    if ((A->Direction == EGPD_Input) && (B->Direction == EGPD_Input))
+    {
+        return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, LOCTEXT("PinErrorInput", "Can't connect input node to input node"));
+    }
+    else if ((B->Direction == EGPD_Output) && (A->Direction == EGPD_Output))
+    {
+        return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, LOCTEXT("PinErrorOutput", "Can't connect output node to output node"));
+    }
+
+    const bool bPinAIsSingleComposite = (A->PinType.PinCategory == FSelectionQueryDataTypes::PinCategory_SingleComposite);
+    const bool bPinAIsSingleItem      = (A->PinType.PinCategory == FSelectionQueryDataTypes::PinCategory_SingleItem);
+
+    const bool bPinBIsSingleComposite = (B->PinType.PinCategory == FSelectionQueryDataTypes::PinCategory_SingleComposite);
+    const bool bPinBIsSingleItem      = (B->PinType.PinCategory == FSelectionQueryDataTypes::PinCategory_SingleItem);
+
+    const bool bPinAIsItem = A->GetOwningNode()->IsA(USQGraphNode_Item::StaticClass());
+    const bool bPinAIsComposite = A->GetOwningNode()->IsA(USQGraphNode_Composite::StaticClass());
+
+    const bool bPinBIsItem = B->GetOwningNode()->IsA(USQGraphNode_Item::StaticClass());
+    const bool bPinBIsComposite = B->GetOwningNode()->IsA(USQGraphNode_Composite::StaticClass());
+
+    if ((bPinAIsSingleComposite && !bPinBIsComposite) || (bPinBIsSingleComposite && !bPinAIsComposite))
+    {
+        return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, LOCTEXT("PinErrorOnlyComposite", "Only composite nodes are allowed"));
+    }
+
+    if ((bPinAIsSingleItem && !bPinBIsItem) || (bPinBIsSingleItem && !bPinAIsItem))
+    {
+        return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, LOCTEXT("PinErrorOnlyTask", "Only task nodes are allowed"));
     }
     
     // Make sure we don't have a cycle formed by this link
@@ -324,8 +352,43 @@ const FPinConnectionResponse UEdGraphSchema_SelectionQuery::CanCreateConnection(
         FString CycleString = Combine(CyclePath, " > ");
         return FPinConnectionResponse(CONNECT_RESPONSE_DISALLOW, TEXT("Not allowed. Contains a cycle: " + CycleString));
     }
-    
-    return FPinConnectionResponse(CONNECT_RESPONSE_MAKE, TEXT(""));
+
+    const bool bPinASingleLink = bPinAIsSingleComposite || bPinAIsSingleItem;
+    const bool bPinBSingleLink = bPinBIsSingleComposite || bPinBIsSingleItem;
+
+    if (B->Direction == EGPD_Input && B->LinkedTo.Num() > 0)
+    {
+        if (bPinASingleLink)
+        {
+            return FPinConnectionResponse(CONNECT_RESPONSE_BREAK_OTHERS_AB, LOCTEXT("PinConnectReplace", "Replace connection"));
+        }
+        else
+        {
+            return FPinConnectionResponse(CONNECT_RESPONSE_BREAK_OTHERS_B, LOCTEXT("PinConnectReplace", "Replace connection"));
+        }
+    }
+    else if (A->Direction == EGPD_Input && A->LinkedTo.Num() > 0)
+    {
+        if (bPinBSingleLink)
+        {
+            return FPinConnectionResponse(CONNECT_RESPONSE_BREAK_OTHERS_AB, LOCTEXT("PinConnectReplace", "Replace connection"));
+        }
+        else
+        {
+            return FPinConnectionResponse(CONNECT_RESPONSE_BREAK_OTHERS_A, LOCTEXT("PinConnectReplace", "Replace connection"));
+        }
+    }
+
+    if (bPinASingleLink && A->LinkedTo.Num() > 0)
+    {
+        return FPinConnectionResponse(CONNECT_RESPONSE_BREAK_OTHERS_A, LOCTEXT("PinConnectReplace", "Replace connection"));
+    }
+    else if (bPinBSingleLink && B->LinkedTo.Num() > 0)
+    {
+        return FPinConnectionResponse(CONNECT_RESPONSE_BREAK_OTHERS_B, LOCTEXT("PinConnectReplace", "Replace connection"));
+    }
+
+    return FPinConnectionResponse(CONNECT_RESPONSE_MAKE, LOCTEXT("PinConnect", "Connect nodes"));
 }
 
 class FConnectionDrawingPolicy* UEdGraphSchema_SelectionQuery::CreateConnectionDrawingPolicy(int32 InBackLayerID, int32 InFrontLayerID, float InZoomFactor, const FSlateRect& InClippingRect, class FSlateWindowElementList& InDrawElements, class UEdGraph* InGraphObj) const
