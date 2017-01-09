@@ -3,6 +3,7 @@
 
 #include "JinkEditorPrivatePCH.h"
 #include "PropertyEditorModule.h"
+#include "IAssetTools.h"
  
 DECLARE_LOG_CATEGORY_EXTERN(JinkEditor, All, All)
  
