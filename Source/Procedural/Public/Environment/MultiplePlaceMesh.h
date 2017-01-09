@@ -3,9 +3,10 @@
 #pragma once
 
 #include "GameFramework/Actor.h"
+#include "Components/SplineComponent.h"
 #include "MultiplePlaceMesh.generated.h"
 
-UCLASS(Blueprintable, Abstract)
+UCLASS(Blueprintable, hideCategories = (Input, Rendering))
 class PROCEDURAL_API AMultiplePlaceMesh : public AActor
 {
     GENERATED_BODY()
@@ -19,16 +20,18 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spline", meta = (DisplayName = "Spline"))
     USplineComponent* SplineComponent;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh", meta = (DisplayName = "Mesh"))
-    UStaticMeshComponent* MeshComponent
+    UStaticMeshComponent* MeshComponent;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
     UStaticMesh* Mesh;
 
 #if WITH_EDITORONLY_DATA
     UPROPERTY(Transient)
-    UMaterialInterface* PreviewMaterial;
+    int PreviewCount;
     UPROPERTY(Transient)
-    TArray<UStaticMeshComponent> PreviewMeshComponents;
+    UMaterialInterface* PreviewMaterial;
+    UPROPERTY()
+    TArray<UStaticMeshComponent*> PreviewMeshComponents;
 #endif
 
 
@@ -40,6 +43,9 @@ public:
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
+protected:
+    void ClearPreviews();
+
     UFUNCTION(BlueprintNativeEvent)
-    FRandomStream& GetSeed();
+    FRandomStream GetSeed();
 };

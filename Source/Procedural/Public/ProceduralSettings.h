@@ -9,7 +9,7 @@
  * Find Custom Config documentation here: wiki.unrealengine.com/CustomSettings 
  */
 UCLASS(config = Game, defaultconfig)
-class JINKCORE_API UProceduralSettings : public UObject
+class PROCEDURAL_API UProceduralSettings : public UObject
 {
     GENERATED_BODY()
     

@@ -2,10 +2,11 @@
 
 #include "MultiplePlaceMesh.h"
 
-static ConstructorHelpers::FObjectFinderOptional<UTexture2D> ModuleTextureObject = TEXT("/Engine/EditorResources/S_Actor");
+#define LOCTEXT_NAMESPACE "MultiplePlaceMesh" 
+
+static ConstructorHelpers::FObjectFinderOptional<UTexture2D> MultiplePlaceMeshTexture = TEXT("/Engine/EditorResources/S_Actor");
 
 AMultiplePlaceMesh::AMultiplePlaceMesh() {
-
     USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
     RootComponent = SceneComponent;
 
@@ -13,7 +14,7 @@ AMultiplePlaceMesh::AMultiplePlaceMesh() {
     SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
     if (SpriteComponent)
     {
-        SpriteComponent->Sprite = ModuleTextureObject.Get(); // Get the sprite texture from helper class object
+        SpriteComponent->Sprite = MultiplePlaceMeshTexture.Get(); // Get the sprite texture from helper class object
         SpriteComponent->SpriteInfo.DisplayName = LOCTEXT("Icon", "Icon");    // Assign sprite display name
         SpriteComponent->SetupAttachment(RootComponent);     // Attach sprite to scene component
     }
@@ -22,16 +23,12 @@ AMultiplePlaceMesh::AMultiplePlaceMesh() {
     //Setup Spline Component
     SplineComponent = CreateDefaultSubobject<USplineComponent>(TEXT("Spline"));
     SplineComponent->SetupAttachment(RootComponent);
-    SplineComponent->SetUnselectedSplineSegmentColor(FLinearColor(91, 185, 239));
+    SplineComponent->SetUnselectedSplineSegmentColor(FLinearColor(0.0f, 0.725f, 1.0f));
     SplineComponent->SetDrawDebug(false);
 
     //Setup Mesh Component
     MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
     MeshComponent->SetupAttachment(RootComponent);
-
-    if (Mesh) {
-        MeshComponent->SetStaticMesh(Mesh);
-    }
 
 #if WITH_EDITORONLY_DATA
     //If it's in editor, don't show main mesh
@@ -44,6 +41,13 @@ AMultiplePlaceMesh::AMultiplePlaceMesh() {
 
 void AMultiplePlaceMesh::OnConstruction(const FTransform & Transform)
 {
+    if (Mesh) {
+        MeshComponent->SetStaticMesh(Mesh);
+    }
+
+    //Remove Old Components
+    ClearPreviews();
+
     //For each spline point
     const int PointCount = SplineComponent->GetNumberOfSplinePoints();
     for (int i = 0; i < PointCount; i++)
@@ -52,31 +56,48 @@ void AMultiplePlaceMesh::OnConstruction(const FTransform & Transform)
         SplineComponent->SetTangentAtSplinePoint(i, FVector::ZeroVector, ESplineCoordinateSpace::Local);
 
 #if WITH_EDITORONLY_DATA
-        //Show Mesh Preview
-        UStaticMeshComponent* PreviewMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Preview"));
-        PreviewMesh->SetupAttachment(SplineComponent);
+        if(MeshComponent->GetStaticMesh()) {
+            //Show Mesh Preview
+            UStaticMeshComponent* PreviewMesh = NewObject<UStaticMeshComponent>(this, FName(*("Preview_" + FString::FromInt(i))));
+            PreviewMesh->RegisterComponent();
+            PreviewMesh->AttachToComponent(SplineComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
-        //Move to point
-        const FTransform PointTransform = SplineComponent->GetTransformAtSplinePoint(i, ESplineCoordinateSpace::World);
-        PreviewMesh->SetWorldTransform(PointTransform);
+            //Move to point
+            const FTransform PointTransform = SplineComponent->GetTransformAtSplinePoint(i, ESplineCoordinateSpace::World);
+            PreviewMesh->SetWorldTransform(PointTransform);
 
-        PreviewMesh->SetStaticMesh(MeshComponent->GetStaticMesh());
-        PreviewMesh->SetMaterial(0, PreviewMaterial);
-        PreviewMeshComponents->Add(PreviewMesh);
+            PreviewMesh->SetStaticMesh(MeshComponent->GetStaticMesh());
+            PreviewMesh->SetMaterial(0, PreviewMaterial);
+            PreviewMeshComponents.Add(PreviewMesh);
+        }
 #endif
     }
 }
 
 void AMultiplePlaceMesh::BeginPlay()
 {
-    const int SelectedPoint = FMath::RandRange(0, SplineComponent->GetNumberOfSplinePoints());
-    const FTransform PointTransform = SplineComponent->GetTransformAtSplinePoint(SelectedPoint, ESplineCoordinateSpace::World);
+    //Destroy Previews & Spline
+    ClearPreviews();
+    SplineComponent->DestroyComponent();
 
     //Move Mesh to a random point
+    const int SelectedPoint = FMath::RandRange(0, SplineComponent->GetNumberOfSplinePoints());
+    const FTransform PointTransform = SplineComponent->GetTransformAtSplinePoint(SelectedPoint, ESplineCoordinateSpace::World);
     MeshComponent->SetWorldTransform(PointTransform);
+    MeshComponent->SetVisibility(true);
 }
 
-FRandomStream& AMultiplePlaceMesh::GetSeed_Implementation()
+void AMultiplePlaceMesh::ClearPreviews()
+{
+    for (auto* MeshC : PreviewMeshComponents) {
+        MeshC->DestroyComponent();
+    }
+    PreviewMeshComponents.Empty();
+}
+
+FRandomStream AMultiplePlaceMesh::GetSeed_Implementation()
 {
     return FRandomStream();
 }
+
+#undef LOCTEXT_NAMESPACE 
