@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
 #include "InteractuableActor.h"
