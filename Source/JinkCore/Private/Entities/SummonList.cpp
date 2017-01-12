@@ -33,5 +33,8 @@ void USummonList::Add(AEntity* Summon) {
 
 UWorld* USummonList::GetWorld() const
 {
+    if (GetOuter())
+        return GetOuter()->GetWorld();
+
     return Summoner? Summoner->GetWorld() : nullptr;
 }

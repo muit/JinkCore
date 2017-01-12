@@ -6,6 +6,7 @@
 #include "Item.h"
 #include "Basic_Con.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "SummonList.h"
 
 
 // Sets default values
@@ -386,4 +387,10 @@ void AEntity::SetupSummon(AEntity* InSummoner) {
     else {
         UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: Tried to summon an entity of class '%s', but the summoner was null."), *StaticClass()->GetName());
     }
+}
+
+USummonList* AEntity::CreateSummonList() {
+    USummonList* SummonList = NewObject<USummonList>(this);
+    SummonList->Construct(this);
+    return SummonList;
 }

@@ -33,10 +33,8 @@ public:
     UFUNCTION(BlueprintCallable, Category = SummonList)
     void Add(AEntity* Summon);
 
-
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = SummonList)
     FORCEINLINE bool IsAssigned() const {
-        //IsAssigned when Owner is not null and it's an entity
         return Summoner != nullptr;
     }
 

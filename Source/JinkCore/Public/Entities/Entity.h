@@ -10,6 +10,7 @@
 struct FActorSpawnParameters;
 class ABasic_Con;
 class UItem;
+class USummonList;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FJustDiedSignature, AController*, InstigatedBy, AEntity*, Killer);
 
@@ -304,7 +305,7 @@ public:
     *
     * @return	Summoned Entity
     */
-    UFUNCTION(BlueprintCallable, Category = "Entity")
+    UFUNCTION(BlueprintCallable, Category = "Entity|Summons")
     AEntity* Summon(UClass* Class, FTransform Transform);
 
     /** Templated version of Summon that allows you to specify a class type via the template type */
@@ -314,14 +315,18 @@ public:
 
     void SetupSummon(AEntity* InSummoner);
 
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+    UFUNCTION(BlueprintCallable, Category = "Entity|Summons")
+    USummonList* CreateSummonList();
+
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Summons")
     bool IsSummoned() const { return bIsSummoned && Summoner; };
     /**
     * Returns the summoner of the entity if it was summoned.
     */
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Summons")
     AEntity* GetSummoner() { return bIsSummoned? Summoner : nullptr; };
 
-    UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+    UFUNCTION(BlueprintImplementableEvent, Category = "Entity|Summons")
     void JustSummoned(AEntity* _Summoner);
 };
