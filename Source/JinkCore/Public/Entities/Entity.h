@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #pragma once
 
@@ -7,8 +7,10 @@
 #include "Spell.h"
 #include "Entity.generated.h"
 
-typedef class ABasic_Con;
+struct FActorSpawnParameters;
+class ABasic_Con;
 class UItem;
+class USummonList;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FJustDiedSignature, AController*, InstigatedBy, AEntity*, Killer);
 
@@ -16,7 +18,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FJustDiedSignature, AController*, I
 UENUM(BlueprintType)
 enum class EMovementState : uint8
 {
-    MS_None        UMETA(DisplayName = "None"),
+    MS_None     UMETA(DisplayName = "None"),
     MS_Walk     UMETA(DisplayName = "Walk"),
     MS_Run      UMETA(DisplayName = "Run")
 };
@@ -282,4 +284,49 @@ public:
     //Drop SelectionQuery
 
     //void DropItem(TAssetPtr<USelectionQuery> SelectionQuery);
+
+
+    /**
+    * SUMMONING
+    */
+protected:
+    UPROPERTY(VisibleAnywhere, Category = "Entity")
+    bool bIsSummoned;
+    UPROPERTY(BlueprintReadOnly, Category = "Entity")
+    AEntity* Summoner;
+
+public:
+    /**
+    * Summon Entities with given absolute transform (override root component transform) and SpawnParameters
+    *
+    * @param	Class					Class to summon, child of AEntity
+    * @param	Transform		        World Transform to spawn on
+    * @param	SpawnParameters			Spawn Parameters
+    *
+    * @return	Summoned Entity
+    */
+    UFUNCTION(BlueprintCallable, Category = "Entity|Summons")
+    AEntity* Summon(UClass* Class, FTransform Transform);
+
+    /** Templated version of Summon that allows you to specify a class type via the template type */
+    template<class T>
+    T Summon(FTransform Transform);
+    
+
+    void SetupSummon(AEntity* InSummoner);
+
+    UFUNCTION(BlueprintCallable, Category = "Entity|Summons")
+    USummonList* CreateSummonList();
+
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Summons")
+    bool IsSummoned() const { return bIsSummoned && Summoner; };
+    /**
+    * Returns the summoner of the entity if it was summoned.
+    */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Summons")
+    AEntity* GetSummoner() { return bIsSummoned? Summoner : nullptr; };
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Entity|Summons")
+    void JustSummoned(AEntity* _Summoner);
 };
