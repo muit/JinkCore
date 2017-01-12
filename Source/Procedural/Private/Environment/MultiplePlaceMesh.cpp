@@ -7,6 +7,8 @@
 static ConstructorHelpers::FObjectFinderOptional<UTexture2D> MultiplePlaceMeshTexture = TEXT("/Engine/EditorResources/S_Actor");
 
 AMultiplePlaceMesh::AMultiplePlaceMesh() {
+    MeshAmount = 1;
+
     USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
     RootComponent = SceneComponent;
 
@@ -74,17 +76,69 @@ void AMultiplePlaceMesh::OnConstruction(const FTransform & Transform)
     }
 }
 
+#if WITH_EDITOR  
+void AMultiplePlaceMesh::PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent)
+{
+    if (PropertyChangedEvent.Property) {
+        //Get the name of the property that was changed  
+        FName PropertyName = PropertyChangedEvent.Property->GetFName();
+
+        // We test using GET_MEMBER_NAME_CHECKED so that if someone changes the property name  
+        // in the future this will fail to compile and we can update it.  
+        if (PropertyName == GET_MEMBER_NAME_CHECKED(AMultiplePlaceMesh, MeshAmount))
+        {
+            const int PointCount = SplineComponent->GetNumberOfSplinePoints();
+            if(MeshAmount > PointCount) {
+                MeshAmount = PointCount;
+                PropertyChangedEvent.Property->MarkPackageDirty();
+            }
+        }
+    }
+
+    // Call the base class version  
+    Super::PostEditChangeProperty(PropertyChangedEvent);
+}
+#endif 
+
 void AMultiplePlaceMesh::BeginPlay()
 {
     //Destroy Previews & Spline
     ClearPreviews();
     SplineComponent->DestroyComponent();
 
-    //Move Mesh to a random point
-    const int SelectedPoint = FMath::RandRange(0, SplineComponent->GetNumberOfSplinePoints());
-    const FTransform PointTransform = SplineComponent->GetTransformAtSplinePoint(SelectedPoint, ESplineCoordinateSpace::World);
-    MeshComponent->SetWorldTransform(PointTransform);
-    MeshComponent->SetVisibility(true);
+
+    const int PointCount = SplineComponent->GetNumberOfSplinePoints();
+
+    //Register all points to avoid a mesh spawn in the same point.
+    TArray<int> PointIdx;
+    for (int i = 0; i < PointCount; i++)
+    { PointIdx.Add(i); }
+    
+    {
+        //Move First Mesh to a random point
+        const int SelectedPoint = FMath::RandRange(0, PointCount);
+        PointIdx.Remove(SelectedPoint);
+        const FTransform PointTransform = SplineComponent->GetTransformAtSplinePoint(SelectedPoint, ESplineCoordinateSpace::World);
+        MeshComponent->SetWorldTransform(PointTransform);
+        MeshComponent->SetVisibility(true);
+    }
+
+    if (MeshAmount > 1) {
+        for (int i = 1; i < FMath::Min(MeshAmount, PointCount); i++) {
+            //Make a copy from MeshComponent
+            UStaticMeshComponent* PreviewMesh = NewObject<UStaticMeshComponent>(this, FName(*("Mesh_" + FString::FromInt(i))), RF_NoFlags, MeshComponent);
+
+            //Make sure that the Id is not been used
+            const int SelectedPoint = PointIdx[FMath::RandRange(0, PointIdx.Num()-1)];
+            PointIdx.Remove(SelectedPoint);
+
+            const FTransform PointTransform = SplineComponent->GetTransformAtSplinePoint(SelectedPoint, ESplineCoordinateSpace::World);
+            MeshComponent->SetWorldTransform(PointTransform);
+
+            PreviewMesh->RegisterComponent();
+            PreviewMesh->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+        }
+    }
 }
 
 void AMultiplePlaceMesh::ClearPreviews()

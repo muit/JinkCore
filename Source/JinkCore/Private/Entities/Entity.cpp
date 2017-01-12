@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
 #include "Entity.h"
@@ -6,6 +6,7 @@
 #include "Item.h"
 #include "Basic_Con.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "SummonList.h"
 
 
 // Sets default values
@@ -25,6 +26,8 @@ AEntity::AEntity()
     RunSpeed = 400;
 
     CharacterMovement = GetCharacterMovement();
+
+    bIsSummoned = false;
 
     UpdateMovementSpeed();
 }
@@ -345,4 +348,49 @@ void AEntity::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
     else if (ABasic_Con* AI = GetAI()) {
         AI->JustDied_Internal(InstigatedBy, Killer);
     }
+}
+
+/**
+* SUMMONING
+*/
+AEntity* AEntity::Summon(UClass* Class, FTransform Transform) {
+    //Check that Class is a child of Entity
+    if (!Class->IsChildOf(AEntity::StaticClass()))
+        return nullptr;
+
+    UWorld* World = GetWorld();
+    if(World) {
+        AEntity* SummonedEntity = CastChecked<AEntity>(World->SpawnActor(Class, &Transform));
+        if(SummonedEntity) {
+            SummonedEntity->SetupSummon(this);
+        }
+        return SummonedEntity;
+    }
+
+    return nullptr;
+}
+
+template<class T>
+T AEntity::Summon(FTransform Transform) {
+    return CastChecked<T>(Summon(T::StaticClass(), Transform));
+}
+
+void AEntity::SetupSummon(AEntity* InSummoner) {
+    if (InSummoner) {
+        SetOwner(InSummoner);
+        bIsSummoned = true;
+        Summoner = InSummoner;
+
+        //Call Events
+        JustSummoned(Summoner);
+    }
+    else {
+        UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: Tried to summon an entity of class '%s', but the summoner was null."), *StaticClass()->GetName());
+    }
+}
+
+USummonList* AEntity::CreateSummonList() {
+    USummonList* SummonList = NewObject<USummonList>(this);
+    SummonList->Construct(this);
+    return SummonList;
 }
