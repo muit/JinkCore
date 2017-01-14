@@ -2,6 +2,7 @@
 
 #include "JinkCorePrivatePCH.h"
 #include "Navigation/CrowdFollowingComponent.h"
+#include "SummonList.h"
 #include "Basic_Con.h"
 
 
@@ -215,4 +216,11 @@ void ABasic_Con::RestoreLive()
     const float NewLive = GetMe()->Live + MaxLive*(LiveRestorePercent/100) * RecoveryEvent->GetLength();
 
     GetMe()->Live = FMath::Clamp(NewLive, 0.0f, MaxLive);
+}
+
+USummonList* ABasic_Con::CreateSummonList() {
+    if (GetMe()) {
+        return GetMe()->CreateSummonList();
+    }
+    return nullptr;
 }

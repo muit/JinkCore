@@ -7,6 +7,8 @@
 #include "Miscellaneous/Events/EventComponent.h"
 #include "Basic_Con.generated.h"
 
+class USummonList;
+
 /**
  * 
  */
@@ -135,4 +137,8 @@ public:
     float GetSquaredDistanceToTarget() const {
         return (Target != nullptr) ? Me->GetSquaredDistanceTo(Target) : -1.0f;
     }
+
+
+    UFUNCTION(BlueprintCallable, Category = "SummonList")
+    USummonList* CreateSummonList();
 };
