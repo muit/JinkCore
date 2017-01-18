@@ -5,8 +5,6 @@
 
 #define LOCTEXT_NAMESPACE "MultiplePlaceActor" 
 
-static ConstructorHelpers::FObjectFinderOptional<UTexture2D> MultiplePlaceActorTexture = TEXT("/Engine/EditorResources/S_Actor");
-
 AMultiplePlaceActor::AMultiplePlaceActor() {
     bDestroyAfterSpawn = true;
 }
@@ -48,9 +46,7 @@ void AMultiplePlaceActor::ClearPreviews()
 
 void AMultiplePlaceActor::SetupFirstObject(const FTransform Transform)
 {
-    if (ActorClass) {
-        GetWorld()->SpawnActor(ActorClass, &Transform);
-    }
+    SetupOtherObject(Transform, 0);
 }
 
 void AMultiplePlaceActor::SetupOtherObject(const FTransform Transform, int Id)
