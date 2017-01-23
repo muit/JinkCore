@@ -30,18 +30,24 @@ void AMultiplePlaceMesh::OnConstruction(const FTransform & Transform)
 #if WITH_EDITORONLY_DATA
 void AMultiplePlaceMesh::SetupPreview(const FTransform Transform, int SplinePoint)
 {
-    if (MeshComponent->GetStaticMesh()) {
-        //Show Mesh Preview
-        UStaticMeshComponent* PreviewMesh = NewObject<UStaticMeshComponent>(this, FName(*("Preview_" + FString::FromInt(SplinePoint))));
-        PreviewMesh->RegisterComponent();
-        PreviewMesh->AttachToComponent(SplineComponent, FAttachmentTransformRules::KeepRelativeTransform);
+#if ENGINE_MINOR_VERSION >= 14 //If engine is 4.14 or newer
+    UStaticMesh* TemplateMesh = MeshComponent->GetStaticMesh();
+#else
+    UStaticMesh* TemplateMesh = MeshComponent->StaticMesh;
+#endif
+
+    if (TemplateMesh) {
+        //Create & Show Mesh Preview
+        UStaticMeshComponent* PreviewMeshC = NewObject<UStaticMeshComponent>(this, FName(*("Preview_" + FString::FromInt(SplinePoint))));
+        PreviewMeshC->RegisterComponent();
+        PreviewMeshC->AttachToComponent(SplineComponent, FAttachmentTransformRules::KeepRelativeTransform);
 
         //Move to point
-        PreviewMesh->SetWorldTransform(Transform);
+        PreviewMeshC->SetWorldTransform(Transform);
 
-        PreviewMesh->SetStaticMesh(MeshComponent->GetStaticMesh());
-        PreviewMesh->SetMaterial(0, PreviewMaterial);
-        PreviewMeshComponents.Add(PreviewMesh);
+        PreviewMeshC->SetStaticMesh(TemplateMesh);
+        PreviewMeshC->SetMaterial(0, PreviewMaterial);
+        PreviewMeshComponents.Add(PreviewMeshC);
     }
 }
 
