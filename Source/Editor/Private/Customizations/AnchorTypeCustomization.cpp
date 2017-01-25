@@ -1,7 +1,9 @@
 // Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "JinkEditorPrivatePCH.h"
+#if ENGINE_MINOR_VERSION <= 14 //If engine is 4.14 or older
 #include "Editor/DetailCustomizations/Private/DetailCustomizationsPrivatePCH.h"
+#endif
 
 #include "LIAnchorType.h"
 #include "JinkCore/Private/JinkCorePrivatePCH.h"

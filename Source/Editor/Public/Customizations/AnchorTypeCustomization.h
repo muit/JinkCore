@@ -2,6 +2,8 @@
 #pragma once
 
 #include "StringEnumCustomization.h"
+#include "IDetailCustomization.h"
+#include "PropertyHandle.h"
 
 class FAnchorTypeCustomization : public FStringEnumCustomization
 {
