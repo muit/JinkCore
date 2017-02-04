@@ -23,7 +23,7 @@ public:
     FSQExecution Execute();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category ="Selection Query")
-    void Selector(FSQExecution& Result, TArray<FSQExecution> SubNodes, float Weight = 1);
+    void Selector(FSQExecution& Result, TArray<FSQExecution> SubNodes, float SelectorWeight = 1);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Selection Query")
     FSQExecution Item(TSubclassOf<UItem> Item, float Weight = 1);

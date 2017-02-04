@@ -15,11 +15,7 @@ FSQExecution USelectionQuery::Execute_Implementation() {
     return FSQExecution();
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-#undef LOCTEXT_NAMESPACE
-
-void USelectionQuery::Selector(FSQExecution& Result, TArray<FSQExecution> SubNodes, float SelectorWeight = 1)
+void USelectionQuery::Selector(FSQExecution& Result, TArray<FSQExecution> SubNodes, float SelectorWeight)
 {
     //Calculate total Weight
     float TotalWeight = 0;
@@ -50,7 +46,7 @@ void USelectionQuery::Selector(FSQExecution& Result, TArray<FSQExecution> SubNod
             else {
                 //If it's selected
                 Result = Node;
-                Result.Weight(SelectorWeight);
+                Result.Weight = SelectorWeight;
 
                 //Registry all the other items
                 Result.AddItemsToRecord(ItemRecord);
@@ -64,3 +60,7 @@ FSQExecution USelectionQuery::Item(TSubclassOf<UItem> Item, float Weight)
 {
     return FSQExecution(Item, Weight);
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+#undef LOCTEXT_NAMESPACE
