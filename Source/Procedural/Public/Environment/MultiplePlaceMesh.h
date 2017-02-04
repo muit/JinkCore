@@ -2,36 +2,23 @@
 
 #pragma once
 
-#include "GameFramework/Actor.h"
-#include "Components/SplineComponent.h"
+#include "MultiplePlaceObject.h"
 #include "MultiplePlaceMesh.generated.h"
 
-UCLASS(Blueprintable, hideCategories = (Input, Rendering))
-class PROCEDURAL_API AMultiplePlaceMesh : public AActor
+UCLASS(Blueprintable)
+class PROCEDURAL_API AMultiplePlaceMesh : public AMultiplePlaceObject
 {
     GENERATED_BODY()
     
 public:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
+    UStaticMesh* Mesh;
 
-    UBillboardComponent* SpriteComponent;
-    // Icon sprite
-    UTexture2D* SpriteTexture;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spline", meta = (DisplayName = "Spline"))
-    USplineComponent* SplineComponent;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Mesh", meta = (DisplayName = "Mesh"))
     UStaticMeshComponent* MeshComponent;
     UPROPERTY()
     TArray<UStaticMeshComponent*> MoreMeshComponents;
-
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings")
-    UStaticMesh* Mesh;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (ClampMin = "1"))
-    int MeshAmount;
-
 #if WITH_EDITORONLY_DATA
-    UPROPERTY(Transient)
-    UMaterialInterface* PreviewMaterial;
     UPROPERTY()
     TArray<UStaticMeshComponent*> PreviewMeshComponents;
 #endif
@@ -41,16 +28,12 @@ public:
 
     virtual void OnConstruction(const FTransform& Transform) override;
 
-#if WITH_EDITOR  
-    virtual void PostEditChangeProperty(struct FPropertyChangedEvent& PropertyChangedEvent) override;
+protected:
+#if WITH_EDITORONLY_DATA
+    virtual void SetupPreview(const FTransform Transform, int SplinePoint);
+    virtual void ClearPreviews();
 #endif
 
-    // Called when the game starts or when spawned
-    virtual void BeginPlay() override;
-
-protected:
-    void ClearPreviews();
-
-    UFUNCTION(BlueprintNativeEvent)
-    FRandomStream GetSeed();
+    virtual void SetupFirstObject(const FTransform Transform);
+    virtual void SetupOtherObject(const FTransform Transform, int Id);
 };

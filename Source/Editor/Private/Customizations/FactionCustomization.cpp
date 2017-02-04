@@ -1,7 +1,9 @@
 // Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "JinkEditorPrivatePCH.h"
+#if ENGINE_MINOR_VERSION <= 14 //If engine is 4.14 or older
 #include "Editor/DetailCustomizations/Private/DetailCustomizationsPrivatePCH.h"
+#endif
 
 #include "Faction.h"
 #include "JinkCore/Private/JinkCorePrivatePCH.h"
@@ -55,6 +57,5 @@ FText FFactionCustomization::GetSelectedItem() const
     }
     return LOCTEXT("MultipleValues", "Multiple Values");
 }
-
 
 #undef LOCTEXT_NAMESPACE

@@ -1,7 +1,12 @@
 // Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "JinkEditorPrivatePCH.h"
+#include "Runtime/Launch/Resources/Version.h"
+
 #include "ContentBrowserModule.h"
+#if ENGINE_MINOR_VERSION > 14 //If engine is 4.15 or newer 
+#include "IContentBrowserSingleton.h"
+#endif
 #include "LevelInstance/LevelInstance.h"
 #include "Asset/LevelInstanceFactory.h"
 #include "ContentBrowserExtensions.h"
@@ -198,3 +203,5 @@ void FJCContentBrowserExtensions::RemoveHooks()
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+#undef LOCTEXT_NAMESPACE

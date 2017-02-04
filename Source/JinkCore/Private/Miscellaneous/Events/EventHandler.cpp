@@ -2,6 +2,7 @@
 
 #include "JinkCorePrivatePCH.h"
 #include "EventHandler.h"
+#include "Runtime/Launch/Resources/Version.h"
 
 FEventHandler::FEventHandler(UObject* _Outer, int _Id) : Id(_Id) {
     bValid = true;
@@ -86,8 +87,12 @@ void FEventHandler::Tick(float DeltaTime) {
     if (IsRunning() && !IsPaused()) {
         Timer->Tick(DeltaTime);
 
-        //Check if Event is over
+#if ENGINE_MINOR_VERSION > 14 //If engine is 4.15 or newer 
+        if (Timer->GetCurrentTime() > Length) {
+#else
         if (Timer->GetTickCount() > Length) {
+#endif
+            //Check if Event is over
             OnExecute();
         }
     }
