@@ -21,13 +21,8 @@
             "LoadingPhase":  "PostEngineInit"
 		},
 		{
-			"Name": "SelectionQuery",
+			"Name": "Procedural",
 			"Type": "Runtime"
-		}, 
-		{
-            "Name": "SelectionQueryEditor",
-            "Type": "Editor",
-            "LoadingPhase":  "PostEngineInit"
 		}
 	]
 }

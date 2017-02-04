@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
 #include "Entity.h"
@@ -6,40 +6,43 @@
 #include "Item.h"
 #include "Basic_Con.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "SummonList.h"
 
 
 // Sets default values
 AEntity::AEntity()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-	MaxLive = 100;
-	Live = MaxLive;
+    // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+    PrimaryActorTick.bCanEverTick = true;
+    MaxLive = 100;
+    Live = MaxLive;
     Damage = 10;
     FireRate = 0.7f;
 
-	Faction = FFaction();
+    Faction = FFaction();
 
-	MovementState = EMovementState::MS_Walk;
-	WalkSpeed = 250;
-	RunSpeed = 400;
+    MovementState = EMovementState::MS_Walk;
+    WalkSpeed = 250;
+    RunSpeed = 400;
 
-	CharacterMovement = GetCharacterMovement();
+    CharacterMovement = GetCharacterMovement();
 
-	UpdateMovementSpeed();
+    bIsSummoned = false;
+
+    UpdateMovementSpeed();
 }
 
 // Called when the game starts or when spawned
 void AEntity::BeginPlay()
 {
-	Super::BeginPlay();
-	OnTakeAnyDamage.AddDynamic(this, &AEntity::ReceiveDamage);
+    Super::BeginPlay();
+    OnTakeAnyDamage.AddDynamic(this, &AEntity::ReceiveDamage);
 }
 
 // Called every frame
 void AEntity::Tick( float DeltaTime )
 {
-	Super::Tick( DeltaTime );
+    Super::Tick( DeltaTime );
 
 }
 
@@ -52,12 +55,9 @@ void AEntity::Tick( float DeltaTime )
 float AEntity::GetDamage() const
 {
     float ModDamage = Damage;
-    for (auto& ItemClass : Items) {
-        if (ItemClass) {
-            UItem* Item = Cast<UItem>(ItemClass->GetDefaultObject());
-            if (Item) {
-                ModDamage += Item->DamageIncrement;
-            }
+    for (auto& ItemType : Items) {
+        if(UItem* Item = UItem::GetObject(ItemType)) {
+            ModDamage += Item->DamageIncrement;
         }
     }
     return ModDamage;
@@ -66,234 +66,249 @@ float AEntity::GetDamage() const
 float AEntity::GetFireRate() const
 {
     float ModFireRate = FireRate;
-    for (auto& ItemClass : Items) {
-        if (ItemClass) {
-            UItem* Item = Cast<UItem>(ItemClass->GetDefaultObject());
-            if (Item) {
-                ModFireRate *= Item->FireRateCof;
-            }
+    for (auto& ItemType : Items) {
+        if (UItem* Item = UItem::GetObject(ItemType)) {
+            ModFireRate *= Item->FireRateCof;
         }
     }
     return ModFireRate;
 }
-int32 AEntity::AddItem(TSubclassOf<UItem> Class)
+/** End ATTRIBUTES*/
+
+/**
+* Begin ITEMS
+*/
+int32 AEntity::AddItem(TSubclassOf<UItem> Type)
 {
-    return Items.Add(Class);
+    if (UItem* Item = UItem::GetObject(Type)) {
+        Item->ApplyEntityModifications(this);
+        return Items.Add(Type);
+    }
+    return 0;
 }
-void AEntity::RemoveItem(TSubclassOf<UItem> Class)
+void AEntity::RemoveItem(TSubclassOf<UItem> Type)
 {
-    Items.RemoveSingle(Class);
+    if (Type && Items.Contains(Type)) {
+        if (UItem* Item = UItem::GetObject(Type)) {
+            Item->UndoEntityModifications(this);
+        }
+    }
+    Items.RemoveSingle(Type);
 }
 void AEntity::RemoveItemById(int32 Id)
 {
+    if (Items.IsValidIndex(Id)) {
+        if (UItem* Item = UItem::GetObject(Items[Id])) {
+            Item->UndoEntityModifications(this);
+        }
+    }
+
     Items.RemoveAt(Id);
 }
-void AEntity::RemoveAllItems(TSubclassOf<UItem> Class)
+void AEntity::RemoveAllItems(TSubclassOf<UItem> Type)
 {
-    Items.Remove(Class);
+    int32 RemovedAmount = Items.Remove(Type);
+    for (int32 I = 0; I < RemovedAmount; I++) {
+        if (UItem* Item = UItem::GetObject(Type)) {
+            Item->UndoEntityModifications(this);
+        }
+    }
 }
 void AEntity::ClearItems()
 {
+    for (auto& ItemType : Items) {
+        if (UItem* Item = UItem::GetObject(ItemType)) {
+            Item->UndoEntityModifications(this);
+        }
+    }
     Items.Empty();
 }
-/** End ATTRIBUTES*/
+/** End ITEMS*/
 
 
 
 bool AEntity::IsAlive() const
 {
-	return Live > 0;
+    return Live > 0;
 }
 
 bool AEntity::LiveIsUnderPercent(float Percent) const
 {
-	return Live/MaxLive < Percent/100;
+    return Live/MaxLive < Percent/100;
 }
 
 void AEntity::Walk()
 {
-	MovementState = EMovementState::MS_Walk;
-	UpdateMovementSpeed();
+    MovementState = EMovementState::MS_Walk;
+    UpdateMovementSpeed();
 }
 
 void AEntity::Run()
 {
-	MovementState = EMovementState::MS_Run;
-	UpdateMovementSpeed();
+    MovementState = EMovementState::MS_Run;
+    UpdateMovementSpeed();
 }
 
 void AEntity::UpdateMovementSpeed()
 {
-	if (CharacterMovement) {
-		switch (MovementState) {
-		case EMovementState::MS_None:
-			CharacterMovement->MaxWalkSpeed = 0;
-			break;
-		case EMovementState::MS_Walk:
-			CharacterMovement->MaxWalkSpeed = WalkSpeed;
-			break;
-		case EMovementState::MS_Run:
-			CharacterMovement->MaxWalkSpeed = RunSpeed;
-			break;
-		default:
-			//Don't change anything
-			break;
-		}
-	}
+    if (CharacterMovement) {
+        switch (MovementState) {
+        case EMovementState::MS_None:
+            CharacterMovement->MaxWalkSpeed = 0;
+            break;
+        case EMovementState::MS_Walk:
+            CharacterMovement->MaxWalkSpeed = WalkSpeed;
+            break;
+        case EMovementState::MS_Run:
+            CharacterMovement->MaxWalkSpeed = RunSpeed;
+            break;
+        default:
+            //Don't change anything
+            break;
+        }
+    }
 }
 
 void AEntity::RotateTowards(FRotator Rotation)
 {
-	CharacterMovement->bUseControllerDesiredRotation = true;
-	if (Controller) {
-		Controller->SetControlRotation(Rotation);
-	}
+    CharacterMovement->bUseControllerDesiredRotation = true;
+    if (Controller) {
+        Controller->SetControlRotation(Rotation);
+    }
 }
 
 void AEntity::RotateTowardsActor(AActor * Actor)
 {
-	if (Actor == nullptr)
-		return;
+    if (Actor == nullptr)
+        return;
 
-	const FVector Direction = Actor->GetActorLocation() - this->GetActorLocation();
-	RotateTowards(Direction.ToOrientationRotator());
+    const FVector Direction = Actor->GetActorLocation() - this->GetActorLocation();
+    RotateTowards(Direction.ToOrientationRotator());
 }
 
 bool AEntity::IsHostileTo(AEntity* Other) {
-	if (Other == nullptr) {
-		UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: AEntity::IsHostileTo tried to compare a Null Entity"));
-		return false;
-	}
-	return Faction.IsHostileTo(Other->Faction);
+    if (Other == nullptr) {
+        UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: AEntity::IsHostileTo tried to compare a Null Entity"));
+        return false;
+    }
+    return Faction.IsHostileTo(Other->Faction);
 }
 
 bool AEntity::IsHostileToFaction(FFaction Other) {
-	return Faction.IsHostileTo(Other);
+    return Faction.IsHostileTo(Other);
 }
 
 void AEntity::Die(AController * InstigatedBy, AEntity * Killer)
 {
-	if (!IsAlive())
-		return;
+    if (!IsAlive())
+        return;
 
-	Live = 0;
+    Live = 0;
 
-	JustDied(InstigatedBy, Killer);
-	JustDiedDelegate.Broadcast(InstigatedBy, Cast<AEntity>(Killer));
-	if (IsPlayerControlled()) {
-	}
-	else if (ABasic_Con* AI = GetAI()) {
-		AI->JustDied_Internal(InstigatedBy, Killer);
-	}
+    JustDied_Internal(InstigatedBy, Killer);
 }
 
 ASpell* AEntity::CastSpell(TSubclassOf<ASpell> SpellType, AEntity* Target, FVector Location, FRotator Rotation, float _Damage)
 {
-	ASpell* Spell = Cast<ASpell>(GetWorld()->SpawnActor(SpellType, &Location, &Rotation));
-	if (Spell) {
-		Spell->Cast(this, Target, _Damage);
-		return Spell;
-	}
-	return NULL;
+    ASpell* Spell = Cast<ASpell>(GetWorld()->SpawnActor(SpellType, &Location, &Rotation));
+    if (Spell) {
+        Spell->Cast(this, Target, _Damage);
+        return Spell;
+    }
+    return NULL;
 }
 
 ASpell * AEntity::CastSpellAtCaster(TSubclassOf<ASpell> SpellType, AEntity * Target, float _Damage)
 {
-	return CastSpell(SpellType, Target, this->GetActorLocation(), this->GetActorRotation(), _Damage);
+    return CastSpell(SpellType, Target, this->GetActorLocation(), this->GetActorRotation(), _Damage);
 }
 
 void AEntity::ReceiveDamage_Implementation(AActor * DamagedActor, float _Damage, const class UDamageType * DamageType, AController * InstigatedBy, AActor * DamageCauser)
 {
-	if (!IsAlive())
-		return;
+    if (!IsAlive())
+        return;
 
-	if (AEntity* Causer = Cast<AEntity>(DamageCauser)) {
-		if (!Causer->CheckApplyAnyDamage(DamagedActor, _Damage, DamageType, DamageCauser)) {
-			return;
-		}
-	}
+    if (AEntity* Causer = Cast<AEntity>(DamageCauser)) {
+        if (!Causer->CheckApplyAnyDamage(DamagedActor, _Damage, DamageType, DamageCauser)) {
+            return;
+        }
+    }
 
-	if (!CheckReceiveDamage(DamagedActor, _Damage, DamageType, DamageCauser))
-		return;
+    if (!CheckReceiveDamage(DamagedActor, _Damage, DamageType, DamageCauser))
+        return;
 
-	Live = FMath::Clamp(Live - _Damage, 0.0f, MaxLive);
+    Live = FMath::Clamp(Live - _Damage, 0.0f, MaxLive);
 
-	if (!IsAlive()) {
-		AEntity* Killer = nullptr;
-		if (InstigatedBy != nullptr) {
-			//If the controller is valid the killer is the controlled entity
-			Killer = Cast<AEntity>(InstigatedBy->GetPawn());
-		}
-		if(!Killer) {
-			//If theres no killer, asume it is the damagecauser actor.
-			Killer = Cast<AEntity>(DamageCauser);
-		}
+    if (!IsAlive()) {
+        AEntity* Killer = nullptr;
+        if (InstigatedBy != nullptr) {
+            //If the controller is valid the killer is the controlled entity
+            Killer = Cast<AEntity>(InstigatedBy->GetPawn());
+        }
+        if(!Killer) {
+            //If theres no killer, asume it is the damagecauser actor.
+            Killer = Cast<AEntity>(DamageCauser);
+        }
 
-		JustDied(InstigatedBy, Killer);
-		JustDiedDelegate.Broadcast(InstigatedBy, Killer);
-		if (IsPlayerControlled()) {
-		}
-		else if (ABasic_Con* AI = GetAI()) {
-			AI->JustDied_Internal(InstigatedBy, Killer);
-		}
-	}
+        JustDied_Internal(InstigatedBy, Killer);
+    }
 }
 
 void AEntity::DoMeleAttack_Implementation(AEntity* Target)
 {
-	UE_LOG(LogJinkCore, Log, TEXT("JinkCore: %s attacked but default behaviour is been called."), *this->GetName());
+    UE_LOG(LogJinkCore, Log, TEXT("JinkCore: %s attacked but default behaviour is been called."), *this->GetName());
 }
 
 bool AEntity::ApplyRadialDamage(float _Damage, const FVector & Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel)
 {
-	if (!DamageCauser)
-		DamageCauser = this;
+    if (!DamageCauser)
+        DamageCauser = this;
 
-	const bool checkSuccess = CheckApplyRadialDamage(_Damage, Origin, DamageRadius, DamageTypeClass, IgnoreActors, DamageCauser, bDoFullDamage, DamagePreventionChannel);
-	if (checkSuccess) {
-		return UGameplayStatics::ApplyRadialDamage(this, _Damage, Origin, DamageRadius, DamageTypeClass, IgnoreActors, DamageCauser, GetController(), bDoFullDamage, DamagePreventionChannel);
-	}
-	return false;
+    const bool checkSuccess = CheckApplyRadialDamage(_Damage, Origin, DamageRadius, DamageTypeClass, IgnoreActors, DamageCauser, bDoFullDamage, DamagePreventionChannel);
+    if (checkSuccess) {
+        return UGameplayStatics::ApplyRadialDamage(this, _Damage, Origin, DamageRadius, DamageTypeClass, IgnoreActors, DamageCauser, GetController(), bDoFullDamage, DamagePreventionChannel);
+    }
+    return false;
 }
 
 bool AEntity::ApplyRadialDamageWithFalloff(float _Damage, float MinimumDamage, const FVector & Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, ECollisionChannel DamagePreventionChannel)
 {
-	if (!DamageCauser)
-		DamageCauser = this;
+    if (!DamageCauser)
+        DamageCauser = this;
 
-	const bool checkSuccess = CheckApplyRadialDamageWithFalloff(_Damage, MinimumDamage, Origin, DamageInnerRadius, DamageOuterRadius, DamageFalloff, DamageTypeClass, IgnoreActors, DamageCauser, DamagePreventionChannel);
-	if (checkSuccess) {
-		return UGameplayStatics::ApplyRadialDamageWithFalloff(this, _Damage, MinimumDamage, Origin, DamageInnerRadius, DamageOuterRadius, DamageFalloff, DamageTypeClass, IgnoreActors, DamageCauser, GetController(), DamagePreventionChannel);
-	}
-	return false;
+    const bool checkSuccess = CheckApplyRadialDamageWithFalloff(_Damage, MinimumDamage, Origin, DamageInnerRadius, DamageOuterRadius, DamageFalloff, DamageTypeClass, IgnoreActors, DamageCauser, DamagePreventionChannel);
+    if (checkSuccess) {
+        return UGameplayStatics::ApplyRadialDamageWithFalloff(this, _Damage, MinimumDamage, Origin, DamageInnerRadius, DamageOuterRadius, DamageFalloff, DamageTypeClass, IgnoreActors, DamageCauser, GetController(), DamagePreventionChannel);
+    }
+    return false;
 }
 
 void AEntity::ApplyPointDamage(AActor * DamagedActor, float _Damage, const FVector & HitFromDirection, const FHitResult & HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
 {
-	if (!DamagedActor)
-		return;
+    if (!DamagedActor)
+        return;
 
-	if (!DamageCauser)
-		DamageCauser = this;
+    if (!DamageCauser)
+        DamageCauser = this;
 
-	const bool checkSuccess = CheckApplyPointDamage(DamagedActor, _Damage, HitFromDirection, HitInfo, DamageTypeClass, DamageCauser);
-	if (checkSuccess) {
-		UGameplayStatics::ApplyPointDamage(DamagedActor, _Damage, HitFromDirection, HitInfo, GetController(), DamageCauser, DamageTypeClass);
-	}
+    const bool checkSuccess = CheckApplyPointDamage(DamagedActor, _Damage, HitFromDirection, HitInfo, DamageTypeClass, DamageCauser);
+    if (checkSuccess) {
+        UGameplayStatics::ApplyPointDamage(DamagedActor, _Damage, HitFromDirection, HitInfo, GetController(), DamageCauser, DamageTypeClass);
+    }
 }
 
 void AEntity::ApplyDamage(AActor * DamagedActor, float _Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
 {
-	if (!DamagedActor)
-		return;
+    if (!DamagedActor)
+        return;
 
-	if (!DamageCauser)
-		DamageCauser = this;
+    if (!DamageCauser)
+        DamageCauser = this;
 
-	const bool checkSuccess = CheckApplyDamage(DamagedActor, _Damage, DamageTypeClass, DamageCauser);
-	if (checkSuccess) {
-		UGameplayStatics::ApplyDamage(DamagedActor, _Damage, GetController(), DamageCauser, DamageTypeClass);
-	}
+    const bool checkSuccess = CheckApplyDamage(DamagedActor, _Damage, DamageTypeClass, DamageCauser);
+    if (checkSuccess) {
+        UGameplayStatics::ApplyDamage(DamagedActor, _Damage, GetController(), DamageCauser, DamageTypeClass);
+    }
 }
 
 //APPLY CHECKS
@@ -316,3 +331,66 @@ bool AEntity::CheckApplyAnyDamage_Implementation(AActor * DamagedActor, float _D
 //RECEIVE CHECKS
 bool AEntity::CheckReceiveDamage_Implementation(AActor * DamagedActor, float _Damage, const class UDamageType * DamageType, AActor * DamageCauser)
 { return true; }
+
+
+void AEntity::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
+{
+    for (auto& ItemType : Items) {
+        if (UItem* Item = UItem::GetObject(ItemType)) {
+            Item->HolderJustDied(this, InstigatedBy, Killer);
+        }
+    }
+
+    JustDied(InstigatedBy, Killer);
+    JustDiedDelegate.Broadcast(InstigatedBy, Killer);
+    if (IsPlayerControlled()) {
+    }
+    else if (ABasic_Con* AI = GetAI()) {
+        AI->JustDied_Internal(InstigatedBy, Killer);
+    }
+}
+
+/**
+* SUMMONING
+*/
+AEntity* AEntity::Summon(UClass* Class, FTransform Transform) {
+    //Check that Class is a child of Entity
+    if (!Class->IsChildOf(AEntity::StaticClass()))
+        return nullptr;
+
+    UWorld* World = GetWorld();
+    if(World) {
+        AEntity* SummonedEntity = CastChecked<AEntity>(World->SpawnActor(Class, &Transform));
+        if(SummonedEntity) {
+            SummonedEntity->SetupSummon(this);
+        }
+        return SummonedEntity;
+    }
+
+    return nullptr;
+}
+
+template<class T>
+T AEntity::Summon(FTransform Transform) {
+    return CastChecked<T>(Summon(T::StaticClass(), Transform));
+}
+
+void AEntity::SetupSummon(AEntity* InSummoner) {
+    if (InSummoner) {
+        SetOwner(InSummoner);
+        bIsSummoned = true;
+        Summoner = InSummoner;
+
+        //Call Events
+        JustSummoned(Summoner);
+    }
+    else {
+        UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: Tried to summon an entity of class '%s', but the summoner was null."), *StaticClass()->GetName());
+    }
+}
+
+USummonList* AEntity::CreateSummonList() {
+    USummonList* SummonList = NewObject<USummonList>(this);
+    SummonList->Construct(this);
+    return SummonList;
+}

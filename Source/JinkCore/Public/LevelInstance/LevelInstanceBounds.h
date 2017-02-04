@@ -7,8 +7,7 @@
 #include "LevelInstanceBounds.generated.h"
 
 class ULevelInstance;
-struct FLIAnchor;
-class ULIAnchorViewerComponent;
+class ALIAnchorTargetHandle;
 
 /**
 *
@@ -27,10 +26,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance")
     TAssetPtr<ULevelInstance> LevelInstance;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance")
-    TArray<FLIAnchor> Anchors;
-
-    UPROPERTY(Transient)
-    TArray<ULIAnchorViewerComponent*> AnchorViewers;
+    TArray<ALIAnchorTargetHandle*> Anchors;
 
     //~ Begin UObject Interface
     virtual void PostLoad() override;
@@ -107,16 +103,12 @@ private:
 
     //~ Begin ALevelInstanceBounds Interface.
 public:
-    FLIAnchor& GetAnchorByGUID(FGuid GUID);
-    FLIAnchor& GetAnchorByName(FName Name);
+    ALIAnchorTargetHandle* GetAnchorByGUID(FGuid GUID);
+    ALIAnchorTargetHandle* GetAnchorByName(FName Name);
 
 #if WITH_EDITOR
     /** Updates anchors in the level instance asset  */
     void UpdateAnchors();
-
-private:
-    /** Resets the anchor viewers acording to the anchor list  */
-    void UpdateAnchorViewers();
 #endif //WITH_EDITOR
 
     //~ End ALevelInstanceBounds Interface.

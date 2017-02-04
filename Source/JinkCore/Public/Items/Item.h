@@ -15,9 +15,8 @@ class JINKCORE_API UItem : public UObject
 public:
     UItem(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
-
     //~ Begin Item Interface
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+    UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FName DisplayName;
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FText Description;
@@ -25,10 +24,9 @@ public:
     UTexture* Icon;
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     UStaticMesh* Mesh;
-#if WITH_EDITOR
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FText DesignerNotes;
-#endif
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
     bool bUnique;
@@ -46,4 +44,46 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
     float BulletSpeedCof;
     //~ End Item Interface
+
+    void SetHolder(AEntity* Entity);
+private:
+    UPROPERTY()
+    AEntity* Holder;
+public:
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Item")
+    AEntity* GetHolderEntity();
+
+
+    UFUNCTION(BlueprintNativeEvent, Category = "Item")
+    void HolderJustDied(AEntity* Entity, AController * InstigatedBy, AEntity * Killer);
+
+    UFUNCTION(BlueprintNativeEvent, Category = "Item")
+    void ApplyEntityModifications(AEntity* Entity);
+    UFUNCTION(BlueprintNativeEvent, Category = "Item")
+    void UndoEntityModifications(AEntity* Entity);
+
+
+    FORCEINLINE static UItem* GetObject(TSubclassOf<UItem> Type, AEntity* Holder = nullptr) {
+        if (Type) {
+            UItem* Item = Cast<UItem>(Type->GetDefaultObject());
+            if (Item) {
+                Item->SetHolder(Holder);
+            }
+            return Item;
+        }
+        return nullptr;
+    }
+
+    template<class ItemType>
+    FORCEINLINE static ItemType* GetObject(AEntity* Holder = nullptr) {
+        TSubclassOf<UItem> Type = ItemType::StaticClass();
+        if (Type) {
+            UItem* Item = Cast<ItemType>(Type->GetDefaultObject());
+            if (Item) {
+                Item->SetHolder(Holder);
+            }
+            return Item;
+        }
+        return nullptr;
+    }
 };

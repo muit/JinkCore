@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
 #include "Entity.h"
@@ -6,6 +6,6 @@
 
 AJinkGameMode::AJinkGameMode()
 {
-	// set default pawn class to our Blueprinted character
-	DefaultPawnClass = AEntity::StaticClass();
+    // set default pawn class to our Blueprinted character
+    DefaultPawnClass = AEntity::StaticClass();
 }

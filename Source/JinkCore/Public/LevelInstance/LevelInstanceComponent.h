@@ -75,10 +75,10 @@ public:
     TArray<ULIAnchorViewerComponent*> AnchorViewers;
 
     UFUNCTION(BlueprintCallable, Category = "Level Instance", meta=(DisplayName = "AttachToAnchor"))
-    void AttachToAnchorByGuid(FGuid MyAnchorGUID, ULIAnchorViewerComponent* OtherAnchor);
+    void AttachToAnchorByGuid(FGuid MyAnchorGUID, ULIAnchorViewerComponent* OtherAnchor, bool bSpawnConector = true);
 
     UFUNCTION(BlueprintCallable, Category = "Level Instance", meta = (DisplayName = "AttachToAnchor"))
-    void AttachToAnchor(ULIAnchorViewerComponent* MyAnchor, ULIAnchorViewerComponent* OtherAnchor);
+    void AttachToAnchor(ULIAnchorViewerComponent* MyAnchor, ULIAnchorViewerComponent* OtherAnchor, bool bSpawnConector = true);
 
     void UpdateAnchors();
     //~ End Level Instance Interface

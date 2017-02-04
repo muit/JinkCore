@@ -49,7 +49,8 @@ public class JinkEditor : ModuleRules
                 "DetailCustomizations",
                 "ContentBrowser",
                 "Settings",
-                "JinkCore"
+                "JinkCore",
+                "Procedural"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

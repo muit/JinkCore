@@ -1,138 +1,108 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
 #include "EventHandler.h"
+#include "Runtime/Launch/Resources/Version.h"
 
-UEventHandler::UEventHandler() {
-	this->Id = 0;
-	bActivated = false;
+FEventHandler::FEventHandler(UObject* _Outer, int _Id) : Id(_Id) {
+    bValid = true;
+    bActivated = false;
+    bPaused = false;
+    Outer = _Outer;
+    Length = 1;
 }
 
 template< class UserClass >
-void UEventHandler::Setup(UserClass* Context, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod, int _Id) {
-	UObject* ObjContext = Cast<UObject>(Context);
-	if (ObjContext) {
-		World = ObjContext->GetWorld();
-	}
-	Id = _Id;
-
-	//SetupCallback
-	EventDelegate = FEventDelegate::CreateUObject(Context, InEventMethod);
+void FEventHandler::Bind(UserClass* Context, typename FEventDelegate::TUObjectMethodDelegate< UserClass >::FMethodPtr InEventMethod) {
+    //Bind Callback
+    EventDelegate = FEventDelegate::CreateUObject(Context, InEventMethod);
 }
 
-void UEventHandler::Start(float Length)
+bool FEventHandler::Start(float _Length)
 {
-	if (!World)
-		return;
-
-	if (IsRunning() || Length < 0) {
-		return;
-	}
-
-	StartInternal(Length);
+    return StartInternal(_Length);
 }
 
-
-void UEventHandler::Pause()
+bool FEventHandler::StartInternal(float _Length)
 {
-	if (!World)
-		return;
+    if (IsRunning() || _Length < 0) {
+        return false;
+    }
 
-	if (!TimerHandle.IsValid() || !IsRunning()) {
-		return;
-	}
+    bActivated = true;
+    bPaused = false;
 
-	if (!World->GetTimerManager().IsTimerPaused(TimerHandle)) {
-		World->GetTimerManager().PauseTimer(TimerHandle);
-	}
+    Timer = new FTimer();
+    Length = _Length;
+
+    return true;
 }
 
-void UEventHandler::Resume()
+
+void FEventHandler::Pause()
 {
-	if (!World)
-		return;
+    if (!IsRunning())
+        return;
 
-	if (!TimerHandle.IsValid() || !IsPaused()) {
-		return;
-	}
-
-	if (World->GetTimerManager().IsTimerPaused(TimerHandle)) {
-		World->GetTimerManager().UnPauseTimer(TimerHandle);
-	}
+    bPaused = true;
 }
 
-void UEventHandler::Restart(float Length)
+void FEventHandler::Resume()
 {
-	if (!World)
-		return;
+    if (!IsPaused()) {
+        UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: Tried to Resume an event, but it was not paused."));
+        return;
+    }
 
-	if (!EventDelegate.IsBound()) {
-		UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: Tried to Restart an event that is not bounded."));
-		return;
-	}
-
-	if (Length < 0) {
-		Length = GetLength();
-	}
-
-	//Reset the Event
-	Reset();
-
-	//Start the event again
-	StartInternal(Length);
+    bPaused = false;
 }
 
-void UEventHandler::Reset()
+void FEventHandler::Restart(float _Length)
 {
-	//Clear the Timer
-	World->GetTimerManager().ClearTimer(TimerHandle);
-	bActivated = false;
+    if (!EventDelegate.IsBound()) {
+        UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: Tried to Restart an event that is not bounded."));
+        return;
+    }
+
+    if (_Length < 0) {
+        _Length = Length;
+    }
+
+    //Reset the Event
+    Reset();
+
+    //Start the event again
+    StartInternal(_Length);
 }
 
-void UEventHandler::OnExecute()
+void FEventHandler::Reset()
 {
-	World->GetTimerManager().ClearTimer(TimerHandle);
-
-	if (EventDelegate.IsBound()) {
-		EventDelegate.Execute(Id);
-	}
+    //Clear the Timer
+    Timer = nullptr;
+    bActivated = false;
+    bPaused = false;
 }
 
-bool const UEventHandler::IsRunning() {
-	if (!World || !TimerHandle.IsValid()) {
-		return false;
-	}
-	//Test
-	FTimerManager& TimerManager = World->GetTimerManager();
-	return TimerManager.IsTimerActive(TimerHandle);
+void FEventHandler::Tick(float DeltaTime) {
+    if (IsRunning() && !IsPaused()) {
+        Timer->Tick(DeltaTime);
+
+#if ENGINE_MINOR_VERSION > 14 //If engine is 4.15 or newer 
+        if (Timer->GetCurrentTime() > Length) {
+#else
+        if (Timer->GetTickCount() > Length) {
+#endif
+            //Check if Event is over
+            OnExecute();
+        }
+    }
 }
 
-bool const UEventHandler::IsPaused()
+void FEventHandler::OnExecute()
 {
-	if (!World || !TimerHandle.IsValid()) {
-		return false;
-	}
-	return World->GetTimerManager().IsTimerPaused(TimerHandle);
+    Reset();
+
+    if (EventDelegate.IsBound()) {
+        EventDelegate.Execute(Id);
+    }
 }
-
-float const UEventHandler::GetLength()
-{
-	if (!World || !TimerHandle.IsValid()) {
-		return -1;
-	}
-	return World->GetTimerManager().GetTimerRate(TimerHandle);
-}
-
-
-void UEventHandler::StartInternal(int Length)
-{
-	if (IsRunning() || Length < 0) {
-		return;
-	}
-
-	World->GetTimerManager().SetTimer(TimerHandle, this, &UEventHandler::OnExecute, Length, false);
-	bActivated = true;
-}
-
-
-

@@ -5,26 +5,25 @@
 
 #define LOCTEXT_NAMESPACE "LIModule" 
 
-static ConstructorHelpers::FObjectFinderOptional<UTexture2D> TextureObject = TEXT("/Engine/EditorResources/S_Actor");
+static ConstructorHelpers::FObjectFinderOptional<UTexture2D> ModuleTextureObject = TEXT("/Engine/EditorResources/S_Actor");
 
 // Sets default values
 ALIModule::ALIModule()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+     // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+    PrimaryActorTick.bCanEverTick = true;
     bSpawnLevelOnPlay = true; 
 
     USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
     RootComponent = SceneComponent;
 
-
 #if WITH_EDITORONLY_DATA
     SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
     if (SpriteComponent)
     {
-        SpriteComponent->Sprite = TextureObject.Get();		// Get the sprite texture from helper class object
-        SpriteComponent->SpriteInfo.DisplayName = LOCTEXT("Icon", "Icon");	// Assign sprite display name
-        SpriteComponent->SetupAttachment(RootComponent);	// Attach sprite to scene component
+        SpriteComponent->Sprite = ModuleTextureObject.Get();        // Get the sprite texture from helper class object
+        SpriteComponent->SpriteInfo.DisplayName = LOCTEXT("Icon", "Icon");    // Assign sprite display name
+        SpriteComponent->SetupAttachment(RootComponent);    // Attach sprite to scene component
     }
 #endif // WITH_EDITORONLY_DATA
 
@@ -40,14 +39,14 @@ void ALIModule::OnConstruction( const FTransform& Transform) {
 // Called when the game starts or when spawned
 void ALIModule::BeginPlay()
 {
-	Super::BeginPlay();
-	
+    Super::BeginPlay();
+    
 }
 
 // Called every frame
 void ALIModule::Tick( float DeltaTime )
 {
-	Super::Tick( DeltaTime );
+    Super::Tick( DeltaTime );
 
 }
 

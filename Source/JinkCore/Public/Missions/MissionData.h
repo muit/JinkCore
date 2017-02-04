@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #pragma once
 
@@ -9,30 +9,30 @@
 UCLASS(Blueprintable)
 class JINKCORE_API UMissionData : public UDataAsset
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	UMissionData()
-		: Title("")
-		, Description(FText::FromString(""))
-	{}
+    UMissionData()
+        : Title("")
+        , Description(FText::FromString(""))
+    {}
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString Title;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FString Title;
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FText Description;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FText Description;
 
-	/*
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<FString> MissionsRequired;
-	*/
+    /*
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<FString> MissionsRequired;
+    */
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<TAssetPtr<UMissionAtom>> RequiredAtoms;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<TAssetPtr<UMissionAtom>> SuccessAtoms;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TArray<TAssetPtr<UMissionAtom>> FailureAtoms;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<TAssetPtr<UMissionAtom>> RequiredAtoms;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<TAssetPtr<UMissionAtom>> SuccessAtoms;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<TAssetPtr<UMissionAtom>> FailureAtoms;
 };

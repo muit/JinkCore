@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #pragma once
 
@@ -18,9 +18,9 @@ class JINKCORE_API UJCGenerationSettings : public UObject
 
 public:
     UJCGenerationSettings(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer) {
-		//Add Default Anchor
-		AnchorTypes.Add(ANCHOR_None, FLIAnchorTypeInfo());
-	}
+        //Add Default Anchor
+        AnchorTypes.Add(ANCHOR_None, FLIAnchorTypeInfo());
+    }
 
     UPROPERTY(config, EditAnywhere, Category = Custom)
     TMap<FString, FLIAnchorTypeInfo> AnchorTypes;

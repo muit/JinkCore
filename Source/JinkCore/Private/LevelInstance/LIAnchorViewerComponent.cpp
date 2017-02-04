@@ -8,27 +8,28 @@
 
 // Sets default values for this component's properties
 ULIAnchorViewerComponent::ULIAnchorViewerComponent()
-	: Super()
+    : Super()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+    // Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+    // off to improve performance if you don't need them.
+    PrimaryComponentTick.bCanEverTick = true;
     bIsAttachmentFather = false;
-    AttachmentConector = nullptr;
+    ConectedAttachment = nullptr;
+    Conector = nullptr;
 }
 
 
 // Called when the game starts
 void ULIAnchorViewerComponent::BeginPlay()
 {
-	Super::BeginPlay();
+    Super::BeginPlay();
 }
 
 
 // Called every frame
 void ULIAnchorViewerComponent::TickComponent( float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction )
 {
-	Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
+    Super::TickComponent( DeltaTime, TickType, ThisTickFunction );
 }
 
 #if WITH_EDITOR
@@ -36,7 +37,7 @@ void ULIAnchorViewerComponent::PostEditChangeProperty(FPropertyChangedEvent & Pr
 {}
 #endif //WITH_EDITOR
 
-void ULIAnchorViewerComponent::SetupAttachment(ULIAnchorViewerComponent* OtherAnchor, bool IsFather)
+void ULIAnchorViewerComponent::SetupAnchorAttachment(ULIAnchorViewerComponent* OtherAnchor, bool IsFather)
 {
     if (!OtherAnchor) {
         UE_LOG(LogJinkCore, Warning, TEXT("LevelInstance: Can't setup attachment to an invalid anchor."));
@@ -44,10 +45,10 @@ void ULIAnchorViewerComponent::SetupAttachment(ULIAnchorViewerComponent* OtherAn
     }
     
     //Attach this Anchor
-    AttachmentConector = OtherAnchor;
+    ConectedAttachment = OtherAnchor;
     bIsAttachmentFather = IsFather;
 
     //Attach the other Anchor
-    OtherAnchor->AttachmentConector = this;
+    OtherAnchor->ConectedAttachment = this;
     OtherAnchor->bIsAttachmentFather = !IsFather;
 }

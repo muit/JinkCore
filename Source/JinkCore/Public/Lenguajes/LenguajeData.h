@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #pragma once
 
@@ -9,37 +9,37 @@
 USTRUCT()
 struct FLenguajeData
 {
-	GENERATED_USTRUCT_BODY()
+    GENERATED_USTRUCT_BODY()
 
-	/** Lenguaje Name */
-	UPROPERTY(EditAnywhere)
-	FString Name;
+    /** Lenguaje Name */
+    UPROPERTY(EditAnywhere)
+    FString Name;
 
-	/** Texts Datatable */
-	UPROPERTY(EditAnywhere, meta = (AllowedClasses = "DataTable"))
-	FStringAssetReference Texts;
+    /** Texts Datatable */
+    UPROPERTY(EditAnywhere, meta = (AllowedClasses = "DataTable"))
+    FStringAssetReference Texts;
 
-	/** Audios Datatable */
-	UPROPERTY(EditAnywhere, meta = (AllowedClasses = "DataTable"))
-	FStringAssetReference Audios;
+    /** Audios Datatable */
+    UPROPERTY(EditAnywhere, meta = (AllowedClasses = "DataTable"))
+    FStringAssetReference Audios;
 };
 
 /** Struct containing a lenguaje text. */
 USTRUCT(BlueprintType)
 struct FLenguajeTextRow
 {
-	GENERATED_USTRUCT_BODY()
+    GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere)
-	FString Text;
+    UPROPERTY(EditAnywhere)
+    FString Text;
 };
 
 /** Struct containing a lenguaje audio. */
 USTRUCT(BlueprintType)
 struct FLenguajeAudioRow
 {
-	GENERATED_USTRUCT_BODY()
+    GENERATED_USTRUCT_BODY()
 
-	UPROPERTY(EditAnywhere, meta = (AllowedClasses = "SoundWave"))
-	FStringAssetReference Audio;
+    UPROPERTY(EditAnywhere, meta = (AllowedClasses = "SoundWave"))
+    FStringAssetReference Audio;
 };

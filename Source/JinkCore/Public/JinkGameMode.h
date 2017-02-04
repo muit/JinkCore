@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Piperift, All Rights Reserved.
+// Copyright 2015-2017 Piperift, All Rights Reserved.
 #pragma once
 #include "GameFramework/GameMode.h"
 #include "Engine/StreamableManager.h"
@@ -7,12 +7,12 @@
 UCLASS()
 class JINKCORE_API AJinkGameMode : public AGameMode
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	AJinkGameMode();
+    AJinkGameMode();
 
-	FStreamableManager AssetLoader;
+    FStreamableManager AssetLoader;
 };
 
 

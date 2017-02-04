@@ -15,26 +15,26 @@
 
 FText FAssetTypeAction_Item::GetName() const
 {
-	return LOCTEXT("FAssetTypeAction_ItemName", "Item");
+    return LOCTEXT("FAssetTypeAction_ItemName", "Item");
 }
 
 FColor FAssetTypeAction_Item::GetTypeColor() const
 {
-	return FColor(73, 131, 230);
+    return FColor(73, 131, 230);
 }
 
 UClass* FAssetTypeAction_Item::GetSupportedClass() const
 {
-	return UItem::StaticClass();
+    return UItem::StaticClass();
 }
 
 uint32 FAssetTypeAction_Item::GetCategories()
 {
-	if (FJinkCoreModule* JC = FJinkCoreModule::GetInstance()) {
-		return JC->GetJCAssetCategoryBit();
-	}
-	// If JinkCore module is not found use Miscellaneous 
-	return EAssetTypeCategories::Misc;
+    if (FJinkCoreModule* JC = FJinkCoreModule::GetInstance()) {
+        return JC->GetJCAssetCategoryBit();
+    }
+    // If JinkCore module is not found use Miscellaneous 
+    return EAssetTypeCategories::Misc;
 }
 
 void FAssetTypeAction_Item::GetActions(const TArray<UObject*>& InObjects, FMenuBuilder& MenuBuilder)

@@ -1,12 +1,10 @@
 {
-	"Changelist" : 3241561,
-	"CompatibleChangelist" : 3195953,
-	"BuildId" : "3e654460-2081-4064-b474-145f8ff6c02b",
+	"Changelist" : 3278667,
+	"BuildId" : "8d6c8ca6-bab1-48ee-8b28-7b5d984a97e3",
 	"Modules" : 
 	{
 		"JinkCore" : "UE4Editor-JinkCore.dll",
 		"JinkEditor" : "UE4Editor-JinkEditor.dll",
-		"SelectionQuery" : "UE4Editor-SelectionQuery.dll",
-		"SelectionQueryEditor" : "UE4Editor-SelectionQueryEditor.dll"
+		"Procedural" : "UE4Editor-Procedural.dll"
 	}
 }

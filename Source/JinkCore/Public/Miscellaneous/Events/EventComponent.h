@@ -1,4 +1,4 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #pragma once
 
@@ -12,51 +12,82 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FEventExecuteSignature);
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class JINKCORE_API UEventComponent : public UActorComponent
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
-public:	
-	// Sets default values for this component's properties
-	UEventComponent();
-	
-	//The default length in seconds that will be used for the timer.
-	UPROPERTY(EditAnywhere, meta = (DisplayName = "Length"), Category = "Timer")
-	float DefaultLength;
+public:    
+    // Sets default values for this component's properties
+    UEventComponent();
+    
+    //The default length in seconds that will be used for the timer.
+    UPROPERTY(EditAnywhere, meta = (DisplayName = "Length"), Category = "Event")
+    float DefaultLength;
+    //The default length in seconds that will be used for the timer.
+    UPROPERTY(EditAnywhere, Category = "Event")
+    bool bLooping;
 
-	// Handle to manage the timer
-	UEventHandler* EventHandler;
+    // Handle that manages the timer
+    FEventHandler EventHandler;
 
+    virtual void BeginPlay() override;
+    virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+    virtual void EndPlay(const EEndPlayReason::Type reason) override;
 
-	// Start the event timer
-	UFUNCTION(BlueprintCallable, Category = "Timer")
-	void Start(float Length = -1);
+    /** Start the event timer.
+    * Won't do anything if it's already running.
+    * @param Length Set the event duration (Optional). By default the event Lenght will be used.
+    */
+    UFUNCTION(BlueprintCallable, meta = (DisplayName = "Start"), Category = "Event")
+    void StartTimespan(FTimespan Timespan) {
+        Start((float)Timespan.GetMilliseconds() / 1000.0f);
+    }
+    /** Start the event timer. 
+    * Won't do anything if it's already running.
+    * @param Length Set the event duration (Optional). By default the event Lenght will be used.
+    */
+    UFUNCTION(BlueprintCallable, Category = "Event")
+    bool Start(float Length = -1.0f);
 
-	// Pause the event timer
-	UFUNCTION(BlueprintCallable, Category = "Timer")
-	void Pause();
+    /** Pause the event timer.
+    */
+    UFUNCTION(BlueprintCallable, Category = "Event")
+    void Pause();
 
-	// Resume the event timer
-	UFUNCTION(BlueprintCallable, Category = "Timer")
-	void Resume();
+    /** Resume the event timer.
+    */
+    UFUNCTION(BlueprintCallable, Category = "Event")
+    void Resume();
 
-	//Reset the event and start it
-	UFUNCTION(BlueprintCallable, Category = "Timer")
-	void Restart(float Length = -1);
+    /** Reset the event and start it again from the start.
+    * @param Length Set the event duration (Optional). By default the last length will be used.
+    */
+    UFUNCTION(BlueprintCallable, meta = (DisplayName = "Restart"), Category = "Event")
+    void RestartTimespan(FTimespan Timespan) {
+        Restart((float)Timespan.GetMilliseconds() / 1000.0f);
+    }
+    /** Reset the event and start it again from the start.
+    * @param Length Set the event duration (Optional). By default the last length will be used.
+    */
+    UFUNCTION(BlueprintCallable, Category = "Event")
+    void Restart(float Length = -1.0f);
 
-	//Reset The event
-	UFUNCTION(BlueprintCallable, Category = "Timer")
-	void Reset();
+    /** Reset The event.
+    */
+    UFUNCTION(BlueprintCallable, Category = "Event")
+    void Reset();
 
-	UFUNCTION()
-	void OnExecute(int Id);
+    /** Executed when the timer is done.
+    */
+    UFUNCTION()
+    void OnExecute(int Id);
 
-	// HELPERS
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Timer")
-	bool IsRunning();
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Timer")
-	bool IsPaused();
-	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Timer")
-	float GetLength();
+    // HELPERS
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Event")
+    bool IsRunning();
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Event")
+    bool IsPaused();
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Event")
+    float GetLength();
 
-	UPROPERTY(BlueprintAssignable, Category = "Timer")
-	FEventExecuteSignature Execute;
+    UPROPERTY(BlueprintAssignable, Category = "Event")
+    FEventExecuteSignature Execute;
 };

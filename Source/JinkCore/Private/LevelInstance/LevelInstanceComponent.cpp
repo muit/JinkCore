@@ -3,12 +3,11 @@
 #include "JinkCorePrivatePCH.h"
 
 #include "LIAnchorViewerComponent.h"
+#include "LIConector.h"
 
 #if WITH_EDITOR
 #include "UnrealEd.h"
 #include "ObjectEditorUtils.h"
-#include "WorldBrowserModule.h"
-#include "Private/WorldBrowserPrivatePCH.h"
 #endif
 
 #include "LevelInstanceComponent.h"
@@ -228,17 +227,17 @@ FString ULevelInstanceComponent::GetUniqueName()
 //~ End Level Instance Interface
 
 
-void ULevelInstanceComponent::AttachToAnchorByGuid(FGuid MyAnchorGUID, ULIAnchorViewerComponent * OtherAnchor)
+void ULevelInstanceComponent::AttachToAnchorByGuid(FGuid MyAnchorGUID, ULIAnchorViewerComponent * OtherAnchor, bool bSpawnConector)
 {
     for (auto* AnchorViewer : AnchorViewers) {
         if (AnchorViewer->AnchorGUID == MyAnchorGUID) {
-            AttachToAnchor(AnchorViewer, OtherAnchor);
+            AttachToAnchor(AnchorViewer, OtherAnchor, bSpawnConector);
             break;
         }
     }
 }
 
-void ULevelInstanceComponent::AttachToAnchor(ULIAnchorViewerComponent * MyAnchor, ULIAnchorViewerComponent * OtherAnchor)
+void ULevelInstanceComponent::AttachToAnchor(ULIAnchorViewerComponent * MyAnchor, ULIAnchorViewerComponent * OtherAnchor, bool bSpawnConector)
 {
     if (!MyAnchor || !OtherAnchor) {
         UE_LOG(LogJinkCore, Warning, TEXT("LevelInstance: Can't attach with an null anchor."));
@@ -269,21 +268,25 @@ void ULevelInstanceComponent::AttachToAnchor(ULIAnchorViewerComponent * MyAnchor
 
 
     //Setup Attachment on the anchors
-    MyAnchor->SetupAttachment(OtherAnchor, false);
+    MyAnchor->SetupAnchorAttachment(OtherAnchor, false);
+
+    //Spawn Conector if desired
+    if (bSpawnConector) {
+        FLIAnchorTypeInfo TypeInfo;
+        MyAnchor->AnchorData.Type.GetAnchorInfo(TypeInfo);
+        const FTransform SpawnTransform = MyAnchor->GetComponentTransform();
+        ALIConector* ConectorActor = Cast<ALIConector>(GetWorld()->SpawnActor(TypeInfo.GetConectorType(), &SpawnTransform));
+
+        ConectorActor->SetupConAttachment(MyAnchor, OtherAnchor);
+    }
 }
 
 //~ Begin Anchors Interface
 void ULevelInstanceComponent::UpdateAnchors()
 {
-    TArray<USceneComponent*> Childrens;
-    GetChildrenComponents(true, Childrens);
-    if (Childrens.Num() > 0) {
-        //Remove previous anchor viewers
-        for (auto* Comp : Childrens)
-        {
-            if (Comp->StaticClass() == ULIAnchorViewerComponent::StaticClass())
-                Comp->DestroyComponent();
-        }
+    //Remove previous anchor viewers
+    for (auto* AnchorViewer : AnchorViewers) {
+        AnchorViewer->DestroyComponent();
     }
     AnchorViewers.Empty();
 
@@ -292,11 +295,27 @@ void ULevelInstanceComponent::UpdateAnchors()
 
     ULevelInstance* LevelI = LevelInstanceAsset.LoadSynchronous();
 
+    //Name Counts
+    TMap<FName, int32> Names;
 
     for (auto& Anchor : LevelI->Anchors)
     {
+        //Generate an unique name
+        FName UniqueName = Anchor.Name;
+        if (Names.Contains(Anchor.Name)) {
+            int32 NameCount = Names[Anchor.Name] + 1;
+            FString Count = "_" + NameCount;
+            UniqueName.AppendString(Count);
+            Names[Anchor.Name] = NameCount;
+        }
+        else {
+            Names.Add(Anchor.Name, 0);
+            FString Count = "_0";
+            UniqueName.AppendString(Count);
+        }
+
         //Create a new viewer for each anchor
-        ULIAnchorViewerComponent* AnchorViewer = NewObject<ULIAnchorViewerComponent>(GetOwner(), ULIAnchorViewerComponent::StaticClass(), Anchor.Name);
+        ULIAnchorViewerComponent* AnchorViewer = NewObject<ULIAnchorViewerComponent>(GetOwner(), ULIAnchorViewerComponent::StaticClass(), UniqueName);
         if (AnchorViewer)
         {
             AnchorViewer->RegisterComponent();
@@ -305,8 +324,10 @@ void ULevelInstanceComponent::UpdateAnchors()
             if (Anchor.Type.GetAnchorInfo(TypeInfo)) {
                 AnchorViewer->SetArrowColor_New(TypeInfo.Color);
             }
-
             AnchorViewer->AnchorGUID = Anchor.GUID;
+            AnchorViewer->AnchorData = Anchor;
+
+
             AnchorViewer->bHiddenInGame = !bDebugInGame;
             //Move to the local space anchor position
             AnchorViewer->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);

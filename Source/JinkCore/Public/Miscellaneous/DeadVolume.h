@@ -1,19 +1,20 @@
-// Copyright 2015-2016 Piperift. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #pragma once
 
-#include "Miscellaneous/CustomVolume.h"
-#include "DeadVolume.generated.h"
+#include "Miscellaneous/EntityVolume.h"
+//#include "DeadVolume.generated.h"
 
 /**
- * 
- */
+*
+*/
+/*
 UCLASS()
-class JINKCORE_API ADeadVolume : public ACustomVolume
+class JINKCORE_API ADeadVolume : public AEntityVolume
 {
-	GENERATED_UCLASS_BODY()
+    GENERATED_UCLASS_BODY()
 
 protected:
-	UFUNCTION()
-	virtual void EntityEnter(AEntity* Entity) override;
-};
+    UFUNCTION()
+    virtual void EntityEnter(AEntity* Entity) override;
+};*/
