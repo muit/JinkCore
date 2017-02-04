@@ -2,6 +2,7 @@
 
 #include "ProceduralPrivatePCH.h"
 #include "MultiplePlaceMesh.h"
+#include "Runtime/Launch//Resources/Version.h"
 
 #define LOCTEXT_NAMESPACE "MultiplePlaceMesh" 
 
