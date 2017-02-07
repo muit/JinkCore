@@ -13,7 +13,8 @@ ASpell::ASpell()
 
     _Damage = 20;
     Activated = false;
-    DamageTypeClass = UDamageType::StaticClass();;
+    DamageTypeClass = UDamageType::StaticClass();
+    bDestroyOnCasterDead = true;
 }
 
 // Called when the game starts or when spawned
@@ -42,6 +43,9 @@ void ASpell::Cast(AEntity* Caster, AEntity* Target, float Damage)
     _Target = Target;
     Activated = true;
 
+    //Bind caster dead
+    _Caster->JustDiedDelegate.AddDynamic(this, &ASpell::Internal_OnCasterDead);
+
     OnCast(Caster, Target);
 }
 
@@ -69,6 +73,14 @@ void ASpell::ApplyDamage(AEntity* OtherTarget, float Damage)
         _Caster->ApplyDamage(OtherTarget, Damage, DamageTypeClass, this);
     } else { //Apply generic Damage if there's no caster
         UGameplayStatics::ApplyDamage(OtherTarget, Damage, NULL, this, DamageTypeClass);
+    }
+}
+
+void ASpell::Internal_OnCasterDead(AController* InstigatedBy, AEntity* Killer) {
+    OnCasterDead(_Caster, InstigatedBy, Killer);
+
+    if (bDestroyOnCasterDead) {
+        Destroy();
     }
 }
 

@@ -31,6 +31,8 @@ public:
     float _Damage;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell")
     TSubclassOf<UDamageType> DamageTypeClass;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell")
+    bool bDestroyOnCasterDead;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spell")
     bool Activated;
 
@@ -43,6 +45,10 @@ public:
     void ApplyDamage(AEntity* OtherTarget = NULL, float Damage = 0);
     
 
+
+    void Internal_OnCasterDead(AController* InstigatedBy, AEntity* Killer);
+
+
     /**
      * EVENTS
      */
@@ -50,4 +56,6 @@ public:
     void OnCast(AEntity* Caster, AEntity* Target);
     UFUNCTION(BlueprintImplementableEvent, Category = "Spell")
     void OnTargetChange(AEntity* Target);
+    UFUNCTION(BlueprintImplementableEvent, Category = "Spell")
+    void OnCasterDead(AEntity* Caster, AController* InstigatedBy, AEntity* Killer);
 };
