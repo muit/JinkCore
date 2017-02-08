@@ -31,6 +31,7 @@ void UEventsMapComponent::Start(int Id, float Length)
         Length = DefaultLength;
     }
 
+
     if (!Events.Contains(Id) || !Events[Id].IsValid()){
         // Create and setup event
         FEventHandler Event = FEventHandler(this, Id);
@@ -84,6 +85,9 @@ void UEventsMapComponent::OnExecute(int Id)
 }
 
 bool UEventsMapComponent::IsRunning(int Id) {
+    if (!Events.Contains(Id))
+        return false;
+
     FEventHandler Event = Events[Id];
     if (!Event.IsValid())
         return false;
@@ -92,6 +96,9 @@ bool UEventsMapComponent::IsRunning(int Id) {
 
 bool UEventsMapComponent::IsPaused(int Id)
 {
+    if (!Events.Contains(Id))
+        return false;
+
     FEventHandler Event = Events[Id];
     if (!Event.IsValid()) 
         return false;
@@ -100,6 +107,9 @@ bool UEventsMapComponent::IsPaused(int Id)
 
 float UEventsMapComponent::GetLength(int Id)
 {
+    if (!Events.Contains(Id))
+        return false;
+
     FEventHandler Event = Events[Id];
     if (!Event.IsValid())
         return -1;
