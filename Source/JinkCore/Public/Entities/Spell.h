@@ -45,7 +45,7 @@ public:
     void ApplyDamage(AEntity* OtherTarget = NULL, float Damage = 0);
     
 
-
+    UFUNCTION()
     void Internal_OnCasterDead(AController* InstigatedBy, AEntity* Killer);
 
 
