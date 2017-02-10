@@ -43,7 +43,7 @@ public:
 
     //Reset the event and start it.
     UFUNCTION(BlueprintCallable, Category = "Timer")
-    void Restart(int Id, float Length = -1);
+    void Restart(int Id, float Length = -1, bool bStartIfNeeded = false);
 
     //Reset The event
     UFUNCTION(BlueprintCallable, Category = "Timer")
@@ -63,4 +63,6 @@ public:
 
     UPROPERTY(BlueprintAssignable, Category = "Timer")
     FEventsMapExecuteSignature Execute;
+
+    FORCEINLINE bool GetEventHandler(FEventHandler& OutEvent, int Id);
 };
