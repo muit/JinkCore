@@ -3,6 +3,7 @@
 #include "JinkCorePrivatePCH.h"
 #include "Spell.h"
 #include "Entity.h"
+#include "SpellRules.h"
 
 
 // Sets default values

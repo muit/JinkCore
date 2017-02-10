@@ -7,6 +7,7 @@
 
 //~~~~~ Type Declarations ~~~~~
 typedef class AEntity;
+class USpellRules;
 
 UCLASS()
 class JINKCORE_API ASpell : public AActor
@@ -23,12 +24,15 @@ public:
     // Called every frame
     virtual void Tick( float DeltaSeconds ) override;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spell")
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spell")
+    TSubclassOf<USpellRules> Rules;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spell")
     AEntity* _Caster;
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spell")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spell")
     AEntity* _Target;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell")
     float _Damage;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell")
     TSubclassOf<UDamageType> DamageTypeClass;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell")
