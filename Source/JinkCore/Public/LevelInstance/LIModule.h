@@ -17,13 +17,14 @@ class JINKCORE_API ALIModule : public AActor
     UTexture2D* SpriteTexture;
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level Instance", meta = (DisplayName = "Level Instance Component"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance", meta = (DisplayName = "Level Instance Component"))
     ULevelInstanceComponent* LIComponent;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level Instance", meta=(DisplayName = "Level Instance"))
     TAssetPtr<ULevelInstance> LevelInstanceAsset;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance", Meta = (ExposeOnSpawn = true))
-    bool bSpawnLevelOnPlay;
+    bool bLoadLevelOnPlay;
     
     // Sets default values for this actor's properties
     ALIModule();
@@ -37,7 +38,9 @@ public:
 
 
     UFUNCTION(BlueprintCallable, Category = "Level Instance")
-    bool SpawnLevel();
+    bool LoadLevel();
+    UFUNCTION(BlueprintCallable, Category = "Level Instance")
+    void UnloadLevel();
 
 
     UFUNCTION(BlueprintCallable, Category = "Level Instance", meta = (DisplayName = "AttachToAnchor"))

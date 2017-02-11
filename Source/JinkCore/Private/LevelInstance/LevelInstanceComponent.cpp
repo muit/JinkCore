@@ -39,7 +39,7 @@ void ULevelInstanceComponent::BeginPlay()
 
     // TEMPORAL: Spawn Level on Begin Play
     if (bSpawnOnPlay) {
-        SpawnLevel();
+        LoadLevel();
     }
 }
 
@@ -64,10 +64,10 @@ void ULevelInstanceComponent::TickComponent( float DeltaTime, ELevelTick TickTyp
     }
 }
 
-void ULevelInstanceComponent::OnComponentDestroyed(bool bDestroyingHierarchy)
+void ULevelInstanceComponent::EndPlay(const EEndPlayReason::Type Reason)
 {
     UnloadLevel();
-    Super::OnComponentDestroyed(bDestroyingHierarchy);
+    Super::EndPlay(Reason);
 }
 
 #if WITH_EDITOR
@@ -127,7 +127,7 @@ ULevelInstance* ULevelInstanceComponent::GetLevelInstance() {
 
 //~ Begin Level Instance Interface
 
-bool ULevelInstanceComponent::SpawnLevel(bool bForced)
+bool ULevelInstanceComponent::LoadLevel(bool bForced)
 {
     UE_LOG(LogJinkCore, Display, TEXT("LevelInstance: Spawning"));
 
@@ -188,18 +188,12 @@ bool ULevelInstanceComponent::SpawnLevel(bool bForced)
     // Add the new level to world.
     World->StreamingLevels.Add(NewStreamingLevel);
 
-    //Save level reference
+    //Save level pointer
     StreamingLevel = NewStreamingLevel;
 
     UE_LOG(LogJinkCore, Display, TEXT("LevelInstance: Spawned Succesfully"));
-    return true;
-}
+    OnLevelInstanceLoaded.Broadcast();
 
-bool ULevelInstanceComponent::LoadLevel()
-{
-    if (!IsRegistered())
-        return false;
-    StreamingLevel->bShouldBeLoaded = true;
     return true;
 }
 
@@ -214,6 +208,11 @@ void ULevelInstanceComponent::UnloadLevel()
 {
     if (IsRegistered()) {
         StreamingLevel->bShouldBeLoaded = false;
+
+        //Remove pointer. Level will be destroyed.
+        StreamingLevel = nullptr;
+
+        OnLevelInstanceUnloaded.Broadcast();
     }
 }
 
