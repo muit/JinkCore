@@ -3,3 +3,8 @@
 #include "JinkCorePrivatePCH.h"
 #include "SpellRules.h"
 
+USpellRules::USpellRules(const FObjectInitializer & ObjectInitializer)
+    : Super(ObjectInitializer)
+{
+
+}

@@ -12,7 +12,7 @@ ALIModule::ALIModule()
 {
      // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
-    bSpawnLevelOnPlay = true; 
+    bLoadLevelOnPlay = true; 
 
     USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
     RootComponent = SceneComponent;
@@ -32,7 +32,7 @@ ALIModule::ALIModule()
 }
 
 void ALIModule::OnConstruction( const FTransform& Transform) {
-    LIComponent->bSpawnOnPlay = bSpawnLevelOnPlay;
+    LIComponent->bSpawnOnPlay = bLoadLevelOnPlay;
     LIComponent->SetLevelInstanceAsset(LevelInstanceAsset);
 }
 
@@ -50,9 +50,14 @@ void ALIModule::Tick( float DeltaTime )
 
 }
 
-bool ALIModule::SpawnLevel()
+bool ALIModule::LoadLevel()
 {
-    return LIComponent->SpawnLevel();
+    return LIComponent->LoadLevel();
+}
+
+void ALIModule::UnloadLevel()
+{
+    LIComponent->UnloadLevel();
 }
 
 void ALIModule::AttachToAnchorByGuid(FGuid MyAnchorGUID, ULIAnchorViewerComponent * OtherAnchor)
