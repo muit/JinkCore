@@ -7,9 +7,9 @@
 #include "LevelInstanceComponent.generated.h"
 
 class ULIAnchorViewerComponent;
+class ALevelInstanceBounds;
 
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelLoaded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FLevelLoaded, ALevelInstanceBounds*, LevelInstance);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelUnloaded);
 
 
@@ -86,9 +86,13 @@ public:
     void UpdateAnchors();
     //~ End Level Instance Interface
 
+    UFUNCTION()
+    void OnLevelLoaded();
+    UFUNCTION()
+    void OnLevelUnloaded();
 
     UPROPERTY(BlueprintAssignable, Category = "Level Instance")
-    FLevelLoaded OnLevelInstanceLoaded;
+    FLevelLoaded OnLevelInstanceLoad;
     UPROPERTY(BlueprintAssignable, Category = "Level Instance")
-    FLevelUnloaded OnLevelInstanceUnloaded;
+    FLevelUnloaded OnLevelInstanceUnload;
 };
