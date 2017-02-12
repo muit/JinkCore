@@ -13,7 +13,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelLoaded);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelUnloaded);
 
 
-UCLASS(meta=(BlueprintSpawnableComponent) )
+UCLASS(meta=(BlueprintSpawnableComponent))
 class JINKCORE_API ULevelInstanceComponent : public USceneComponent
 {
     GENERATED_BODY()

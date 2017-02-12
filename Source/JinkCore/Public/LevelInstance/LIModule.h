@@ -17,7 +17,8 @@ class JINKCORE_API ALIModule : public AActor
     UTexture2D* SpriteTexture;
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level Instance", meta = (DisplayName = "Level Instance Component"))
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level Instance", meta = (DisplayName = "Level Instance Component"))
     ULevelInstanceComponent* LIComponent;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Level Instance", meta=(DisplayName = "Level Instance"))
