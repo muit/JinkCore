@@ -91,6 +91,9 @@ public:
     UFUNCTION()
     void OnLevelUnloaded();
 
+    UPROPERTY()
+    ALevelInstanceBounds* m_LIBounds;
+
     UPROPERTY(BlueprintAssignable, Category = "Level Instance")
     FLevelLoaded OnLevelInstanceLoad;
     UPROPERTY(BlueprintAssignable, Category = "Level Instance")

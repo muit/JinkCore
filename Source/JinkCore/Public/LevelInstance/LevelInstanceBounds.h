@@ -9,6 +9,12 @@
 class ULevelInstance;
 class ALIAnchorTargetHandle;
 
+class ALIModule;
+class ULevelInstanceComponent;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FLevelInstanced, ALIModule*, Module, ULevelInstanceComponent*, InstanceOwner);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelUninstanced);
+
 /**
 *
 * Defines level bounds
@@ -103,13 +109,28 @@ private:
 
     //~ Begin ALevelInstanceBounds Interface.
 public:
-    ALIAnchorTargetHandle* GetAnchorByGUID(FGuid GUID);
-    ALIAnchorTargetHandle* GetAnchorByName(FName Name);
+    TSharedPtr<ALIAnchorTargetHandle> GetAnchorByGUID(FGuid GUID);
+    TSharedPtr<ALIAnchorTargetHandle> GetAnchorByName(FName Name);
 
 #if WITH_EDITOR
     /** Updates anchors in the level instance asset  */
     void UpdateAnchors();
 #endif //WITH_EDITOR
+
+    void Internal_OnLevelInstanced(ULevelInstanceComponent* InstanceOwner);
+    void Internal_OnLevelUninstanced();
+
+    UPROPERTY(BlueprintReadOnly, Category = "Level Instance")
+    ULevelInstanceComponent* m_InstanceOwner;
+
+    UPROPERTY(BlueprintAssignable, Category = "Level Instance")
+    FLevelInstanced OnLevelInstanced;
+    UPROPERTY(BlueprintAssignable, Category = "Level Instance")
+    FLevelUninstanced OnLevelUninstanced;
+
+    /** Is this level instanced? */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category="Level Instance")
+    FORCEINLINE bool IsInstanced() { return m_InstanceOwner != nullptr; }
 
     //~ End ALevelInstanceBounds Interface.
 };

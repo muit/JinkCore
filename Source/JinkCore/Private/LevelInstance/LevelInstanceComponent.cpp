@@ -213,6 +213,11 @@ void ULevelInstanceComponent::UnloadLevel()
 {
     if (IsRegistered()) {
         StreamingLevel->bShouldBeLoaded = false;
+
+        if (m_LIBounds) {
+            m_LIBounds->Internal_OnLevelUninstanced();
+            m_LIBounds = nullptr;
+        }
     }
 }
 
@@ -358,6 +363,10 @@ void ULevelInstanceComponent::OnLevelLoaded()
 
         if (LIBounds) {
             UE_LOG(LogJinkCore, Display, TEXT("LevelInstance: Found LI Bounds: %s"), *LIBounds->GetName());
+
+            //Call Delegate & save pointer
+            LIBounds->Internal_OnLevelInstanced(this);
+            m_LIBounds = LIBounds;
         }
 
         OnLevelInstanceLoad.Broadcast(LIBounds);
