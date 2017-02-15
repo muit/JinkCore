@@ -278,9 +278,9 @@ void ULevelInstanceComponent::AttachToAnchor(ULIAnchorViewerComponent * MyAnchor
     if (bSpawnConector) {
         FLIAnchorTypeInfo TypeInfo;
         MyAnchor->AnchorData.Type.GetAnchorInfo(TypeInfo);
-        const FTransform SpawnTransform = MyAnchor->GetComponentTransform();
-        ALIConector* ConectorActor = Cast<ALIConector>(GetWorld()->SpawnActor(TypeInfo.GetConectorType(), &SpawnTransform));
+        const FTransform& SpawnTransform = MyAnchor->GetComponentTransform();
 
+        ALIConector* ConectorActor = Cast<ALIConector>(GetWorld()->SpawnActor(TypeInfo.GetConectorType(), &SpawnTransform));
         ConectorActor->SetupConAttachment(MyAnchor, OtherAnchor);
     }
 }

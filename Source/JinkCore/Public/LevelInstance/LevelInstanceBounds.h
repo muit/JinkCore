@@ -122,6 +122,8 @@ public:
 
     UPROPERTY(BlueprintReadOnly, Category = "Level Instance")
     ULevelInstanceComponent* m_InstanceOwner;
+    UPROPERTY(BlueprintReadOnly, Category = "Level Instance")
+    ALIModule* m_ModuleOwner;
 
     UPROPERTY(BlueprintAssignable, Category = "Level Instance")
     FLevelInstanced OnLevelInstanced;
@@ -131,6 +133,9 @@ public:
     /** Is this level instanced? */
     UFUNCTION(BlueprintCallable, BlueprintPure, Category="Level Instance")
     FORCEINLINE bool IsInstanced() { return m_InstanceOwner != nullptr; }
+    /** Is this instance contained in a LIModule? */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    FORCEINLINE bool HasAModule() { return IsInstanced() && m_ModuleOwner != nullptr; }
 
     //~ End ALevelInstanceBounds Interface.
 };

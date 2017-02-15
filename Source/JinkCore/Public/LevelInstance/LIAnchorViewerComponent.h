@@ -44,7 +44,7 @@ public:
     UPROPERTY(VisibleAnywhere, Category = "Level Anchor|Attachment")
     bool bIsAttachmentFather;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level Anchor|Attachment")
-    ULIAnchorViewerComponent* ConectedAttachment;
+    ULIAnchorViewerComponent* ConnectedAttachment;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level Anchor|Attachment")
     ALIConector* Conector;
 
@@ -53,7 +53,7 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Anchor|Attachment")
     bool IsAttached() { 
-        return ConectedAttachment != nullptr;
+        return ConnectedAttachment != nullptr;
     }
     UFUNCTION(BlueprintCallable, BlueprintPure,  Category = "Level Anchor|Attachment")
     bool IsAttachmentFather() {

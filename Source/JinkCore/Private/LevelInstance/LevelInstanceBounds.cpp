@@ -303,11 +303,10 @@ void ALevelInstanceBounds::Internal_OnLevelInstanced(ULevelInstanceComponent* In
 {
     if(!IsInstanced() && InstanceOwner) {
         m_InstanceOwner = InstanceOwner;
-
         //Get LIModule is existing
-        ALIModule* Module = Cast<ALIModule>(InstanceOwner->GetOwner());
+        m_ModuleOwner = Cast<ALIModule>(InstanceOwner->GetOwner());
 
-        OnLevelInstanced.Broadcast(Module, InstanceOwner);
+        OnLevelInstanced.Broadcast(m_ModuleOwner, InstanceOwner);
     }
 }
 
@@ -315,6 +314,7 @@ void ALevelInstanceBounds::Internal_OnLevelUninstanced()
 {
     if (IsInstanced()) {
         m_InstanceOwner = nullptr;
+        m_ModuleOwner = nullptr;
         OnLevelUninstanced.Broadcast();
     }
 }
