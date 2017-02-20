@@ -113,6 +113,14 @@ void ALevelInstanceBounds::PostEditChangeProperty(FPropertyChangedEvent& Propert
             FName PropName = PropertyChangedEvent.MemberProperty->GetFName();
 
             if (PropName == GET_MEMBER_NAME_CHECKED(ALevelInstanceBounds, Anchors)) {
+                //Generate GUIDs
+                for (auto Anchor : Anchors)
+                {
+                    if (Anchor) {
+                        //Generate new GUID for each anchor
+                        Anchor->GUID = FGuid::NewGuid();
+                    }
+                }
                 UpdateAnchors();
             }
         }
