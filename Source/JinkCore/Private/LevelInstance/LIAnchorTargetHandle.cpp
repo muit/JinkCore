@@ -25,7 +25,6 @@ ALIAnchorTargetHandle::ALIAnchorTargetHandle(const FObjectInitializer& ObjectIni
 #endif //WITH_EDITOR
 
     Name = "Conector";
-    GUID = FGuid::NewGuid();
 }
 
 FLIAnchor ALIAnchorTargetHandle::GetAsAnchor()
