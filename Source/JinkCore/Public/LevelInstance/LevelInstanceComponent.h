@@ -7,13 +7,13 @@
 #include "LevelInstanceComponent.generated.h"
 
 class ULIAnchorViewerComponent;
+class ALevelInstanceBounds;
 
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelLoaded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FLevelLoaded, ALevelInstanceBounds*, LevelInstance);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelUnloaded);
 
 
-UCLASS(meta=(BlueprintSpawnableComponent) )
+UCLASS(meta=(BlueprintSpawnableComponent))
 class JINKCORE_API ULevelInstanceComponent : public USceneComponent
 {
     GENERATED_BODY()
@@ -86,9 +86,16 @@ public:
     void UpdateAnchors();
     //~ End Level Instance Interface
 
+    UFUNCTION()
+    void OnLevelLoaded();
+    UFUNCTION()
+    void OnLevelUnloaded();
+
+    UPROPERTY()
+    ALevelInstanceBounds* m_LIBounds;
 
     UPROPERTY(BlueprintAssignable, Category = "Level Instance")
-    FLevelLoaded OnLevelInstanceLoaded;
+    FLevelLoaded OnLevelInstanceLoad;
     UPROPERTY(BlueprintAssignable, Category = "Level Instance")
-    FLevelUnloaded OnLevelInstanceUnloaded;
+    FLevelUnloaded OnLevelInstanceUnload;
 };

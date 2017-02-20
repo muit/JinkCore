@@ -5,6 +5,8 @@
 #include "LIAnchorViewerComponent.h"
 #include "LIConector.h"
 
+#include "LevelInstanceBounds.h"
+
 #if WITH_EDITOR
 #include "UnrealEd.h"
 #include "ObjectEditorUtils.h"
@@ -192,7 +194,10 @@ bool ULevelInstanceComponent::LoadLevel(bool bForced)
     StreamingLevel = NewStreamingLevel;
 
     UE_LOG(LogJinkCore, Display, TEXT("LevelInstance: Spawned Succesfully"));
-    OnLevelInstanceLoaded.Broadcast();
+    
+    //Bind Events
+    StreamingLevel->OnLevelLoaded.AddDynamic(this, &ULevelInstanceComponent::OnLevelLoaded);
+    StreamingLevel->OnLevelUnloaded.AddDynamic(this, &ULevelInstanceComponent::OnLevelUnloaded);
 
     return true;
 }
@@ -209,10 +214,10 @@ void ULevelInstanceComponent::UnloadLevel()
     if (IsRegistered()) {
         StreamingLevel->bShouldBeLoaded = false;
 
-        //Remove pointer. Level will be destroyed.
-        StreamingLevel = nullptr;
-
-        OnLevelInstanceUnloaded.Broadcast();
+        if (m_LIBounds) {
+            m_LIBounds->Internal_OnLevelUninstanced();
+            m_LIBounds = nullptr;
+        }
     }
 }
 
@@ -273,9 +278,9 @@ void ULevelInstanceComponent::AttachToAnchor(ULIAnchorViewerComponent * MyAnchor
     if (bSpawnConector) {
         FLIAnchorTypeInfo TypeInfo;
         MyAnchor->AnchorData.Type.GetAnchorInfo(TypeInfo);
-        const FTransform SpawnTransform = MyAnchor->GetComponentTransform();
-        ALIConector* ConectorActor = Cast<ALIConector>(GetWorld()->SpawnActor(TypeInfo.GetConectorType(), &SpawnTransform));
+        const FTransform& SpawnTransform = MyAnchor->GetComponentTransform();
 
+        ALIConector* ConectorActor = Cast<ALIConector>(GetWorld()->SpawnActor(TypeInfo.GetConectorType(), &SpawnTransform));
         ConectorActor->SetupConAttachment(MyAnchor, OtherAnchor);
     }
 }
@@ -285,7 +290,9 @@ void ULevelInstanceComponent::UpdateAnchors()
 {
     //Remove previous anchor viewers
     for (auto* AnchorViewer : AnchorViewers) {
-        AnchorViewer->DestroyComponent();
+        if (AnchorViewer) {
+            AnchorViewer->DestroyComponent();
+        }
     }
     AnchorViewers.Empty();
 
@@ -326,7 +333,6 @@ void ULevelInstanceComponent::UpdateAnchors()
             AnchorViewer->AnchorGUID = Anchor.GUID;
             AnchorViewer->AnchorData = Anchor;
 
-
             AnchorViewer->bHiddenInGame = !bDebugInGame;
             //Move to the local space anchor position
             AnchorViewer->AttachToComponent(this, FAttachmentTransformRules::KeepRelativeTransform);
@@ -334,5 +340,49 @@ void ULevelInstanceComponent::UpdateAnchors()
             AnchorViewers.Add(AnchorViewer);
         }
     }
+}
+
+void ULevelInstanceComponent::OnLevelLoaded()
+{
+    ULevel* Level = StreamingLevel->GetLoadedLevel();
+
+    UE_LOG(LogJinkCore, Display, TEXT("LevelInstance: Loaded '%s' Succesfully"), *Level->GetName());
+
+    if (Level) {
+        ALevelInstanceBounds* LIBounds = nullptr;
+
+        //Find Level Instance bounds. Need Test
+        for (AActor* Actor : Level->Actors) {
+            if (Actor->IsA<ALevelInstanceBounds>() 
+                && !Actor->IsPendingKill())
+            {
+                LIBounds = Cast<ALevelInstanceBounds>(Actor);
+                break;
+            }
+        }
+
+        if (LIBounds) {
+            UE_LOG(LogJinkCore, Display, TEXT("LevelInstance: Found LI Bounds: %s"), *LIBounds->GetName());
+
+            //Call Delegate & save pointer
+            LIBounds->Internal_OnLevelInstanced(this);
+            m_LIBounds = LIBounds;
+        }
+
+        OnLevelInstanceLoad.Broadcast(LIBounds);
+    }
+}
+void ULevelInstanceComponent::OnLevelUnloaded()
+{
+    //Unbind Delegates
+    StreamingLevel->OnLevelLoaded.RemoveDynamic(this, &ULevelInstanceComponent::OnLevelLoaded);
+    StreamingLevel->OnLevelUnloaded.RemoveDynamic(this, &ULevelInstanceComponent::OnLevelUnloaded);
+
+    //Remove pointer
+    StreamingLevel = nullptr;
+
+    UE_LOG(LogJinkCore, Display, TEXT("LevelInstance: Unloaded Succesfully"));
+
+    OnLevelInstanceUnload.Broadcast();
 }
 //~ End Anchors Interface

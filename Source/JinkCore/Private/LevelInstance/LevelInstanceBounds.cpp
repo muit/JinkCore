@@ -6,6 +6,9 @@
 #include "LevelInstance.h"
 #include "LIAnchorTargetHandle.h"
 
+#include "LIModule.h"
+#include "LevelInstanceComponent.h"
+
 #if WITH_EDITOR
 #include "ObjectEditorUtils.h"
 #endif
@@ -259,20 +262,20 @@ void ALevelInstanceBounds::UnsubscribeFromUpdateEvents()
 #endif // WITH_EDITOR
 
 
-ALIAnchorTargetHandle* ALevelInstanceBounds::GetAnchorByGUID(FGuid GUID) {
-    return *Anchors.FindByPredicate([GUID](const ALIAnchorTargetHandle* InAnchor)
+TSharedPtr<ALIAnchorTargetHandle> ALevelInstanceBounds::GetAnchorByGUID(FGuid GUID) {
+    return MakeShareable(*Anchors.FindByPredicate([GUID](const ALIAnchorTargetHandle* InAnchor)
         {
             return InAnchor->GUID == GUID;
         }
-    );
+    ));
 }
 
-ALIAnchorTargetHandle* ALevelInstanceBounds::GetAnchorByName(FName Name) {
-    return *Anchors.FindByPredicate([Name](const ALIAnchorTargetHandle* InAnchor)
+TSharedPtr<ALIAnchorTargetHandle> ALevelInstanceBounds::GetAnchorByName(FName Name) {
+    return MakeShareable(*Anchors.FindByPredicate([Name](const ALIAnchorTargetHandle* InAnchor)
         {
             return InAnchor->Name == Name;
         }
-    );
+    ));
 }
 
 #if WITH_EDITOR
@@ -295,4 +298,25 @@ void ALevelInstanceBounds::UpdateAnchors()
         }
     }
 }
+
+void ALevelInstanceBounds::Internal_OnLevelInstanced(ULevelInstanceComponent* InstanceOwner)
+{
+    if(!IsInstanced() && InstanceOwner) {
+        m_InstanceOwner = InstanceOwner;
+        //Get LIModule is existing
+        m_ModuleOwner = Cast<ALIModule>(InstanceOwner->GetOwner());
+
+        OnLevelInstanced.Broadcast(m_ModuleOwner, InstanceOwner);
+    }
+}
+
+void ALevelInstanceBounds::Internal_OnLevelUninstanced()
+{
+    if (IsInstanced()) {
+        m_InstanceOwner = nullptr;
+        m_ModuleOwner = nullptr;
+        OnLevelUninstanced.Broadcast();
+    }
+}
+
 #endif //WITH_EDITOR

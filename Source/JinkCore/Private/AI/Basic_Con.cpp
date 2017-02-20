@@ -17,7 +17,7 @@ ABasic_Con::ABasic_Con(const FObjectInitializer& ObjectInitializer)
     bFollows = true;
     MinMeleDistance = 100.0f;
     MaxMeleDistance = MinMeleDistance + 100.0f;
-    IsMovingToTarget = true;
+    IsMovingToTarget = false;
     StartsFollowing = true;
     bLookAtTargetWhileMele = true;
 
@@ -112,10 +112,12 @@ void ABasic_Con::CombatTick(float DeltaSeconds)
     }
     //Stop if not following
     else {
-        StartsFollowing = true;
         if (IsAIMoving() && IsMovingToTarget) {
             StopMovement();
         }
+
+        //Reset Following trigger
+        StartsFollowing = true;
     }
 }
 
