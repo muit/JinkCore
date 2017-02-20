@@ -21,7 +21,7 @@ ULevelInstanceComponent::ULevelInstanceComponent()
     // off to improve performance if you don't need them.
     PrimaryComponentTick.bCanEverTick = true;
     bTickInEditor = true;
-    bSpawnOnPlay = true;
+    bSpawnOnPlay = false;
     bDebug = true;
     bDebugInGame = false;
 
