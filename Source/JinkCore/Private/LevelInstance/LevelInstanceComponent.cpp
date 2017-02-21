@@ -353,7 +353,7 @@ void ULevelInstanceComponent::OnLevelLoaded()
 
         //Find Level Instance bounds. Need Test
         for (AActor* Actor : Level->Actors) {
-            if (Actor->IsA<ALevelInstanceBounds>() 
+            if (Actor && Actor->IsA<ALevelInstanceBounds>()
                 && !Actor->IsPendingKill())
             {
                 LIBounds = Cast<ALevelInstanceBounds>(Actor);

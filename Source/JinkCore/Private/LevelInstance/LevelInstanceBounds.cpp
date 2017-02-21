@@ -306,6 +306,7 @@ void ALevelInstanceBounds::UpdateAnchors()
         }
     }
 }
+#endif //WITH_EDITOR
 
 void ALevelInstanceBounds::Internal_OnLevelInstanced(ULevelInstanceComponent* InstanceOwner)
 {
@@ -326,5 +327,3 @@ void ALevelInstanceBounds::Internal_OnLevelUninstanced()
         OnLevelUninstanced.Broadcast();
     }
 }
-
-#endif //WITH_EDITOR
