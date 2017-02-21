@@ -155,9 +155,8 @@ bool UVideoSettings::SetVSyncEnabled(const bool VSync)
     return true;
 }
 
-
 // Confirm and save current video mode (resolution and fullscreen/windowed)
-bool UVideoSettings::SaveVideoModeAndQuality()
+bool UVideoSettings::SaveResolutionAndVideoMode()
 {
     UGameUserSettings* Settings = GetGameUserSettings();
     if (!Settings)
@@ -166,6 +165,20 @@ bool UVideoSettings::SaveVideoModeAndQuality()
     }
 
     Settings->ConfirmVideoMode();
+    Settings->ApplyResolutionSettings(true);
+    Settings->SaveSettings();
+    return true;
+}
+
+// Confirm and save current quality
+bool UVideoSettings::SaveQuality()
+{
+    UGameUserSettings* Settings = GetGameUserSettings();
+    if (!Settings)
+    {
+        return false;
+    }
+
     Settings->ApplyNonResolutionSettings();
     Settings->SaveSettings();
     return true;
@@ -233,7 +246,6 @@ UGameUserSettings* UVideoSettings::GetGameUserSettings()
     {
         return GEngine->GameUserSettings;
     }
-
     return nullptr;
 }
 
