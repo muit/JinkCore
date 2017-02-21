@@ -109,8 +109,8 @@ private:
 
     //~ Begin ALevelInstanceBounds Interface.
 public:
-    TSharedPtr<ALIAnchorTargetHandle> GetAnchorByGUID(FGuid GUID);
-    TSharedPtr<ALIAnchorTargetHandle> GetAnchorByName(FName Name);
+    ALIAnchorTargetHandle* GetAnchorByGUID(FGuid GUID);
+    ALIAnchorTargetHandle* GetAnchorByName(FName Name);
 
 #if WITH_EDITOR
     /** Updates anchors in the level instance asset  */

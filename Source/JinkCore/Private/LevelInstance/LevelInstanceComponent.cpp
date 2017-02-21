@@ -21,7 +21,7 @@ ULevelInstanceComponent::ULevelInstanceComponent()
     // off to improve performance if you don't need them.
     PrimaryComponentTick.bCanEverTick = true;
     bTickInEditor = true;
-    bSpawnOnPlay = true;
+    bSpawnOnPlay = false;
     bDebug = true;
     bDebugInGame = false;
 
@@ -353,7 +353,7 @@ void ULevelInstanceComponent::OnLevelLoaded()
 
         //Find Level Instance bounds. Need Test
         for (AActor* Actor : Level->Actors) {
-            if (Actor->IsA<ALevelInstanceBounds>() 
+            if (Actor && Actor->IsA<ALevelInstanceBounds>()
                 && !Actor->IsPendingKill())
             {
                 LIBounds = Cast<ALevelInstanceBounds>(Actor);

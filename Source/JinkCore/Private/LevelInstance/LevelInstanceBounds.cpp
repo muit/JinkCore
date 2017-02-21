@@ -270,20 +270,20 @@ void ALevelInstanceBounds::UnsubscribeFromUpdateEvents()
 #endif // WITH_EDITOR
 
 
-TSharedPtr<ALIAnchorTargetHandle> ALevelInstanceBounds::GetAnchorByGUID(FGuid GUID) {
-    return MakeShareable(*Anchors.FindByPredicate([GUID](const ALIAnchorTargetHandle* InAnchor)
+ALIAnchorTargetHandle* ALevelInstanceBounds::GetAnchorByGUID(FGuid GUID) {
+    return *Anchors.FindByPredicate([GUID](const ALIAnchorTargetHandle* InAnchor)
         {
             return InAnchor->GUID == GUID;
         }
-    ));
+    );
 }
 
-TSharedPtr<ALIAnchorTargetHandle> ALevelInstanceBounds::GetAnchorByName(FName Name) {
-    return MakeShareable(*Anchors.FindByPredicate([Name](const ALIAnchorTargetHandle* InAnchor)
+ALIAnchorTargetHandle* ALevelInstanceBounds::GetAnchorByName(FName Name) {
+    return *Anchors.FindByPredicate([Name](const ALIAnchorTargetHandle* InAnchor)
         {
             return InAnchor->Name == Name;
         }
-    ));
+    );
 }
 
 #if WITH_EDITOR
@@ -306,6 +306,7 @@ void ALevelInstanceBounds::UpdateAnchors()
         }
     }
 }
+#endif //WITH_EDITOR
 
 void ALevelInstanceBounds::Internal_OnLevelInstanced(ULevelInstanceComponent* InstanceOwner)
 {
@@ -326,5 +327,3 @@ void ALevelInstanceBounds::Internal_OnLevelUninstanced()
         OnLevelUninstanced.Broadcast();
     }
 }
-
-#endif //WITH_EDITOR
