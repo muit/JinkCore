@@ -37,7 +37,7 @@ void ULIAnchorViewerComponent::PostEditChangeProperty(FPropertyChangedEvent & Pr
 {}
 #endif //WITH_EDITOR
 
-void ULIAnchorViewerComponent::SetupAnchorAttachment(ULIAnchorViewerComponent* OtherAnchor, bool IsFather)
+void ULIAnchorViewerComponent::SetupAnchorAttachment(ULIAnchorViewerComponent* OtherAnchor, bool bIsFather, bool bSpawnConector)
 {
     if (!OtherAnchor) {
         UE_LOG(LogJinkCore, Warning, TEXT("LevelInstance: Can't setup attachment to an invalid anchor."));
@@ -46,9 +46,31 @@ void ULIAnchorViewerComponent::SetupAnchorAttachment(ULIAnchorViewerComponent* O
     
     //Attach this Anchor
     ConnectedAttachment = OtherAnchor;
-    bIsAttachmentFather = IsFather;
+    bIsAttachmentFather = bIsFather;
 
     //Attach the other Anchor
     OtherAnchor->ConnectedAttachment = this;
-    OtherAnchor->bIsAttachmentFather = !IsFather;
+    OtherAnchor->bIsAttachmentFather = !bIsFather;
+
+
+    //Spawn Conector if desired
+    if (bSpawnConector) {
+        SpawnConector();
+    }
+}
+
+ALIConector* ULIAnchorViewerComponent::SpawnConector() {
+    ULIAnchorViewerComponent* AnchorFather = bIsAttachmentFather || !IsAttached() ? this : ConnectedAttachment;
+
+    if (AnchorFather) {
+        FLIAnchorTypeInfo TypeInfo;
+        AnchorFather->AnchorData.Type.GetAnchorInfo(TypeInfo);
+        const FTransform& SpawnTransform = AnchorFather->GetComponentTransform();
+
+        ALIConector* ConectorActor = Cast<ALIConector>(GetWorld()->SpawnActor(TypeInfo.GetConectorType(), &SpawnTransform));
+        ConectorActor->SetupConAttachment(AnchorFather, ConnectedAttachment);
+        return ConectorActor;
+    }
+
+    return nullptr;
 }

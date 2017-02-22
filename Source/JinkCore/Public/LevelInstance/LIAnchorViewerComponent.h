@@ -49,7 +49,10 @@ public:
     ALIConector* Conector;
 
 
-    void SetupAnchorAttachment(ULIAnchorViewerComponent* OtherAnchor, bool IsFather);
+    void SetupAnchorAttachment(ULIAnchorViewerComponent* OtherAnchor, bool bIsFather, bool bSpawnConector = true);
+
+    UFUNCTION(BlueprintCallable, Category = "Level Anchor|Attachment")
+    ALIConector* SpawnConector();
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Anchor|Attachment")
     bool IsAttached() { 
@@ -61,7 +64,7 @@ public:
     }
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Anchor|Attachment")
-        bool HaveConector() {
+    bool HaveConector() {
         return IsAttached() && Conector != nullptr;
     }
 };
