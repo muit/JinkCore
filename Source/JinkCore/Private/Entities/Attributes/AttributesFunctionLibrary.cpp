@@ -18,21 +18,18 @@ const float& UAttributesFunctionLibrary::GetBase (const FEntityAttribute & Attri
     return Attribute.BaseValue;
 }
 
-void UAttributesFunctionLibrary::AddAttributeModification(FEntityAttribute& Attribute, FAttributeModification& Modification)
-{
-    Attribute.AddModification(Modification);
-}
-/*
-void UAttributesFunctionLibrary::AddLinkedAttributeModification(FEntityAttribute& Attribute, FAttributeModification& Modification, AActor* Owner) {
-    Modification.Owner = Owner;
-    Modification.bLinkedToOwner = true;
-    Attribute.AddModification(Modification);
-}*/
-
 void UAttributesFunctionLibrary::AddModification(FEntityAttribute & Attribute, FAttributeModification & Modification)
 {
     Attribute.AddModification(Modification);
 }
+
+/*
+void UAttributesFunctionLibrary::AddLinkedModification(FEntityAttribute& Attribute, FAttributeModification& Modification, AActor* Owner) {
+Modification.Owner = Owner;
+Modification.bLinkedToOwner = true;
+Attribute.AddModification(Modification);
+}*/
+
 void UAttributesFunctionLibrary::RemoveModification(FEntityAttribute & Attribute, FAttributeModification & Modification)
 {
     Attribute.RemoveModification(Modification);

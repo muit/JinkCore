@@ -7,7 +7,7 @@
 
 void FAttributeModification::Apply(const FEntityAttribute& Attribute, float& ActualValue) const{
     if (PercentageIncrement > 0) {
-        ActualValue += ActualValue * (PercentageIncrement / 100);
+        ActualValue *= 1+(PercentageIncrement / 100);
     }
 
     if (BasePercentageIncrement > 0) {

@@ -29,12 +29,11 @@ class JINKCORE_API UAttributesFunctionLibrary : public UBlueprintFunctionLibrary
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Attributes")
     static const float& GetBase (const FEntityAttribute& Attribute);
 
-    UFUNCTION(BlueprintCallable, Category = "Attributes")
-    static void AddAttributeModification(UPARAM(ref) FEntityAttribute& Attribute, UPARAM(ref) FAttributeModification& Modification);
-    //static void AddLinkedAttributeModification(FEntityAttribute& Attribute, FAttributeModification& Modification, AActor* Owner);
 
     UFUNCTION(BlueprintCallable, Category = "Attributes")
     static void AddModification(UPARAM(ref) FEntityAttribute& Attribute, UPARAM(ref) FAttributeModification& Modification);
+    //static void AddLinkedModification(FEntityAttribute& Attribute, FAttributeModification& Modification, AActor* Owner);
+
     UFUNCTION(BlueprintCallable, Category = "Attributes")
     static void RemoveModification(UPARAM(ref) FEntityAttribute& Attribute, UPARAM(ref) FAttributeModification& Modification);
 };
