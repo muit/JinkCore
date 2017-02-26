@@ -15,7 +15,7 @@
 
 FText FAssetTypeAction_Buff::GetName() const
 {
-    return LOCTEXT("FAssetTypeAction_BuffName", "Entity Buff");
+    return LOCTEXT("FAssetTypeAction_BuffName", "Buff");
 }
 
 FColor FAssetTypeAction_Buff::GetTypeColor() const

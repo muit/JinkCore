@@ -36,6 +36,12 @@ AEntity::AEntity()
 void AEntity::BeginPlay()
 {
     Super::BeginPlay();
+
+    //Create start buffs
+    for(auto& Class : BuffsAtStart) {
+        AddBuff(Class);
+    }
+
     OnTakeAnyDamage.AddDynamic(this, &AEntity::ReceiveDamage);
 }
 
@@ -348,6 +354,19 @@ void AEntity::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
     else if (ABasic_Con* AI = GetAI()) {
         AI->JustDied_Internal(InstigatedBy, Killer);
     }
+}
+
+UBuff * AEntity::AddBuff(TSubclassOf<UBuff> Class)
+{
+    UBuff* Buff = Cast<UBuff>(Class->GetDefaultObject());
+    Buff->Setup(this);
+    Buffs.Add(Buff);
+    return Buff;
+}
+
+void AEntity::RemoveBuff(UBuff * Buff)
+{
+    Buffs.Remove(Buff);
 }
 
 /**
