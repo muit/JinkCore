@@ -5,7 +5,7 @@
 
 const float UAttributesFunctionLibrary::GetValue (const FEntityAttribute & Attribute)
 {
-    return Attribute.Calculate();
+    return Attribute;
 }
 
 const float UAttributesFunctionLibrary::ToFloat (const FEntityAttribute & Attribute)
@@ -16,4 +16,24 @@ const float UAttributesFunctionLibrary::ToFloat (const FEntityAttribute & Attrib
 const float& UAttributesFunctionLibrary::GetBase (const FEntityAttribute & Attribute)
 {
     return Attribute.BaseValue;
+}
+
+void UAttributesFunctionLibrary::AddAttributeModification(FEntityAttribute& Attribute, FAttributeModification& Modification)
+{
+    Attribute.AddModification(Modification);
+}
+/*
+void UAttributesFunctionLibrary::AddLinkedAttributeModification(FEntityAttribute& Attribute, FAttributeModification& Modification, AActor* Owner) {
+    Modification.Owner = Owner;
+    Modification.bLinkedToOwner = true;
+    Attribute.AddModification(Modification);
+}*/
+
+void UAttributesFunctionLibrary::AddModification(FEntityAttribute & Attribute, FAttributeModification & Modification)
+{
+    Attribute.AddModification(Modification);
+}
+void UAttributesFunctionLibrary::RemoveModification(FEntityAttribute & Attribute, FAttributeModification & Modification)
+{
+    Attribute.RemoveModification(Modification);
 }
