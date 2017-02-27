@@ -39,7 +39,7 @@ void AEntity::BeginPlay()
 
     //Create start buffs
     for(auto& Class : BuffsAtStart) {
-        AddBuff(Class);
+        ApplyBuff(Class);
     }
 
     OnTakeAnyDamage.AddDynamic(this, &AEntity::ReceiveDamage);
@@ -356,22 +356,39 @@ void AEntity::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
     }
 }
 
-UBuff * AEntity::AddBuff(TSubclassOf<UBuff> Class)
+UBuff * AEntity::ApplyBuff(TSubclassOf<UBuff> Class)
 {
+    if (!Class) return nullptr;
+
     UBuff* Buff = Cast<UBuff>(Class->GetDefaultObject());
     Buff->Setup(this);
     Buffs.Add(Buff);
     return Buff;
 }
 
-void AEntity::RemoveBuff(UBuff * Buff)
+void AEntity::RemoveBuff(UBuff* Buff)
 {
     Buffs.Remove(Buff);
 }
 
+bool AEntity::HasBuff(UBuff* Buff)
+{
+    if (!Buff) return false;
+    return Buffs.Contains(Buff);
+}
+
+bool AEntity::HasBuffOfClass(TSubclassOf<UBuff> Class)
+{
+    if (!Class) return false;
+
+    return Buffs.ContainsByPredicate([Class](UBuff* Buff) {
+        return Buff->StaticClass() == Class;
+    });
+}
+
 /**
-* SUMMONING
-*/
+ * SUMMONING
+ */
 AEntity* AEntity::Summon(UClass* Class, FTransform Transform) {
     //Check that Class is a child of Entity
     if (!Class->IsChildOf(AEntity::StaticClass()))

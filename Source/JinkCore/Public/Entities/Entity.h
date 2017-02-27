@@ -295,10 +295,15 @@ public:
     TArray<UBuff*> Buffs;
 
     UFUNCTION(BlueprintCallable, Category = "Entity|Buffs")
-    UBuff* AddBuff(TSubclassOf<UBuff> Class);
+    UBuff* ApplyBuff(TSubclassOf<UBuff> Class);
 
     UFUNCTION(BlueprintCallable, Category = "Entity|Buffs")
     void RemoveBuff(UBuff* Buff);
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Buffs")
+    bool HasBuff(UBuff* Buff);
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Buffs")
+    bool HasBuffOfClass(TSubclassOf<UBuff> Class);
 
     /**
     * SUMMONING
