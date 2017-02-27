@@ -7,8 +7,12 @@
 
 #include "EntityAttribute.generated.h"
 
+class AEntity;
+
 /**
- * 
+ * Entity Attribute
+ * Used as a modificable float depending on modifiers.
+ * When used in entities, call SetOwner in constructor to apply Buff/Debuff modifications.
  */
 USTRUCT(BlueprintType)
 struct JINKCORE_API FEntityAttribute
@@ -17,7 +21,25 @@ struct JINKCORE_API FEntityAttribute
 
     FEntityAttribute() {
         BaseValue = 0;
+        Guid = FGuid::NewGuid();
     }
+
+    FEntityAttribute(float _BaseValue) {
+        BaseValue = _BaseValue;
+        Guid = FGuid::NewGuid();
+    }
+
+    FEntityAttribute(AEntity* _Owner, float _BaseValue = 0) {
+        Owner = _Owner;
+        BaseValue = _BaseValue;
+        Guid = FGuid::NewGuid();
+    }
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    FGuid Guid;
+
+    UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+    AEntity* Owner;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
     float BaseValue;
@@ -37,16 +59,12 @@ struct JINKCORE_API FEntityAttribute
         Modifications.Remove(Modification);
     }
 
-    const float Calculate() const
+    const float Calculate() const;
+
+    /* Assign a base value from float */
+    FORCEINLINE FEntityAttribute operator= (const float& base) const
     {
-        float ActualValue = BaseValue;
-
-        for (auto& Mod : Modifications)
-        {
-            Mod.Apply(*this, ActualValue);
-        }
-
-        return ActualValue;
+        return FEntityAttribute(base);
     }
 
     /* Get Attribute final value */
@@ -54,6 +72,13 @@ struct JINKCORE_API FEntityAttribute
     {
         return Calculate();
     }
+
+    //compare two modifications by guid
+    FORCEINLINE bool operator==(const FEntityAttribute& Other) const
+    {
+        return Guid == Other.Guid;
+    }
+
     /*
     void OnModOwnerDestroyed(AActor* DestroyedActor) {
         Modifications.RemoveAll([DestroyedActor] (FAttributeModification& Mod) {

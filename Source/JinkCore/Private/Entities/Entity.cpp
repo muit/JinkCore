@@ -36,6 +36,12 @@ AEntity::AEntity()
 void AEntity::BeginPlay()
 {
     Super::BeginPlay();
+
+    //Create start buffs
+    for(auto& Class : BuffsAtStart) {
+        ApplyBuff(Class);
+    }
+
     OnTakeAnyDamage.AddDynamic(this, &AEntity::ReceiveDamage);
 }
 
@@ -350,9 +356,43 @@ void AEntity::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
     }
 }
 
+UBuff * AEntity::ApplyBuff(TSubclassOf<UBuff> Class)
+{
+    if (!Class.Get()->IsChildOf<UBuff>()) return nullptr;
+
+    UBuff* Buff = Cast<UBuff>(NewObject<UBuff>(this, Class));
+    Buff->Setup(this);
+    Buffs.Add(Buff);
+    return Buff;
+}
+
+void AEntity::RemoveBuff(UBuff* Buff)
+{
+    Buffs.Remove(Buff);
+}
+
+bool AEntity::HasBuff(UBuff* Buff)
+{
+    if (!Buff) return false;
+    return Buffs.Contains(Buff);
+}
+
+bool AEntity::HasBuffOfClass(TSubclassOf<UBuff> Class)
+{
+    if (!Class.Get()->IsChildOf<UBuff>()) return false;
+
+    return Buffs.ContainsByPredicate([Class](UBuff* Buff) {
+        return Buff->IsA(Class.Get());
+    });
+}
+
+const TArray<UBuff*>& AEntity::GetBuffs() {
+    return Buffs;
+}
+
 /**
-* SUMMONING
-*/
+ * SUMMONING
+ */
 AEntity* AEntity::Summon(UClass* Class, FTransform Transform) {
     //Check that Class is a child of Entity
     if (!Class->IsChildOf(AEntity::StaticClass()))

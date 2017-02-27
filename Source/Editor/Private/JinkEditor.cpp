@@ -8,6 +8,7 @@
 #include "Asset/AssetTypeAction_LevelInstance.h"
 #include "Asset/AssetTypeAction_Item.h"
 #include "Asset/AssetTypeAction_SQ.h"
+#include "Asset/AssetTypeAction_Buff.h"
 
 #include "ContentBrowserExtensions/ContentBrowserExtensions.h"
 
@@ -26,6 +27,7 @@ void FJinkEditorModule::StartupModule()
     RegisterAssetTypeAction(AssetTools, MakeShareable(new FAssetTypeAction_LevelInstance));
     RegisterAssetTypeAction(AssetTools, MakeShareable(new FAssetTypeAction_Item));
     RegisterAssetTypeAction(AssetTools, MakeShareable(new FAssetTypeAction_SQ));
+    RegisterAssetTypeAction(AssetTools, MakeShareable(new FAssetTypeAction_Buff));
 
     // Integrate JinkCore actions into existing editor context menus
     if (!IsRunningCommandlet())

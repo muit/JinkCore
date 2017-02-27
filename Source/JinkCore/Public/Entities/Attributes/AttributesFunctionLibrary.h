@@ -16,7 +16,18 @@ UCLASS()
 class JINKCORE_API UAttributesFunctionLibrary : public UBlueprintFunctionLibrary
 {
     GENERATED_BODY()
-    
+
+    UFUNCTION(BlueprintCallable, Category = "Attributes")
+    static void SetOwner(UPARAM(ref) FEntityAttribute& Attribute, AEntity* _Owner);
+
+    // Compare two Attributes by Guid
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Attributes")
+    static bool Is(UPARAM(ref) FEntityAttribute& A, UPARAM(ref) FEntityAttribute& B);
+
+    // Compare two Attributes by Guid
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Attributes")
+    static bool Equals(UPARAM(ref) FEntityAttribute& A, UPARAM(ref) FEntityAttribute& B);
+
     //Get final value
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Attributes")
     static const float GetValue (const FEntityAttribute& Attribute);
