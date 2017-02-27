@@ -45,6 +45,7 @@ UCLASS()
 class JINKCORE_API UVideoSettings : public UBlueprintFunctionLibrary
 {
     GENERATED_BODY()
+
 public:
     // Get a list of screen resolutions supported on this machine
     UFUNCTION(BlueprintPure, Category = "Video Settings")
@@ -83,9 +84,13 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Video Settings")
     static bool SetVSyncEnabled(const bool VSync);
 
-    // Confirm and save current video mode (resolution and fullscreen/windowed) as well as quality settings
+    // Confirm and save current video mode (resolution and fullscreen/windowed)
     UFUNCTION(BlueprintCallable, Category = "Video Settings")
-    static bool SaveVideoModeAndQuality();
+    static bool SaveResolutionAndVideoMode();
+
+    // Confirm and save current quality
+    UFUNCTION(BlueprintCallable, Category = "Video Settings")
+    static bool SaveQuality();
 
     // Revert to original video settings
     UFUNCTION(BlueprintCallable, Category = "Video Settings")
@@ -106,5 +111,4 @@ public:
 private:
     // Try to get the GameUserSettings object from the engine
     static UGameUserSettings* GetGameUserSettings();
-
 };

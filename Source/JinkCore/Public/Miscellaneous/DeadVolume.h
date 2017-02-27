@@ -2,13 +2,13 @@
 
 #pragma once
 
-#include "Miscellaneous/EntityVolume.h"
-//#include "DeadVolume.generated.h"
+#include "EntityVolume.h"
+#include "DeadVolume.generated.h"
 
 /**
 *
 */
-/*
+
 UCLASS()
 class JINKCORE_API ADeadVolume : public AEntityVolume
 {
@@ -17,4 +17,4 @@ class JINKCORE_API ADeadVolume : public AEntityVolume
 protected:
     UFUNCTION()
     virtual void EntityEnter(AEntity* Entity) override;
-};*/
+};

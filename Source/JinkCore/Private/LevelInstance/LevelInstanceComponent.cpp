@@ -3,7 +3,6 @@
 #include "JinkCorePrivatePCH.h"
 
 #include "LIAnchorViewerComponent.h"
-#include "LIConector.h"
 
 #include "LevelInstanceBounds.h"
 
@@ -272,17 +271,7 @@ void ULevelInstanceComponent::AttachToAnchor(ULIAnchorViewerComponent * MyAnchor
 
 
     //Setup Attachment on the anchors
-    MyAnchor->SetupAnchorAttachment(OtherAnchor, false);
-
-    //Spawn Conector if desired
-    if (bSpawnConector) {
-        FLIAnchorTypeInfo TypeInfo;
-        MyAnchor->AnchorData.Type.GetAnchorInfo(TypeInfo);
-        const FTransform& SpawnTransform = MyAnchor->GetComponentTransform();
-
-        ALIConector* ConectorActor = Cast<ALIConector>(GetWorld()->SpawnActor(TypeInfo.GetConectorType(), &SpawnTransform));
-        ConectorActor->SetupConAttachment(MyAnchor, OtherAnchor);
-    }
+    MyAnchor->SetupAnchorAttachment(OtherAnchor, false, bSpawnConector);
 }
 
 //~ Begin Anchors Interface

@@ -5,6 +5,7 @@
 #include "GameFramework/Character.h"
 #include "Faction.h"
 #include "Spell.h"
+#include "Buff.h"
 #include "Entity.generated.h"
 
 struct FActorSpawnParameters;
@@ -285,6 +286,27 @@ public:
 
     //void DropItem(TAssetPtr<USelectionQuery> SelectionQuery);
 
+    /**
+    * BUFFS / DEBUFFS
+    */
+    UPROPERTY(EditAnywhere, Category = "Entity|Buffs")
+    TArray<TSubclassOf<UBuff>> BuffsAtStart;
+    UPROPERTY(VisibleAnywhere, Category = "Entity|Buffs")
+    TArray<UBuff*> Buffs;
+
+    UFUNCTION(BlueprintCallable, Category = "Entity|Buffs")
+    UBuff* ApplyBuff(TSubclassOf<UBuff> Class);
+
+    UFUNCTION(BlueprintCallable, Category = "Entity|Buffs")
+    void RemoveBuff(UBuff* Buff);
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Buffs")
+    bool HasBuff(UBuff* Buff);
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Buffs")
+    bool HasBuffOfClass(TSubclassOf<UBuff> Class);
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Buffs")
+    const TArray<UBuff*>& GetBuffs();
 
     /**
     * SUMMONING
