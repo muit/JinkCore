@@ -360,7 +360,7 @@ UBuff * AEntity::ApplyBuff(TSubclassOf<UBuff> Class)
 {
     if (!Class.Get()->IsChildOf<UBuff>()) return nullptr;
 
-    UBuff* Buff = Cast<UBuff>(Class->GetDefaultObject());
+    UBuff* Buff = Cast<UBuff>(NewObject<UBuff>(this, Class));
     Buff->Setup(this);
     Buffs.Add(Buff);
     return Buff;
@@ -382,8 +382,12 @@ bool AEntity::HasBuffOfClass(TSubclassOf<UBuff> Class)
     if (!Class.Get()->IsChildOf<UBuff>()) return false;
 
     return Buffs.ContainsByPredicate([Class](UBuff* Buff) {
-        return Buff->StaticClass() == Class;
+        return Buff->IsA(Class.Get());
     });
+}
+
+const TArray<UBuff*>& AEntity::GetBuffs() {
+    return Buffs;
 }
 
 /**

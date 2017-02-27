@@ -305,6 +305,9 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Buffs")
     bool HasBuffOfClass(TSubclassOf<UBuff> Class);
 
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Buffs")
+    const TArray<UBuff*>& GetBuffs();
+
     /**
     * SUMMONING
     */
