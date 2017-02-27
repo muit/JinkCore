@@ -358,7 +358,7 @@ void AEntity::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
 
 UBuff * AEntity::ApplyBuff(TSubclassOf<UBuff> Class)
 {
-    if (!Class) return nullptr;
+    if (!Class.Get()->IsChildOf<UBuff>()) return nullptr;
 
     UBuff* Buff = Cast<UBuff>(Class->GetDefaultObject());
     Buff->Setup(this);
@@ -379,7 +379,7 @@ bool AEntity::HasBuff(UBuff* Buff)
 
 bool AEntity::HasBuffOfClass(TSubclassOf<UBuff> Class)
 {
-    if (!Class) return false;
+    if (!Class.Get()->IsChildOf<UBuff>()) return false;
 
     return Buffs.ContainsByPredicate([Class](UBuff* Buff) {
         return Buff->StaticClass() == Class;
