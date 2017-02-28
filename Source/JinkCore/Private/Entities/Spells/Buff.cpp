@@ -2,6 +2,7 @@
 
 #include "JinkCorePrivatePCH.h"
 #include "Entity.h"
+#include "Item.h"
 #include "Buff.h"
 
 #define LOCTEXT_NAMESPACE "Buff"
@@ -12,21 +13,43 @@ UBuff::UBuff(const FObjectInitializer & ObjectInitializer)
     Category = EBuffCategory::BC_Buff;
 }
 
-void UBuff::Setup(AEntity* Owner) {
+void UBuff::Apply(AEntity* Owner) {
     Entity = Owner;
+    OnApply();
 }
 
-float UBuff::OnAttributeValue_Implementation(const FEntityAttribute& Attribute, const float& ActualValue)
+void UBuff::Unapply()
 {
-    return ActualValue;
+    OnUnapply();
+}
+
+bool UBuff::CanPickUpItem(TSubclassOf<UItem>& Type)
+{
+    for (auto& RestrictedType : RestrictedItemsForPickUp) {
+        if(Type.Get() == RestrictedType.Get()) {
+            return false;
+        }
+    }
+
+    return _CanPickUpItem(Type);
+}
+
+bool UBuff::_CanPickUpItem_Implementation(TSubclassOf<UItem>& Type)
+{
+    return true;
+}
+
+
+void UBuff::ApplyBuffModification(UPARAM(ref) FEntityAttribute& Attribute, UPARAM(ref) FAttributeModification& Mod)
+{
+    Attribute.AddBuffModification(Mod);
+}
+
+void UBuff::RemoveBuffModification(UPARAM(ref) FEntityAttribute& Attribute, UPARAM(ref) FAttributeModification& Mod)
+{
+    Attribute.RemoveBuffModification(Mod);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 #undef LOCTEXT_NAMESPACE
-
-float UBuff::ApplyModification(const FEntityAttribute& Attribute, const FAttributeModification& Mod, float ActualValue)
-{
-    Mod.Apply(Attribute, ActualValue);
-    return ActualValue;
-}

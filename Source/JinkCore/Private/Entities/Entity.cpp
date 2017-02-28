@@ -86,6 +86,20 @@ float AEntity::GetFireRate() const
 */
 int32 AEntity::AddItem(TSubclassOf<UItem> Type)
 {
+    return PickUpItem(Type);
+}
+
+int32 AEntity::PickUpItem(TSubclassOf<UItem> Type)
+{
+    if (!Type.Get()->IsChildOf<UItem>()) return 0;
+
+    //Check if any buff restricts the pickup
+    for (auto* Buff : Buffs) {
+        if(!Buff->CanPickUpItem(Type)) {
+            return 0;
+        }
+    }
+
     if (UItem* Item = UItem::GetObject(Type)) {
         Item->ApplyEntityModifications(this);
         return Items.Add(Type);
@@ -361,14 +375,20 @@ UBuff * AEntity::ApplyBuff(TSubclassOf<UBuff> Class)
     if (!Class.Get()->IsChildOf<UBuff>()) return nullptr;
 
     UBuff* Buff = Cast<UBuff>(NewObject<UBuff>(this, Class));
-    Buff->Setup(this);
-    Buffs.Add(Buff);
+    if (Buff) {
+        Buff->Apply(this);
+        Buffs.Add(Buff);
+    }
     return Buff;
 }
 
 void AEntity::RemoveBuff(UBuff* Buff)
 {
-    Buffs.Remove(Buff);
+    if (!Buff) return;
+
+    if(Buffs.Remove(Buff)) {
+        Buff->Unapply();
+    }
 }
 
 bool AEntity::HasBuff(UBuff* Buff)
