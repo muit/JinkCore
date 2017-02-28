@@ -51,7 +51,7 @@ void FAnchorTypeCustomization::OnItemSelected(FString Value){
 
     TypeHandle->SetValue(Value);
     if (Values.Contains(Value)) {
-        IdHandle->SetValue(Values.IndexOfByKey(Value));
+        IdHandle->SetValue((uint8)Values.IndexOfByKey(Value));
     }
     else {
         IdHandle->SetValue(0);
