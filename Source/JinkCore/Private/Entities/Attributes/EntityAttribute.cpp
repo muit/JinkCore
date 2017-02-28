@@ -15,11 +15,8 @@ const float FEntityAttribute::Calculate() const
         Mod.Apply(*this, ActualValue);
     }
 
-    if (Owner) {
-        for (auto* Buff : Owner->Buffs)
-        {
-            ActualValue = Buff->OnAttributeValue(*this, ActualValue);
-        }
+    for (auto& BuffMod : BuffModifications) {
+        BuffMod.Apply(*this, ActualValue);
     }
 
     return ActualValue;

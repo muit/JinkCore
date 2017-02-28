@@ -34,7 +34,7 @@ public:
     UPROPERTY(BlueprintReadOnly, Category = "Attributes")
     bool bLinkedToOwner;*/
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    UPROPERTY(BlueprintReadOnly, Category = "Attributes")
     FGuid Guid;
 
     /* Adds a percentage of the base value to the attribute */ 

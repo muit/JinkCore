@@ -31,6 +31,11 @@ const float& UAttributesFunctionLibrary::GetBase (const FEntityAttribute & Attri
     return Attribute.BaseValue;
 }
 
+void UAttributesFunctionLibrary::SetBase(UPARAM(ref) FEntityAttribute & Attribute, float Value)
+{
+    Attribute.BaseValue = Value;
+}
+
 void UAttributesFunctionLibrary::AddModification(FEntityAttribute & Attribute, FAttributeModification & Modification)
 {
     Attribute.AddModification(Modification);

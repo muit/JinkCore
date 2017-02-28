@@ -35,7 +35,7 @@ struct JINKCORE_API FEntityAttribute
         Guid = FGuid::NewGuid();
     }
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Attributes")
+    UPROPERTY(BlueprintReadOnly, Category = "Attributes")
     FGuid Guid;
 
     UPROPERTY(BlueprintReadOnly, Category = "Attributes")
@@ -47,16 +47,22 @@ struct JINKCORE_API FEntityAttribute
     UPROPERTY(EditAnywhere, Category = "Attributes")
     TArray<FAttributeModification> Modifications;
 
-    void AddModification(FAttributeModification& Modification) {
-        /*if(Modification.bLinkedToOwner && Modification.Owner) {
-            //Cast<AActor>(Modification.Owner)->OnDestroyed.Add
-        }*/
+    UPROPERTY()
+    TArray<FAttributeModification> BuffModifications;
 
+    void AddModification(FAttributeModification& Modification) {
         Modifications.Add(Modification);
     }
 
     void RemoveModification(FAttributeModification& Modification) {
         Modifications.Remove(Modification);
+    }
+
+    void AddBuffModification(FAttributeModification& Modification) {
+        BuffModifications.Add(Modification);
+    }
+    void RemoveBuffModification(FAttributeModification& Modification) {
+        BuffModifications.Remove(Modification);
     }
 
     const float Calculate() const;
