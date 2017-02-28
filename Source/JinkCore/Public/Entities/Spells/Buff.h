@@ -9,6 +9,7 @@
 #include "Buff.generated.h"
 
 class AEntity;
+class UItem;
 
 UENUM(BlueprintType)
 enum class EBuffCategory : uint8
@@ -26,8 +27,14 @@ class JINKCORE_API UBuff : public UObject
     GENERATED_UCLASS_BODY()
 
 public:
+    virtual void Apply(AEntity* Owner);
+    virtual void Unapply();
 
-    void Setup(AEntity* Owner);
+    UFUNCTION(BlueprintImplementableEvent, Category = "Buff")
+    void OnApply();
+    UFUNCTION(BlueprintImplementableEvent, Category = "Buff")
+    void OnUnapply();
+
 
     //~ Begin Buff Interface
     UPROPERTY(BlueprintReadOnly, Category = "Buff")
@@ -36,12 +43,24 @@ public:
     //~ Begin Buff Interface
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buff")
     EBuffCategory Category;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Buff")
+    TArray<TSubclassOf<UItem>> RestrictedItemsForPickUp;
+
+
+    bool CanPickUpItem(TSubclassOf<UItem>& Type);
 
     UFUNCTION(BlueprintNativeEvent, Category = "Buff")
-    float OnAttributeValue(const FEntityAttribute& Attribute, const float& ActualValue);
-    //~ End Item Interface
-	
+    bool _CanPickUpItem(TSubclassOf<UItem>& Type);
+
     UFUNCTION(BlueprintCallable, meta = (BlueprintProtected), Category = "Buff")
-    float ApplyModification(const FEntityAttribute& Attribute, const FAttributeModification& Mod, float ActualValue);
-    //~ End Item Interface
+    void ApplyBuffModification(UPARAM(ref) FEntityAttribute& Attribute, UPARAM(ref) FAttributeModification& Mod);
+
+    UFUNCTION(BlueprintCallable, meta = (BlueprintProtected), Category = "Buff")
+    void RemoveBuffModification(UPARAM(ref) FEntityAttribute& Attribute, UPARAM(ref) FAttributeModification& Mod);
+    //~ End Buff Interface
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Buff")
+    FORCEINLINE bool IsApplied() const {
+        return Entity != nullptr;
+    }
 };
