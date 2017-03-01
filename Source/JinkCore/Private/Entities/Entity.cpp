@@ -42,6 +42,11 @@ void AEntity::BeginPlay()
         ApplyBuff(Class);
     }
 
+
+    for (auto& ItemType : Items) {
+        PickUpItem(ItemType);
+    }
+
     OnTakeAnyDamage.AddDynamic(this, &AEntity::ReceiveDamage);
 }
 
@@ -61,8 +66,8 @@ void AEntity::Tick( float DeltaTime )
 float AEntity::GetDamage() const
 {
     float ModDamage = Damage;
-    for (auto& ItemType : Items) {
-        if(UItem* Item = UItem::GetObject(ItemType)) {
+    for (auto* Item : ItemObjects) {
+        if(Item) {
             ModDamage += Item->DamageIncrement;
         }
     }
@@ -72,8 +77,8 @@ float AEntity::GetDamage() const
 float AEntity::GetFireRate() const
 {
     float ModFireRate = FireRate;
-    for (auto& ItemType : Items) {
-        if (UItem* Item = UItem::GetObject(ItemType)) {
+    for (auto* Item : ItemObjects) {
+        if (Item) {
             ModFireRate *= Item->FireRateCof;
         }
     }
@@ -84,64 +89,60 @@ float AEntity::GetFireRate() const
 /**
 * Begin ITEMS
 */
-int32 AEntity::AddItem(TSubclassOf<UItem> Type)
-{
-    return PickUpItem(Type);
-}
-
-int32 AEntity::PickUpItem(TSubclassOf<UItem> Type)
+UItem* AEntity::PickUpItem(TSubclassOf<UItem> Type)
 {
     if (!Type.Get()->IsChildOf<UItem>()) return 0;
 
     //Check if any buff restricts the pickup
     for (auto* Buff : Buffs) {
         if(!Buff->CanPickUpItem(Type)) {
-            return 0;
+            return nullptr;
         }
     }
 
-    if (UItem* Item = UItem::GetObject(Type)) {
-        Item->ApplyEntityModifications(this);
-        return Items.Add(Type);
-    }
-    return 0;
-}
-void AEntity::RemoveItem(TSubclassOf<UItem> Type)
-{
-    if (Type && Items.Contains(Type)) {
-        if (UItem* Item = UItem::GetObject(Type)) {
-            Item->UndoEntityModifications(this);
-        }
-    }
-    Items.RemoveSingle(Type);
-}
-void AEntity::RemoveItemById(int32 Id)
-{
-    if (Items.IsValidIndex(Id)) {
-        if (UItem* Item = UItem::GetObject(Items[Id])) {
-            Item->UndoEntityModifications(this);
-        }
-    }
+    if (UItem* Item = NewObject<UItem>(this, Type.Get())) {
+        Item->PickUp(this);
+        ItemObjects.Add(Item);
 
-    Items.RemoveAt(Id);
-}
-void AEntity::RemoveAllItems(TSubclassOf<UItem> Type)
-{
-    int32 RemovedAmount = Items.Remove(Type);
-    for (int32 I = 0; I < RemovedAmount; I++) {
-        if (UItem* Item = UItem::GetObject(Type)) {
-            Item->UndoEntityModifications(this);
-        }
+        return Item;
     }
+    return nullptr;
+}
+
+void AEntity::DropItem(UItem* DropItem)
+{
+    if (!DropItem)
+        return;
+
+    //Drop and destroy an item
+    ItemObjects.RemoveAll([DropItem](UItem* Item) {
+        if (Item && DropItem == Item) {
+            Item->Drop();
+            return true;
+        }
+        return false;
+    });
+}
+
+void AEntity::DropAllItems(TSubclassOf<UItem> Type)
+{
+    //Drop and destroy all items of a type
+    ItemObjects.RemoveAll([Type](UItem* Item) {
+        if (Item && Item->IsA(Type)) {
+            Item->Drop();
+            return true;
+        }
+        return false;
+    });
 }
 void AEntity::ClearItems()
 {
-    for (auto& ItemType : Items) {
-        if (UItem* Item = UItem::GetObject(ItemType)) {
-            Item->UndoEntityModifications(this);
+    for (auto* Item : ItemObjects) {
+        if (Item) {
+            Item->Drop();
         }
     }
-    Items.Empty();
+    ItemObjects.Empty();
 }
 /** End ITEMS*/
 
@@ -355,12 +356,6 @@ bool AEntity::CheckReceiveDamage_Implementation(AActor * DamagedActor, float _Da
 
 void AEntity::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
 {
-    for (auto& ItemType : Items) {
-        if (UItem* Item = UItem::GetObject(ItemType)) {
-            Item->HolderJustDied(this, InstigatedBy, Killer);
-        }
-    }
-
     JustDied(InstigatedBy, Killer);
     JustDiedDelegate.Broadcast(InstigatedBy, Killer);
     if (IsPlayerControlled()) {

@@ -65,9 +65,12 @@ public:
     UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
     float FireRate;
 
-    /** Adquired items. */
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
+    /** Adquired items */
+    UPROPERTY(EditAnywhere, Category = "Entity|Attributes")
     TArray<TSubclassOf<UItem>> Items;
+    /** Adquired item objects */
+    UPROPERTY(BlueprintReadOnly, Category = "Entity|Attributes")
+    TArray<UItem*> ItemObjects;
 
 
     /**
@@ -100,33 +103,28 @@ public:
     /**
     * Begin ITEMS
     */
+
     /**
     * Add an Item to the entity.
     * @param Class The class of the item.
     * @return      Id of the added item. -1 if error.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
-    int32 PickUpItem(TSubclassOf<UItem> Type);
+    UItem* PickUpItem(TSubclassOf<UItem> Type);
 
     /**
     * Remove an Item from the entity.
     * @param Class    The class of the removed item.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
-    void RemoveItem(TSubclassOf<UItem> Type);
-
-    /** Remove an Item by Id from the entity.
-    * @param Id Id of the item to be removed.
-    */
-    UFUNCTION(BlueprintCallable, Category = "Entity|Items", meta = (DisplayName = "Remove Item"))
-    void RemoveItemById(int32 Id);
+    void DropItem(UItem* Type);
 
     /**
     * Remove all Items of a class from the entity.
     * @param Class The class of the removed items.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
-    void RemoveAllItems(TSubclassOf<UItem> Type);
+    void DropAllItems(TSubclassOf<UItem> Type);
 
     /**
     * Remove all items.
@@ -134,12 +132,6 @@ public:
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
     void ClearItems();
-
-
-    //DEPRECATED
-    UFUNCTION(BlueprintCallable, meta = (DeprecatedFunction, DeprecationMessage = "'AddItem' will be removed in future versions. Use 'PickUpItem' instead."), Category = "Entity|Items")
-    int32 AddItem(TSubclassOf<UItem> Type);
-
     /* End ITEMS*/
 
 

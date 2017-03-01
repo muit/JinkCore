@@ -1,6 +1,8 @@
 // Copyright 2015-2017 Piperift. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
+#include "Buff.h"
+#include "Entity.h"
 #include "Item.h"
 
 #define LOCTEXT_NAMESPACE "Item"
@@ -11,6 +13,11 @@ UItem::UItem(const FObjectInitializer & ObjectInitializer)
     DisplayName = "Item";
     Description = LOCTEXT("Description", "");
 
+
+#if WITH_EDITORONLY_DATA
+    DesignerNotes = LOCTEXT("DesignerNotes", "");
+#endif
+
     //Properties
     DamageIncrement = 0;
     LiveIncrement = 0;
@@ -19,38 +26,46 @@ UItem::UItem(const FObjectInitializer & ObjectInitializer)
     BulletSpeedCof = 1;
 }
 
-void UItem::SetHolder(AEntity * Entity)
+void UItem::PickUp(AEntity * Owner)
 {
-    Holder = Entity;
+    if (Owner) {
+        Holder = Owner;
+
+        //Registry Holder Dead event
+        Holder->JustDiedDelegate.AddDynamic(this, &UItem::HolderJustDied);
+
+        //Apply Buffs
+        for (auto& BuffType : BuffsApplied) {
+            if (UBuff* NewBuff = Holder->ApplyBuff(BuffType)) {
+                BuffsAppliedObjects.Add(NewBuff);
+            }
+        }
+
+        OnPickUp(Holder);
+    }
 }
 
-AEntity * UItem::GetHolderEntity()
-{
-    return Holder;
+void UItem::Drop() {
+    OnDrop();
+
+    //Remove Buffs
+    for (auto* Buff : BuffsAppliedObjects) {
+        Holder->RemoveBuff(Buff);
+    }
+
+    MarkPendingKill();
 }
 
-void UItem::HolderJustDied_Implementation(AEntity * Entity, AController * InstigatedBy, AEntity * Killer)
+void UItem::OnPickUp_Implementation(AEntity * Entity)
 {
 }
 
-void UItem::ApplyEntityModifications_Implementation(AEntity * Entity)
+void UItem::OnDrop_Implementation()
 {
-    //Apply Live increment
-    Entity->MaxLive += LiveIncrement;
-    Entity->Live += LiveIncrement;
-
-    //Apply Damage Increment
-    Entity->Damage += DamageIncrement;
 }
 
-void UItem::UndoEntityModifications_Implementation(AEntity * Entity)
+void UItem::HolderJustDied_Implementation(AController * InstigatedBy, AEntity * Killer)
 {
-    //Undo Live increment
-    Entity->MaxLive -= LiveIncrement;
-    Entity->Live = FMath::Clamp(Entity->Live, 0.0f, Entity->MaxLive);
-
-    //Undo Damage Increment
-    Entity->Damage -= DamageIncrement;
 }
 
 //////////////////////////////////////////////////////////////////////////

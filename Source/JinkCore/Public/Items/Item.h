@@ -4,6 +4,9 @@
 
 #include "Item.generated.h"
 
+class UBuff;
+class AEntity;
+
 /**
 *
 */
@@ -25,9 +28,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     UStaticMesh* Mesh;
 
+#if WITH_EDITORONLY_DATA
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FText DesignerNotes;
-
+#endif
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
     bool bUnique;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
@@ -43,47 +47,27 @@ public:
     float FireRateCof;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
     float BulletSpeedCof;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
+    TArray<TSubclassOf<UBuff>> BuffsApplied;
+    UPROPERTY(Transient)
+    TArray<UBuff*> BuffsAppliedObjects;
     //~ End Item Interface
 
-    void SetHolder(AEntity* Entity);
-private:
-    UPROPERTY()
+protected:
+    UPROPERTY(BlueprintReadOnly)
     AEntity* Holder;
+
 public:
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Item")
-    AEntity* GetHolderEntity();
+    void PickUp(AEntity* Entity);
+    void Drop();
 
+protected:
+    UFUNCTION(BlueprintNativeEvent, Category = "Item")
+    void OnPickUp(AEntity* Entity);
+    UFUNCTION(BlueprintNativeEvent, Category = "Item")
+    void OnDrop();
 
     UFUNCTION(BlueprintNativeEvent, Category = "Item")
-    void HolderJustDied(AEntity* Entity, AController * InstigatedBy, AEntity * Killer);
-
-    UFUNCTION(BlueprintNativeEvent, Category = "Item")
-    void ApplyEntityModifications(AEntity* Entity);
-    UFUNCTION(BlueprintNativeEvent, Category = "Item")
-    void UndoEntityModifications(AEntity* Entity);
-
-
-    FORCEINLINE static UItem* GetObject(TSubclassOf<UItem> Type, AEntity* Holder = nullptr) {
-        if (Type) {
-            UItem* Item = Cast<UItem>(Type->GetDefaultObject());
-            if (Item) {
-                Item->SetHolder(Holder);
-            }
-            return Item;
-        }
-        return nullptr;
-    }
-
-    template<class ItemType>
-    FORCEINLINE static ItemType* GetObject(AEntity* Holder = nullptr) {
-        TSubclassOf<UItem> Type = ItemType::StaticClass();
-        if (Type) {
-            UItem* Item = Cast<ItemType>(Type->GetDefaultObject());
-            if (Item) {
-                Item->SetHolder(Holder);
-            }
-            return Item;
-        }
-        return nullptr;
-    }
+    void HolderJustDied(AController * InstigatedBy, AEntity * Killer);
 };
