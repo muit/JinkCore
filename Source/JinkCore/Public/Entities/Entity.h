@@ -34,6 +34,8 @@ public:
     // Sets default values for this character's properties
     AEntity();
 
+    virtual void OnConstruction(const FTransform & Transform) override;
+
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
     
@@ -65,13 +67,12 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
     FEntityAttribute BulletSpeed;
 
-    /** Adquired items */
-    UPROPERTY(EditAnywhere, Category = "Entity|Attributes")
-    TArray<TSubclassOf<UItem>> Items;
+    /** Adquired items at start */
+    UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (DisplayName = "Items"))
+    TArray<TSubclassOf<UItem>> ItemsAtStart;
     /** Adquired item objects */
-    UPROPERTY(BlueprintReadOnly, Category = "Entity|Attributes")
-    TArray<UItem*> ItemObjects;
-
+    UPROPERTY(BlueprintReadOnly, Category = "Entity|Items")
+    TArray<UItem*> Items;
 
     /* End ATTRIBUTES*/
 
@@ -120,9 +121,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Movement")
     EMovementState MovementState;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Movement")
-    float WalkSpeed;
+    FEntityAttribute WalkSpeed;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Movement")
-    float RunSpeed;
+    FEntityAttribute RunSpeed;
 
 
     UCharacterMovementComponent* CharacterMovement;
@@ -268,9 +269,9 @@ public:
     /**
     * BUFFS / DEBUFFS
     */
-    UPROPERTY(EditAnywhere, Category = "Entity|Buffs")
+    UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (DisplayName = "Buffs"))
     TArray<TSubclassOf<UBuff>> BuffsAtStart;
-    UPROPERTY(VisibleAnywhere, Category = "Entity|Buffs")
+    UPROPERTY(BlueprintReadOnly, Category = "Entity|Buffs")
     TArray<UBuff*> Buffs;
 
     UFUNCTION(BlueprintCallable, Category = "Entity|Buffs")

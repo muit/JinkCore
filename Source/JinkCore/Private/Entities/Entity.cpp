@@ -15,7 +15,7 @@ AEntity::AEntity()
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
     MaxLive = 100;
-    Live = MaxLive;
+    Live = MaxLive.BaseValue;
     Damage = 10;
     FireRate = 0.7f;
     BulletSpeed = 500;
@@ -33,6 +33,12 @@ AEntity::AEntity()
     UpdateMovementSpeed();
 }
 
+void AEntity::OnConstruction(const FTransform & Transform) {
+    //Update Live if its pure
+    if(Live == MaxLive.BaseValue)
+        Live = MaxLive;
+}
+
 // Called when the game starts or when spawned
 void AEntity::BeginPlay()
 {
@@ -44,7 +50,7 @@ void AEntity::BeginPlay()
     }
 
 
-    for (auto& ItemType : Items) {
+    for (auto& ItemType : ItemsAtStart) {
         PickUpItem(ItemType);
     }
 
@@ -82,7 +88,7 @@ UItem* AEntity::PickUpItem(TSubclassOf<UItem> Type)
     }
 
     if (UItem* Item = NewObject<UItem>(this, Type.Get())) {
-        ItemObjects.Add(Item);
+        Items.Add(Item);
         Item->PickUp(this);
         OnItemPickUp(Item);
         return Item;
@@ -96,17 +102,17 @@ void AEntity::DropItem(UItem* Item)
         return;
 
     //Drop and destroy an item
-    if (ItemObjects.Contains(Item)) {
+    if (Items.Contains(Item)) {
         OnItemDrop(Item);
         Item->Drop();
-        ItemObjects.Remove(Item);
+        Items.Remove(Item);
     }
 }
 
 void AEntity::DropAllItems(TSubclassOf<UItem> Type)
 {
     //Drop and destroy all items of a type
-    ItemObjects.RemoveAll([Type](UItem* Item) {
+    Items.RemoveAll([Type](UItem* Item) {
         if (Item && Item->IsA(Type)) {
             Item->Drop();
             return true;
@@ -116,12 +122,12 @@ void AEntity::DropAllItems(TSubclassOf<UItem> Type)
 }
 void AEntity::ClearItems()
 {
-    for (auto* Item : ItemObjects) {
+    for (auto* Item : Items) {
         if (Item) {
             Item->Drop();
         }
     }
-    ItemObjects.Empty();
+    Items.Empty();
 }
 /** End ITEMS*/
 

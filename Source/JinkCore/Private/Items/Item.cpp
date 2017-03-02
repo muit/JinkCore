@@ -77,7 +77,10 @@ void UItem::OnPickUp_Implementation(AEntity * Entity)
 }
 
 void UItem::OnDrop_Implementation()
-{
+{}
+
+void UItem::NotifyFired_Implementation(bool& canFire) {
+    canFire = true;
 }
 
 void UItem::HolderJustDied_Implementation(AController * InstigatedBy, AEntity * Killer)

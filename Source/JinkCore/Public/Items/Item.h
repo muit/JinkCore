@@ -74,6 +74,10 @@ protected:
     UFUNCTION(BlueprintNativeEvent, Category = "Item")
     void OnDrop();
 
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
+    void NotifyFired(bool& canFire);
+
     UFUNCTION(BlueprintNativeEvent, Category = "Item")
     void HolderJustDied(AController * InstigatedBy, AEntity * Killer);
 };
