@@ -3,10 +3,6 @@
 #include "JinkCorePrivatePCH.h"
 #include "AttributesFunctionLibrary.h"
 
-void UAttributesFunctionLibrary::SetOwner(UPARAM(ref) FEntityAttribute& Attribute, AEntity* _Owner) {
-    Attribute.Owner = _Owner;
-}
-
 bool UAttributesFunctionLibrary::Is(UPARAM(ref) FEntityAttribute & A, UPARAM(ref) FEntityAttribute & B)
 {
     return A == B;

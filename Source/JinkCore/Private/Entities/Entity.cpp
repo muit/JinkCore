@@ -82,27 +82,25 @@ UItem* AEntity::PickUpItem(TSubclassOf<UItem> Type)
     }
 
     if (UItem* Item = NewObject<UItem>(this, Type.Get())) {
-        Item->PickUp(this);
         ItemObjects.Add(Item);
-
+        Item->PickUp(this);
+        OnItemPickUp(Item);
         return Item;
     }
     return nullptr;
 }
 
-void AEntity::DropItem(UItem* DropItem)
+void AEntity::DropItem(UItem* Item)
 {
-    if (!DropItem)
+    if (!Item)
         return;
 
     //Drop and destroy an item
-    ItemObjects.RemoveAll([DropItem](UItem* Item) {
-        if (Item && DropItem == Item) {
-            Item->Drop();
-            return true;
-        }
-        return false;
-    });
+    if (ItemObjects.Contains(Item)) {
+        OnItemDrop(Item);
+        Item->Drop();
+        ItemObjects.Remove(Item);
+    }
 }
 
 void AEntity::DropAllItems(TSubclassOf<UItem> Type)

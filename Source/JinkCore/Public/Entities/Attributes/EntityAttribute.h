@@ -29,17 +29,8 @@ struct JINKCORE_API FEntityAttribute
         Guid = FGuid::NewGuid();
     }
 
-    FEntityAttribute(AEntity* _Owner, float _BaseValue = 0) {
-        Owner = _Owner;
-        BaseValue = _BaseValue;
-        Guid = FGuid::NewGuid();
-    }
-
     UPROPERTY(BlueprintReadOnly, Category = "Attributes")
     FGuid Guid;
-
-    UPROPERTY(BlueprintReadOnly, Category = "Attributes")
-    AEntity* Owner;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
     float BaseValue;

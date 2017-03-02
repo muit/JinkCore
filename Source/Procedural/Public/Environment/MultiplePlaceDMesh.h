@@ -19,7 +19,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (DisplayName = "Destructible Mesh"))
     TAssetPtr<UDestructibleMesh> DMeshAsset;
 
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
     UPROPERTY()
     TArray<UStaticMeshComponent*> PreviewComponents;
 #endif
@@ -28,7 +28,7 @@ public:
     AMultiplePlaceDMesh();
 
 protected:
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
     virtual void SetupPreview(const FTransform Transform, int SplinePoint);
     virtual void ClearPreviews();
 #endif

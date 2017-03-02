@@ -13,7 +13,7 @@ AMultiplePlaceMesh::AMultiplePlaceMesh() {
     MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
     MeshComponent->SetupAttachment(RootComponent);
 
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
     //If it's in editor, don't show main mesh
     MeshComponent->SetVisibility(false);
 #endif
@@ -28,7 +28,7 @@ void AMultiplePlaceMesh::OnConstruction(const FTransform & Transform)
     }
 }
 
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
 void AMultiplePlaceMesh::SetupPreview(const FTransform Transform, int SplinePoint)
 {
 #if ENGINE_MINOR_VERSION >= 14 //If engine is 4.14 or newer

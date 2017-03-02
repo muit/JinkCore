@@ -54,15 +54,15 @@ public:
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Attributes")
     float Live;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Attributes")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes")
     FEntityAttribute MaxLive;
     /** Base Damage. */
-    UPROPERTY(EditAnywhere, Category = "Entity|Attributes")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes")
     FEntityAttribute Damage;
     /** Fire rate in shots/second. */
-    UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes")
     FEntityAttribute FireRate;
-    UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
     FEntityAttribute BulletSpeed;
 
     /** Adquired items */
@@ -88,6 +88,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
     UItem* PickUpItem(TSubclassOf<UItem> Type);
 
+    UFUNCTION(BlueprintImplementableEvent, Category = "Entity|Items")
+    void OnItemPickUp(UItem* Item);
+
     /**
     * Remove an Item from the entity.
     * @param Class    The class of the removed item.
@@ -108,6 +111,9 @@ public:
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
     void ClearItems();
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Entity|Items")
+    void OnItemDrop(UItem* Item);
     /* End ITEMS*/
 
 
