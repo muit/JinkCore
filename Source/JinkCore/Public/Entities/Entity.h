@@ -55,15 +55,15 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Attributes")
     float Live;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Attributes")
-    float MaxLive;
-
+    FEntityAttribute MaxLive;
     /** Base Damage. */
     UPROPERTY(EditAnywhere, Category = "Entity|Attributes")
-    float Damage;
-
+    FEntityAttribute Damage;
     /** Fire rate in shots/second. */
     UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
-    float FireRate;
+    FEntityAttribute FireRate;
+    UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
+    FEntityAttribute BulletSpeed;
 
     /** Adquired items */
     UPROPERTY(EditAnywhere, Category = "Entity|Attributes")
@@ -73,30 +73,6 @@ public:
     TArray<UItem*> ItemObjects;
 
 
-    /**
-     * Get the actor end damage.
-     * @return Modified damage.
-     */
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
-    float GetDamage() const;
-    /**
-     * Get the actor base damage.
-     * @return Base damage.
-     */
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
-    float GetBaseDamage() const { return Damage; }
-    /**
-     * Get the actor end fire rate.
-     * @return Modified fire rate.
-     */
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
-    float GetFireRate() const;
-    /**
-     * Get the actor base fire rate.
-     * @return Base fire rate.
-     */
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
-    float GetBaseFireRate() const { return FireRate; }
     /* End ATTRIBUTES*/
 
 

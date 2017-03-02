@@ -16,24 +16,16 @@ struct JINKCORE_API FAttributeModification
 
     FAttributeModification() : BasePercentageIncrement(0), PercentageIncrement(0), ScalarIncrement(0)
     {
-        //bLinkedToOwner = false;
         Guid = FGuid::NewGuid();
     }
-    /*
-    FAttributeModification(UObject* _Owner, bool LinkedToOwner = false) : BasePercentageIncrement(0), PercentageIncrement(0), ScalarIncrement(0)
+
+    FAttributeModification(float _BasePercentageIncrement, float _PercentageIncrement = 0, float _ScalarIncrement = 0)
+        : BasePercentageIncrement(_BasePercentageIncrement), PercentageIncrement(_PercentageIncrement), ScalarIncrement(_ScalarIncrement)
     {
-        Owner = _Owner;
-        bLinkedToOwner = true;
-    }*/
+        Guid = FGuid::NewGuid();
+    }
 
 public:
-    /*
-    UPROPERTY(BlueprintReadOnly, Category = "Attributes")
-    UObject* Owner;
-
-    UPROPERTY(BlueprintReadOnly, Category = "Attributes")
-    bool bLinkedToOwner;*/
-
     UPROPERTY(BlueprintReadOnly, Category = "Attributes")
     FGuid Guid;
 

@@ -18,6 +18,7 @@ AEntity::AEntity()
     Live = MaxLive;
     Damage = 10;
     FireRate = 0.7f;
+    BulletSpeed = 500;
 
     Faction = FFaction();
 
@@ -63,27 +64,7 @@ void AEntity::Tick( float DeltaTime )
  * Begin ATTRIBUTES
  */
 
-float AEntity::GetDamage() const
-{
-    float ModDamage = Damage;
-    for (auto* Item : ItemObjects) {
-        if(Item) {
-            ModDamage += Item->DamageIncrement;
-        }
-    }
-    return ModDamage;
-}
 
-float AEntity::GetFireRate() const
-{
-    float ModFireRate = FireRate;
-    for (auto* Item : ItemObjects) {
-        if (Item) {
-            ModFireRate *= Item->FireRateCof;
-        }
-    }
-    return ModFireRate;
-}
 /** End ATTRIBUTES*/
 
 /**
@@ -258,7 +239,7 @@ void AEntity::ReceiveDamage_Implementation(AActor * DamagedActor, float _Damage,
     if (!CheckReceiveDamage(DamagedActor, _Damage, DamageType, DamageCauser))
         return;
 
-    Live = FMath::Clamp(Live - _Damage, 0.0f, MaxLive);
+    Live = FMath::Clamp(Live - _Damage, 0.0f, (float)MaxLive);
 
     if (!IsAlive()) {
         AEntity* Killer = nullptr;
@@ -335,19 +316,14 @@ void AEntity::ApplyDamage(AActor * DamagedActor, float _Damage, TSubclassOf<clas
 //APPLY CHECKS
 bool AEntity::CheckApplyRadialDamage_Implementation(float _Damage, const FVector & Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel)
 { return true; }
-
 bool AEntity::CheckApplyRadialDamageWithFalloff_Implementation(float _Damage, float MinimumDamage, const FVector & Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, ECollisionChannel DamagePreventionChannel)
 { return true; }
-
 bool AEntity::CheckApplyPointDamage_Implementation(AActor * DamagedActor, float _Damage, const FVector & HitFromDirection, const FHitResult & HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
 { return true; }
-
 bool AEntity::CheckApplyDamage_Implementation(AActor * DamagedActor, float _Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
 { return true; }
-
 bool AEntity::CheckApplyAnyDamage_Implementation(AActor * DamagedActor, float _Damage, const class UDamageType * DamageType, AActor * DamageCauser)
 { return true; }
-
 
 //RECEIVE CHECKS
 bool AEntity::CheckReceiveDamage_Implementation(AActor * DamagedActor, float _Damage, const class UDamageType * DamageType, AActor * DamageCauser)

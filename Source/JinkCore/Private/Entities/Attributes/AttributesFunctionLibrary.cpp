@@ -18,7 +18,7 @@ bool UAttributesFunctionLibrary::Equals(UPARAM(ref) FEntityAttribute & A, UPARAM
 
 const float UAttributesFunctionLibrary::GetValue (const FEntityAttribute & Attribute)
 {
-    return Attribute;
+    return Attribute.GetValue();
 }
 
 const float UAttributesFunctionLibrary::ToFloat (const FEntityAttribute & Attribute)

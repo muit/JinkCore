@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "AttributeModification.h"
 #include "Item.generated.h"
 
 class UBuff;
@@ -37,16 +38,21 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
     bool bUsable;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
-    float DamageIncrement;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
-    float LiveIncrement;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
-    float MovementSpeedCof;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
-    float FireRateCof;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
-    float BulletSpeedCof;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (DisplayName = "Damage"))
+    FAttributeModification DamageMod;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (DisplayName = "Live"))
+    FAttributeModification LiveMod;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (DisplayName = "Movement"))
+    FAttributeModification MovementMod;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (DisplayName = "Fire Rate"))
+    FAttributeModification FireRateMod;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (DisplayName = "Bullet Speed"))
+    FAttributeModification BulletSpeedMod;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
     TArray<TSubclassOf<UBuff>> BuffsApplied;

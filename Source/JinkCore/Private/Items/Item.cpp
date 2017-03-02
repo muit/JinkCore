@@ -19,11 +19,11 @@ UItem::UItem(const FObjectInitializer & ObjectInitializer)
 #endif
 
     //Properties
-    DamageIncrement = 0;
-    LiveIncrement = 0;
-    MovementSpeedCof = 1;
-    FireRateCof = 1;
-    BulletSpeedCof = 1;
+    DamageMod      = FAttributeModification();
+    LiveMod        = FAttributeModification();
+    MovementMod    = FAttributeModification();
+    FireRateMod    = FAttributeModification();
+    BulletSpeedMod = FAttributeModification();
 }
 
 void UItem::PickUp(AEntity * Owner)
@@ -33,6 +33,12 @@ void UItem::PickUp(AEntity * Owner)
 
         //Registry Holder Dead event
         Holder->JustDiedDelegate.AddDynamic(this, &UItem::HolderJustDied);
+
+        //Apply Modifications
+        Holder->Damage.AddModification(DamageMod);
+        Holder->MaxLive.AddModification(LiveMod);
+        Holder->FireRate.AddModification(FireRateMod);
+        Holder->BulletSpeed.AddModification(BulletSpeedMod);
 
         //Apply Buffs
         for (auto& BuffType : BuffsApplied) {
@@ -46,13 +52,23 @@ void UItem::PickUp(AEntity * Owner)
 }
 
 void UItem::Drop() {
+    if (!Holder)
+        return;
+
     OnDrop();
+
+    //Apply Modifications
+    Holder->Damage.RemoveModification(DamageMod);
+    Holder->MaxLive.RemoveModification(LiveMod);
+    Holder->FireRate.RemoveModification(FireRateMod);
+    Holder->BulletSpeed.RemoveModification(BulletSpeedMod);
 
     //Remove Buffs
     for (auto* Buff : BuffsAppliedObjects) {
         Holder->RemoveBuff(Buff);
     }
 
+    Holder = nullptr;
     MarkPendingKill();
 }
 

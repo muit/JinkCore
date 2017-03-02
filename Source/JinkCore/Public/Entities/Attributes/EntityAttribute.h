@@ -65,18 +65,14 @@ struct JINKCORE_API FEntityAttribute
         BuffModifications.Remove(Modification);
     }
 
-    const float Calculate() const;
+    const float GetValue() const;
 
     /* Assign a base value from float */
-    FORCEINLINE FEntityAttribute operator= (const float& base) const
-    {
-        return FEntityAttribute(base);
-    }
 
     /* Get Attribute final value */
     FORCEINLINE operator float() const
     {
-        return Calculate();
+        return GetValue();
     }
 
     //compare two modifications by guid
