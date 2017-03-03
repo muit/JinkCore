@@ -6,7 +6,7 @@
 
 #include "EntityAttribute.h"
 
-const float FEntityAttribute::Calculate() const
+const float FEntityAttribute::GetValue() const
 {
     float ActualValue = BaseValue;
 

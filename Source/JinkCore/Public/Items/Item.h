@@ -2,7 +2,11 @@
 
 #pragma once
 
+#include "AttributeModification.h"
 #include "Item.generated.h"
+
+class UBuff;
+class AEntity;
 
 /**
 *
@@ -25,65 +29,64 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     UStaticMesh* Mesh;
 
+#if WITH_EDITORONLY_DATA
     UPROPERTY(EditAnywhere, BlueprintReadOnly)
     FText DesignerNotes;
-
+#endif
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
     bool bUnique;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
     bool bUsable;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
+    bool bStackable;
+
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (DisplayName = "Damage"))
+    FAttributeModification DamageMod;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (DisplayName = "Live"))
+    FAttributeModification LiveMod;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (DisplayName = "Movement"))
+    FAttributeModification MovementMod;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (DisplayName = "Fire Rate"))
+    FAttributeModification FireRateMod;
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (DisplayName = "Bullet Speed"))
+    FAttributeModification BulletSpeedMod;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
-    float DamageIncrement;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
-    float LiveIncrement;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
-    float MovementSpeedCof;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
-    float FireRateCof;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
-    float BulletSpeedCof;
+    TArray<TSubclassOf<UBuff>> BuffsApplied;
+    UPROPERTY(Transient)
+    TArray<UBuff*> BuffsAppliedObjects;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Properties")
+    int Count;
     //~ End Item Interface
 
-    void SetHolder(AEntity* Entity);
-private:
-    UPROPERTY()
+protected:
+    UPROPERTY(BlueprintReadOnly)
     AEntity* Holder;
+
+public:
+    void PickUp(AEntity* Entity);
+    void Drop();
+
+protected:
+    UFUNCTION(BlueprintNativeEvent, Category = "Item")
+    void OnPickUp(AEntity* Entity);
+    UFUNCTION(BlueprintNativeEvent, Category = "Item")
+    void OnDrop();
+
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Item")
+    void NotifyFired(bool& canFire);
+
+    UFUNCTION(BlueprintNativeEvent, Category = "Item")
+    void HolderJustDied(AController * InstigatedBy, AEntity * Killer);
+
 public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Item")
-    AEntity* GetHolderEntity();
-
-
-    UFUNCTION(BlueprintNativeEvent, Category = "Item")
-    void HolderJustDied(AEntity* Entity, AController * InstigatedBy, AEntity * Killer);
-
-    UFUNCTION(BlueprintNativeEvent, Category = "Item")
-    void ApplyEntityModifications(AEntity* Entity);
-    UFUNCTION(BlueprintNativeEvent, Category = "Item")
-    void UndoEntityModifications(AEntity* Entity);
-
-
-    FORCEINLINE static UItem* GetObject(TSubclassOf<UItem> Type, AEntity* Holder = nullptr) {
-        if (Type) {
-            UItem* Item = Cast<UItem>(Type->GetDefaultObject());
-            if (Item) {
-                Item->SetHolder(Holder);
-            }
-            return Item;
-        }
-        return nullptr;
-    }
-
-    template<class ItemType>
-    FORCEINLINE static ItemType* GetObject(AEntity* Holder = nullptr) {
-        TSubclassOf<UItem> Type = ItemType::StaticClass();
-        if (Type) {
-            UItem* Item = Cast<ItemType>(Type->GetDefaultObject());
-            if (Item) {
-                Item->SetHolder(Holder);
-            }
-            return Item;
-        }
-        return nullptr;
-    }
+    bool IsPickedUp() { return Holder != nullptr; }
 };

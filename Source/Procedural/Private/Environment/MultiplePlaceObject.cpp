@@ -13,7 +13,7 @@ AMultiplePlaceObject::AMultiplePlaceObject() {
     USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
     RootComponent = SceneComponent;
 
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
     SpriteComponent = CreateEditorOnlyDefaultSubobject<UBillboardComponent>(TEXT("Sprite"));
     if (SpriteComponent)
     {
@@ -29,7 +29,7 @@ AMultiplePlaceObject::AMultiplePlaceObject() {
     SplineComponent->SetUnselectedSplineSegmentColor(FLinearColor(0.0f, 0.725f, 1.0f));
     SplineComponent->SetDrawDebug(false);
 
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
     //Load Mesh Preview material
     PreviewMaterial = LoadObject<UMaterial>(nullptr, TEXT("/JinkCore/Procedural/M_MeshPreview.M_MeshPreview"), nullptr, LOAD_None, nullptr);
 #endif
@@ -37,7 +37,7 @@ AMultiplePlaceObject::AMultiplePlaceObject() {
 
 void AMultiplePlaceObject::OnConstruction(const FTransform & Transform)
 {
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
     //Remove Old Preview Components
     ClearPreviews();
 #endif
@@ -49,7 +49,7 @@ void AMultiplePlaceObject::OnConstruction(const FTransform & Transform)
         //Reset every point's tangent in the spline to zero. This creates straight lines.
         SplineComponent->SetTangentAtSplinePoint(i, FVector::ZeroVector, ESplineCoordinateSpace::Local);
 
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
         const FTransform PointTransform = SplineComponent->GetTransformAtSplinePoint(i, ESplineCoordinateSpace::World);
         SetupPreview(PointTransform, i);
 #endif
@@ -82,7 +82,7 @@ void AMultiplePlaceObject::PostEditChangeProperty(struct FPropertyChangedEvent& 
 void AMultiplePlaceObject::BeginPlay()
 {
     //Destroy Previews & Spline
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
     ClearPreviews();
 #endif
     SplineComponent->DestroyComponent();

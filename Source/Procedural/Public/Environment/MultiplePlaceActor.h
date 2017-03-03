@@ -18,7 +18,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (DisplayName = "Actor"))
     TSubclassOf<AActor> ActorClass;
 
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
     UPROPERTY()
     TArray<UChildActorComponent*> PreviewComponents;
 #endif
@@ -27,7 +27,7 @@ public:
     AMultiplePlaceActor();
 
 protected:
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
     virtual void SetupPreview(const FTransform Transform, int SplinePoint);
     virtual void ClearPreviews();
 #endif

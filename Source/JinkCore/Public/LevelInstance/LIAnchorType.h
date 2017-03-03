@@ -22,13 +22,15 @@ struct JINKCORE_API FLIAnchorType
     {}
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anchor Type")
-    int32 Id;
+    uint8 Id;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Anchor Type")
     FString Name;
 
 
     FORCEINLINE bool operator==(const FLIAnchorType& Other) const {
-        return Other.Id == Id;
+        return Other.Name == Name;
+        //TODO: Fix Id assignation in editor.
+        //return Other.Id == Id;
     }
 
     FORCEINLINE bool operator!=(const FLIAnchorType& Other) const {

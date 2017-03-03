@@ -9,7 +9,7 @@ AMultiplePlaceDMesh::AMultiplePlaceDMesh() {
     bDestroyAfterSpawn = true;
 }
 
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
 void AMultiplePlaceDMesh::SetupPreview(const FTransform Transform, int SplinePoint)
 {
     if (UDestructibleMesh* DMeshObject = DMeshAsset.LoadSynchronous()) {

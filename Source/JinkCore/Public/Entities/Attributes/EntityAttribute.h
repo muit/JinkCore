@@ -29,17 +29,8 @@ struct JINKCORE_API FEntityAttribute
         Guid = FGuid::NewGuid();
     }
 
-    FEntityAttribute(AEntity* _Owner, float _BaseValue = 0) {
-        Owner = _Owner;
-        BaseValue = _BaseValue;
-        Guid = FGuid::NewGuid();
-    }
-
     UPROPERTY(BlueprintReadOnly, Category = "Attributes")
     FGuid Guid;
-
-    UPROPERTY(BlueprintReadOnly, Category = "Attributes")
-    AEntity* Owner;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
     float BaseValue;
@@ -65,18 +56,14 @@ struct JINKCORE_API FEntityAttribute
         BuffModifications.Remove(Modification);
     }
 
-    const float Calculate() const;
+    const float GetValue() const;
 
     /* Assign a base value from float */
-    FORCEINLINE FEntityAttribute operator= (const float& base) const
-    {
-        return FEntityAttribute(base);
-    }
 
     /* Get Attribute final value */
     FORCEINLINE operator float() const
     {
-        return Calculate();
+        return GetValue();
     }
 
     //compare two modifications by guid

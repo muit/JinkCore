@@ -8,10 +8,10 @@
 /**
  * Unique casting rules for each spell. E.g Charges
  */
-UCLASS(Blueprintable)
-class JINKCORE_API USpellRules : public UObject
+USTRUCT(Blueprintable)
+struct JINKCORE_API FSpellRules
 {
-    GENERATED_UCLASS_BODY()
+    GENERATED_USTRUCT_BODY()
 public:
 
     //UFUNCTION(BlueprintNativeEvent)

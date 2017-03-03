@@ -34,6 +34,8 @@ public:
     // Sets default values for this character's properties
     AEntity();
 
+    virtual void OnConstruction(const FTransform & Transform) override;
+
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
     
@@ -54,101 +56,80 @@ public:
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Attributes")
     float Live;
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Attributes")
-    float MaxLive;
-
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes")
+    FEntityAttribute MaxLive;
     /** Base Damage. */
-    UPROPERTY(EditAnywhere, Category = "Entity|Attributes")
-    float Damage;
-
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes")
+    FEntityAttribute Damage;
     /** Fire rate in shots/second. */
-    UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
-    float FireRate;
-
-    /** Adquired items. */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes")
+    FEntityAttribute FireRate;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
-    TArray<TSubclassOf<UItem>> Items;
+    FEntityAttribute BulletSpeed;
 
+    /** Adquired items at start */
+    UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (DisplayName = "Items"))
+    TArray<TSubclassOf<UItem>> ItemsAtStart;
+    /** Adquired item objects */
+    UPROPERTY(BlueprintReadOnly, Category = "Entity|Items")
+    TArray<UItem*> Items;
 
-    /**
-     * Get the actor end damage.
-     * @return Modified damage.
-     */
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
-    float GetDamage() const;
-    /**
-     * Get the actor base damage.
-     * @return Base damage.
-     */
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
-    float GetBaseDamage() const { return Damage; }
-    /**
-     * Get the actor end fire rate.
-     * @return Modified fire rate.
-     */
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
-    float GetFireRate() const;
-    /**
-     * Get the actor base fire rate.
-     * @return Base fire rate.
-     */
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Attributes")
-    float GetBaseFireRate() const { return FireRate; }
     /* End ATTRIBUTES*/
 
 
     /**
     * Begin ITEMS
     */
+
     /**
     * Add an Item to the entity.
     * @param Class The class of the item.
     * @return      Id of the added item. -1 if error.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
-    int32 PickUpItem(TSubclassOf<UItem> Type);
+    UItem* PickUpItem(TSubclassOf<UItem> Type);
+
+    UFUNCTION(BlueprintImplementableEvent, Category = "Entity|Items")
+    void OnItemPickUp(UItem* Item);
 
     /**
     * Remove an Item from the entity.
     * @param Class    The class of the removed item.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
-    void RemoveItem(TSubclassOf<UItem> Type);
-
-    /** Remove an Item by Id from the entity.
-    * @param Id Id of the item to be removed.
-    */
-    UFUNCTION(BlueprintCallable, Category = "Entity|Items", meta = (DisplayName = "Remove Item"))
-    void RemoveItemById(int32 Id);
+    void DropItem(UItem* Type);
 
     /**
     * Remove all Items of a class from the entity.
-    * @param Class The class of the removed items.
+    * @param Type The class of the removed items.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
-    void RemoveAllItems(TSubclassOf<UItem> Type);
+    void DropAllItems(TSubclassOf<UItem> Type);
 
     /**
     * Remove all items.
-    * @param Class    The class of the removed items.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
     void ClearItems();
 
+    /**
+     * Checks if entity has an Item of certain type
+     * @param Type Type of the entity.
+     */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Items")
+    bool HasItem(TSubclassOf<UItem> Type);
 
-    //DEPRECATED
-    UFUNCTION(BlueprintCallable, meta = (DeprecatedFunction, DeprecationMessage = "'AddItem' will be removed in future versions. Use 'PickUpItem' instead."), Category = "Entity|Items")
-    int32 AddItem(TSubclassOf<UItem> Type);
-
+    UFUNCTION(BlueprintImplementableEvent, Category = "Entity|Items")
+    void OnItemDrop(UItem* Item);
     /* End ITEMS*/
 
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Movement")
     EMovementState MovementState;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Movement")
-    float WalkSpeed;
+    FEntityAttribute WalkSpeed;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Movement")
-    float RunSpeed;
+    FEntityAttribute RunSpeed;
 
 
     UCharacterMovementComponent* CharacterMovement;
@@ -294,9 +275,9 @@ public:
     /**
     * BUFFS / DEBUFFS
     */
-    UPROPERTY(EditAnywhere, Category = "Entity|Buffs")
+    UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (DisplayName = "Buffs"))
     TArray<TSubclassOf<UBuff>> BuffsAtStart;
-    UPROPERTY(VisibleAnywhere, Category = "Entity|Buffs")
+    UPROPERTY(BlueprintReadOnly, Category = "Entity|Buffs")
     TArray<UBuff*> Buffs;
 
     UFUNCTION(BlueprintCallable, Category = "Entity|Buffs")

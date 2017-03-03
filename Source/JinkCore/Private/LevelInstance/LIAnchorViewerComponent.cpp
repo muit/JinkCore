@@ -65,7 +65,10 @@ ALIConector* ULIAnchorViewerComponent::SpawnConector() {
     if (AnchorFather) {
         FLIAnchorTypeInfo TypeInfo;
         AnchorFather->AnchorData.Type.GetAnchorInfo(TypeInfo);
-        const FTransform& SpawnTransform = AnchorFather->GetComponentTransform();
+        FTransform SpawnTransform = AnchorFather->GetComponentTransform();
+
+        //Make connector look backwards
+        SpawnTransform.SetRotation(SpawnTransform.Rotator().Add(0.0f, 180.0f, 0.0f).Quaternion());
 
         ALIConector* ConectorActor = Cast<ALIConector>(GetWorld()->SpawnActor(TypeInfo.GetConectorType(), &SpawnTransform));
         ConectorActor->SetupConAttachment(AnchorFather, ConnectedAttachment);

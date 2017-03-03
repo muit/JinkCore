@@ -24,8 +24,8 @@ public:
     // Called every frame
     virtual void Tick( float DeltaSeconds ) override;
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spell")
-    TSubclassOf<USpellRules> Rules;
+    //UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spell")
+    //TSubclassOf<USpellRules> Rules;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spell")
     AEntity* _Caster;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spell")

@@ -9,7 +9,7 @@ AMultiplePlaceActor::AMultiplePlaceActor() {
     bDestroyAfterSpawn = true;
 }
 
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
 void AMultiplePlaceActor::SetupPreview(const FTransform Transform, int SplinePoint)
 {
     if (ActorClass) {
