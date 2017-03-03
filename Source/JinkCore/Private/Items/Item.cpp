@@ -13,10 +13,14 @@ UItem::UItem(const FObjectInitializer & ObjectInitializer)
     DisplayName = "Item";
     Description = LOCTEXT("Description", "");
 
-
 #if WITH_EDITORONLY_DATA
     DesignerNotes = LOCTEXT("DesignerNotes", "");
 #endif
+
+    bUnique = false;
+    bUsable = false;
+    bStackable = false;
+    Count = 0;
 
     //Properties
     DamageMod      = FAttributeModification();
@@ -28,7 +32,11 @@ UItem::UItem(const FObjectInitializer & ObjectInitializer)
 
 void UItem::PickUp(AEntity * Owner)
 {
-    if (Owner) {
+    if (IsPickedUp() && !bUnique && bStackable) {
+        ++Count;
+    }
+
+    if (!IsPickedUp() && Owner) {
         Holder = Owner;
 
         //Registry Holder Dead event
@@ -36,9 +44,15 @@ void UItem::PickUp(AEntity * Owner)
 
         //Apply Modifications
         Holder->Damage.AddModification(DamageMod);
-        Holder->MaxLive.AddModification(LiveMod);
         Holder->FireRate.AddModification(FireRateMod);
         Holder->BulletSpeed.AddModification(BulletSpeedMod);
+
+        //Update MaxLive Modifications and Live value
+        const float OldMaxLive = Holder->MaxLive;
+        Holder->MaxLive.AddModification(LiveMod);
+        const float NewMaxLive = Holder->MaxLive;
+        const float PositiveHealthIncrement = FMath::Max(0.0f, NewMaxLive - OldMaxLive);
+        Holder->Live = FMath::Clamp(Holder->Live + PositiveHealthIncrement, 0.0f, NewMaxLive);
 
         //Apply Buffs
         for (auto& BuffType : BuffsApplied) {
@@ -47,6 +61,7 @@ void UItem::PickUp(AEntity * Owner)
             }
         }
 
+        ++Count;
         OnPickUp(Holder);
     }
 }
@@ -63,6 +78,9 @@ void UItem::Drop() {
     Holder->FireRate.RemoveModification(FireRateMod);
     Holder->BulletSpeed.RemoveModification(BulletSpeedMod);
 
+    //Update Live
+    Holder->Live = FMath::Clamp(Holder->Live, 0.0f, (float)Holder->MaxLive);
+
     //Remove Buffs
     for (auto* Buff : BuffsAppliedObjects) {
         Holder->RemoveBuff(Buff);
@@ -73,8 +91,7 @@ void UItem::Drop() {
 }
 
 void UItem::OnPickUp_Implementation(AEntity * Entity)
-{
-}
+{}
 
 void UItem::OnDrop_Implementation()
 {}

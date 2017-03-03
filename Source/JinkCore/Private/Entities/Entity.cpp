@@ -87,6 +87,31 @@ UItem* AEntity::PickUpItem(TSubclassOf<UItem> Type)
         }
     }
 
+    UItem** LastItemPtr = Items.FindByPredicate([Type](const auto* Item) {
+        return Item->IsA(Type);
+    });
+
+    //Found another item of the same type.
+    if (LastItemPtr && *LastItemPtr) {
+        UItem* LastItem = *LastItemPtr;
+
+        //Drop item if it's corrupted (not picked up)
+        if (!LastItem->IsPickedUp()) {
+            DropItem(LastItem);
+        }
+        else {
+            if (LastItem->bUnique) {
+                //It's unique. We dont want to pick up another.
+                return nullptr;
+            }
+            else if (LastItem->bStackable) {
+                //It's stackable. Pick it up on the same Item.
+                LastItem->PickUp(this);
+                return LastItem;
+            }
+        }
+    }
+    
     if (UItem* Item = NewObject<UItem>(this, Type.Get())) {
         Items.Add(Item);
         Item->PickUp(this);
@@ -128,6 +153,15 @@ void AEntity::ClearItems()
         }
     }
     Items.Empty();
+}
+bool AEntity::HasItem(TSubclassOf<UItem> Type)
+{
+    if (!Type.Get()->IsChildOf<UItem>()) 
+        return false;
+
+    return Items.ContainsByPredicate([Type](auto* Item){
+        return Item->IsA(Type);
+    });
 }
 /** End ITEMS*/
 

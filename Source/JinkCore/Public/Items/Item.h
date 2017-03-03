@@ -37,6 +37,8 @@ public:
     bool bUnique;
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
     bool bUsable;
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties")
+    bool bStackable;
 
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Properties", meta = (DisplayName = "Damage"))
@@ -58,6 +60,9 @@ public:
     TArray<TSubclassOf<UBuff>> BuffsApplied;
     UPROPERTY(Transient)
     TArray<UBuff*> BuffsAppliedObjects;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Properties")
+    int Count;
     //~ End Item Interface
 
 protected:
@@ -80,4 +85,8 @@ protected:
 
     UFUNCTION(BlueprintNativeEvent, Category = "Item")
     void HolderJustDied(AController * InstigatedBy, AEntity * Killer);
+
+public:
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Item")
+    bool IsPickedUp() { return Holder != nullptr; }
 };

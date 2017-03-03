@@ -101,17 +101,23 @@ public:
 
     /**
     * Remove all Items of a class from the entity.
-    * @param Class The class of the removed items.
+    * @param Type The class of the removed items.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
     void DropAllItems(TSubclassOf<UItem> Type);
 
     /**
     * Remove all items.
-    * @param Class    The class of the removed items.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
     void ClearItems();
+
+    /**
+     * Checks if entity has an Item of certain type
+     * @param Type Type of the entity.
+     */
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Items")
+    bool HasItem(TSubclassOf<UItem> Type);
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Entity|Items")
     void OnItemDrop(UItem* Item);
