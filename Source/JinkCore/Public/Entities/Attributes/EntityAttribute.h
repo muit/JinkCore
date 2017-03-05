@@ -29,6 +29,8 @@ struct JINKCORE_API FEntityAttribute
         Guid = FGuid::NewGuid();
     }
 
+    DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FModifiedSignature, FEntityAttribute&, Attribute, FAttributeModification&, Modification);
+
     UPROPERTY(BlueprintReadOnly, Category = "Attributes")
     FGuid Guid;
 
@@ -41,19 +43,26 @@ struct JINKCORE_API FEntityAttribute
     UPROPERTY()
     TArray<FAttributeModification> BuffModifications;
 
+    UPROPERTY(BlueprintAssignable, Category = "Attributes")
+    FModifiedSignature OnModified;
+
     void AddModification(FAttributeModification& Modification) {
         Modifications.Add(Modification);
+        OnModified.Broadcast();
     }
 
     void RemoveModification(FAttributeModification& Modification) {
         Modifications.Remove(Modification);
+        OnModified.Broadcast();
     }
 
     void AddBuffModification(FAttributeModification& Modification) {
         BuffModifications.Add(Modification);
+        OnModified.Broadcast();
     }
     void RemoveBuffModification(FAttributeModification& Modification) {
         BuffModifications.Remove(Modification);
+        OnModified.Broadcast();
     }
 
     const float GetValue() const;
@@ -71,11 +80,4 @@ struct JINKCORE_API FEntityAttribute
     {
         return Guid == Other.Guid;
     }
-
-    /*
-    void OnModOwnerDestroyed(AActor* DestroyedActor) {
-        Modifications.RemoveAll([DestroyedActor] (FAttributeModification& Mod) {
-            return Mod.bLinkedToOwner && Mod.Owner == DestroyedActor;
-        });
-    }*/
 };

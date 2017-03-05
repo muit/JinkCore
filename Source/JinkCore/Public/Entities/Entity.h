@@ -38,16 +38,16 @@ public:
 
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
-    
+
     // Called every frame
-    virtual void Tick( float DeltaSeconds ) override;
+    virtual void Tick(float DeltaSeconds) override;
 
 public:
     /**
      * PROPERTIES
      */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity")
-    FFaction Faction;
+        FFaction Faction;
 
 
     /**
@@ -55,24 +55,24 @@ public:
     */
 public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Attributes")
-    float Live;
+        float Live;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes")
-    FEntityAttribute MaxLive;
+        FEntityAttribute MaxLive;
     /** Base Damage. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes")
-    FEntityAttribute Damage;
+        FEntityAttribute Damage;
     /** Fire rate in shots/second. */
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes")
-    FEntityAttribute FireRate;
+        FEntityAttribute FireRate;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Attributes", meta = (ClampMin = "0", UIMin = "0.5", UIMax = "1.5"))
-    FEntityAttribute BulletSpeed;
+        FEntityAttribute BulletSpeed;
 
     /** Adquired items at start */
     UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (DisplayName = "Items"))
-    TArray<TSubclassOf<UItem>> ItemsAtStart;
+        TArray<TSubclassOf<UItem>> ItemsAtStart;
     /** Adquired item objects */
     UPROPERTY(BlueprintReadOnly, Category = "Entity|Items")
-    TArray<UItem*> Items;
+        TArray<UItem*> Items;
 
     /* End ATTRIBUTES*/
 
@@ -87,62 +87,73 @@ public:
     * @return      Id of the added item. -1 if error.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
-    UItem* PickUpItem(TSubclassOf<UItem> Type);
+        UItem* PickUpItem(TSubclassOf<UItem> Type);
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Entity|Items")
-    void OnItemPickUp(UItem* Item);
+        void OnItemPickUp(UItem* Item);
 
     /**
     * Remove an Item from the entity.
     * @param Class    The class of the removed item.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
-    void DropItem(UItem* Type);
+        void DropItem(UItem* Type);
 
     /**
     * Remove all Items of a class from the entity.
     * @param Type The class of the removed items.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
-    void DropAllItems(TSubclassOf<UItem> Type);
+        void DropAllItems(TSubclassOf<UItem> Type);
 
     /**
     * Remove all items.
     */
     UFUNCTION(BlueprintCallable, Category = "Entity|Items")
-    void ClearItems();
+        void ClearItems();
 
     /**
      * Checks if entity has an Item of certain type
      * @param Type Type of the entity.
      */
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Items")
-    bool HasItem(TSubclassOf<UItem> Type);
+        bool HasItem(TSubclassOf<UItem> Type);
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Entity|Items")
-    void OnItemDrop(UItem* Item);
+        void OnItemDrop(UItem* Item);
     /* End ITEMS*/
 
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Movement")
-    EMovementState MovementState;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Movement")
-    FEntityAttribute WalkSpeed;
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Movement")
-    FEntityAttribute RunSpeed;
-
-
     UCharacterMovementComponent* CharacterMovement;
+protected:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Movement")
+        EMovementState MovementState;
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Movement")
+        FEntityAttribute WalkSpeed;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Movement")
+        FEntityAttribute RunSpeed;
 
     //Set Movement to Walk
     UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
-    virtual void Walk();
+        FORCEINLINE void Walk();
+
     //Set Movement to Run
     UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
-    virtual void Run();
-    //Update Movement Speed to the movement State
+        FORCEINLINE void Run();
+
+    //Set Movement to any state
     UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
-    virtual void UpdateMovementSpeed();
+        void SetMovementState(const EMovementState& State);
+
+    UFUNCTION()
+    void OnMovementAttributeModified() {
+        //Update movement Speed
+        SetMovementState(MovementState);
+    }
+
+
     UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
     void RotateTowards(FRotator Rotation);
     UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
