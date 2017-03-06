@@ -27,12 +27,7 @@ AEntity::AEntity()
 
     WalkSpeed = 250;
     RunSpeed = 400;
-
-    SetMovementState(EMovementState::MS_Walk);
-
-    //Bind Movement change
-    WalkSpeed.OnModified.AddDynamic(this, &AEntity::OnMovementAttributeModified);
-    RunSpeed.OnModified.AddDynamic(this, &AEntity::OnMovementAttributeModified);
+    MovementState = EMovementState::MS_Walk;
 
     bIsSummoned = false;
 }
@@ -42,7 +37,11 @@ void AEntity::OnConstruction(const FTransform & Transform) {
     if(Live == MaxLive.BaseValue)
         Live = MaxLive;
 
-    Movement
+    SetMovementState(MovementState);
+
+    //Bind Movement change
+    WalkSpeed.OnModified.BindDynamic(this, &AEntity::OnMovementAttributeModified);
+    RunSpeed.OnModified.BindDynamic(this, &AEntity::OnMovementAttributeModified);
 }
 
 // Called when the game starts or when spawned

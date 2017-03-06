@@ -9,6 +9,8 @@
 
 class AEntity;
 
+DECLARE_DYNAMIC_DELEGATE_OneParam(FModifiedDelegate, FAttributeModification&, Modification);
+
 /**
  * Entity Attribute
  * Used as a modificable float depending on modifiers.
@@ -29,8 +31,6 @@ struct JINKCORE_API FEntityAttribute
         Guid = FGuid::NewGuid();
     }
 
-    DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FModifiedSignature, FEntityAttribute&, Attribute, FAttributeModification&, Modification);
-
     UPROPERTY(BlueprintReadOnly, Category = "Attributes")
     FGuid Guid;
 
@@ -43,26 +43,26 @@ struct JINKCORE_API FEntityAttribute
     UPROPERTY()
     TArray<FAttributeModification> BuffModifications;
 
-    UPROPERTY(BlueprintAssignable, Category = "Attributes")
-    FModifiedSignature OnModified;
+    UPROPERTY()
+    FModifiedDelegate OnModified;
 
     void AddModification(FAttributeModification& Modification) {
         Modifications.Add(Modification);
-        OnModified.Broadcast();
+        OnModified.Execute(Modification);
     }
 
     void RemoveModification(FAttributeModification& Modification) {
         Modifications.Remove(Modification);
-        OnModified.Broadcast();
+        OnModified.Execute(Modification);
     }
 
     void AddBuffModification(FAttributeModification& Modification) {
         BuffModifications.Add(Modification);
-        OnModified.Broadcast();
+        OnModified.Execute(Modification);
     }
     void RemoveBuffModification(FAttributeModification& Modification) {
         BuffModifications.Remove(Modification);
-        OnModified.Broadcast();
+        OnModified.Execute(Modification);
     }
 
     const float GetValue() const;
