@@ -72,8 +72,7 @@ public:
     TArray<TSubclassOf<UItem>> ItemsAtStart;
     /** Adquired item objects */
     UPROPERTY(BlueprintReadOnly, Category = "Entity|Items")
-    TArray<UItem*> Items;
-
+        TArray<UItem*> Items;
     /* End ATTRIBUTES*/
 
 
@@ -148,7 +147,7 @@ public:
     void SetMovementState(const EMovementState& State);
 
     UFUNCTION()
-    void OnMovementAttributeModified(FAttributeModification& Modification) {
+    void OnMovementAttributeModified(const EAttributeOperationType Operation, const FAttributeModification& Modification) {
         //Update movement Speed
         SetMovementState(MovementState);
     }

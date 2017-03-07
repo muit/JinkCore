@@ -46,6 +46,8 @@ void UItem::PickUp(AEntity * Owner)
         Holder->Damage.AddModification(DamageMod);
         Holder->FireRate.AddModification(FireRateMod);
         Holder->BulletSpeed.AddModification(BulletSpeedMod);
+        Holder->RunSpeed.AddModification(MovementMod);
+        Holder->WalkSpeed.AddModification(MovementMod);
 
         //Update MaxLive Modifications and Live value
         const float OldMaxLive = Holder->MaxLive;
@@ -72,11 +74,13 @@ void UItem::Drop() {
 
     OnDrop();
 
-    //Apply Modifications
+    //Remove Modifications
     Holder->Damage.RemoveModification(DamageMod);
     Holder->MaxLive.RemoveModification(LiveMod);
     Holder->FireRate.RemoveModification(FireRateMod);
     Holder->BulletSpeed.RemoveModification(BulletSpeedMod);
+    Holder->RunSpeed.RemoveModification(MovementMod);
+    Holder->WalkSpeed.RemoveModification(MovementMod);
 
     //Update Live
     Holder->Live = FMath::Clamp(Holder->Live, 0.0f, (float)Holder->MaxLive);
