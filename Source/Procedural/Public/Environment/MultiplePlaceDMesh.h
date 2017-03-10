@@ -19,7 +19,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (DisplayName = "Destructible Mesh"))
     TAssetPtr<UDestructibleMesh> DMeshAsset;
 
-#if WITH_EDITOR
+#if WITH_EDITORONLY_DATA
     UPROPERTY()
     TArray<UStaticMeshComponent*> PreviewComponents;
 #endif
