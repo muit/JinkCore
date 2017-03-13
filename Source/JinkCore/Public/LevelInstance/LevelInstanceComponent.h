@@ -7,8 +7,13 @@
 #include "LevelInstanceComponent.generated.h"
 
 class ULIAnchorViewerComponent;
+class ALevelInstanceBounds;
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FLevelLoaded, ALevelInstanceBounds*, LevelInstance);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FLevelUnloaded);
+
+
+UCLASS(meta=(BlueprintSpawnableComponent))
 class JINKCORE_API ULevelInstanceComponent : public USceneComponent
 {
     GENERATED_BODY()
@@ -29,7 +34,7 @@ public:
 
     virtual void BeginPlay() override;
     virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-    virtual void OnComponentDestroyed (bool bDestroyingHierarchy) override;
+    virtual void EndPlay(const EEndPlayReason::Type Reason) override;
 #if WITH_EDITOR
     virtual void PostEditChangeProperty(FPropertyChangedEvent & PropertyChangedEvent) override;
 #endif //WITH_EDITOR
@@ -51,9 +56,7 @@ public:
     int32 InstanceId;
 
     UFUNCTION(BlueprintCallable, Category = "Level Instance")
-    bool SpawnLevel(bool bForced = false);
-    UFUNCTION(BlueprintCallable, Category = "Level Instance")
-    bool LoadLevel();
+    bool LoadLevel(bool bForced = false);
     UFUNCTION(BlueprintCallable, Category = "Level Instance")
     void SetLevelVisibility(bool NewVisibility);
     UFUNCTION(BlueprintCallable, Category = "Level Instance")
@@ -62,8 +65,8 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
     FString GetUniqueName();
 
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
     bool IsRegistered() { return StreamingLevel != nullptr; }
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
     bool IsLevelLoaded() { return IsRegistered() && StreamingLevel->IsLevelLoaded(); }
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
@@ -82,4 +85,17 @@ public:
 
     void UpdateAnchors();
     //~ End Level Instance Interface
+
+    UFUNCTION()
+    void OnLevelLoaded();
+    UFUNCTION()
+    void OnLevelUnloaded();
+
+    UPROPERTY()
+    ALevelInstanceBounds* m_LIBounds;
+
+    UPROPERTY(BlueprintAssignable, Category = "Level Instance")
+    FLevelLoaded OnLevelInstanceLoad;
+    UPROPERTY(BlueprintAssignable, Category = "Level Instance")
+    FLevelUnloaded OnLevelInstanceUnload;
 };

@@ -32,10 +32,14 @@ ALIConector::ALIConector()
 
 void ALIConector::SetupConAttachment(ULIAnchorViewerComponent* A, ULIAnchorViewerComponent* B)
 {
-    AnchorA = A;
-    AnchorB = B;
-    AnchorA->Conector = this;
-    AnchorB->Conector = this;
+    if (A) {
+        AnchorA = A;
+        AnchorA->Conector = this;
+    }
+    if (B) {
+        AnchorB = B;
+        AnchorB->Conector = this;
+    }
     OnAttachment(A, B);
 }
 

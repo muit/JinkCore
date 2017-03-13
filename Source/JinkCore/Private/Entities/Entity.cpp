@@ -14,28 +14,51 @@ AEntity::AEntity()
 {
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
-    MaxLive = 100;
-    Live = MaxLive;
-    Damage = 10;
-    FireRate = 0.7f;
-
-    Faction = FFaction();
-
-    MovementState = EMovementState::MS_Walk;
-    WalkSpeed = 250;
-    RunSpeed = 400;
 
     CharacterMovement = GetCharacterMovement();
 
-    bIsSummoned = false;
+    MaxLive = 100;
+    Live = MaxLive.BaseValue;
+    Damage = 10;
+    FireRate = 0.7f;
+    BulletSpeed = 500;
 
-    UpdateMovementSpeed();
+    Faction = FFaction();
+
+    WalkSpeed = 250;
+    RunSpeed = 400;
+    MovementState = EMovementState::MS_Walk;
+
+    bIsSummoned = false;
+}
+
+void AEntity::OnConstruction(const FTransform & Transform) {
+    //Update Live if its pure
+    if(Live == MaxLive.BaseValue)
+        Live = MaxLive;
+
+    SetMovementState(MovementState);
+
+    //Bind Movement change
+    WalkSpeed.OnModified.BindDynamic(this, &AEntity::OnMovementAttributeModified);
+    RunSpeed.OnModified.BindDynamic(this, &AEntity::OnMovementAttributeModified);
 }
 
 // Called when the game starts or when spawned
 void AEntity::BeginPlay()
 {
     Super::BeginPlay();
+
+    //Create start buffs
+    for(auto& Class : BuffsAtStart) {
+        ApplyBuff(Class);
+    }
+
+
+    for (auto& ItemType : ItemsAtStart) {
+        PickUpItem(ItemType);
+    }
+
     OnTakeAnyDamage.AddDynamic(this, &AEntity::ReceiveDamage);
 }
 
@@ -52,76 +75,98 @@ void AEntity::Tick( float DeltaTime )
  * Begin ATTRIBUTES
  */
 
-float AEntity::GetDamage() const
-{
-    float ModDamage = Damage;
-    for (auto& ItemType : Items) {
-        if(UItem* Item = UItem::GetObject(ItemType)) {
-            ModDamage += Item->DamageIncrement;
-        }
-    }
-    return ModDamage;
-}
 
-float AEntity::GetFireRate() const
-{
-    float ModFireRate = FireRate;
-    for (auto& ItemType : Items) {
-        if (UItem* Item = UItem::GetObject(ItemType)) {
-            ModFireRate *= Item->FireRateCof;
-        }
-    }
-    return ModFireRate;
-}
 /** End ATTRIBUTES*/
 
 /**
 * Begin ITEMS
 */
-int32 AEntity::AddItem(TSubclassOf<UItem> Type)
+UItem* AEntity::PickUpItem(TSubclassOf<UItem> Type)
 {
-    if (UItem* Item = UItem::GetObject(Type)) {
-        Item->ApplyEntityModifications(this);
-        return Items.Add(Type);
-    }
-    return 0;
-}
-void AEntity::RemoveItem(TSubclassOf<UItem> Type)
-{
-    if (Type && Items.Contains(Type)) {
-        if (UItem* Item = UItem::GetObject(Type)) {
-            Item->UndoEntityModifications(this);
-        }
-    }
-    Items.RemoveSingle(Type);
-}
-void AEntity::RemoveItemById(int32 Id)
-{
-    if (Items.IsValidIndex(Id)) {
-        if (UItem* Item = UItem::GetObject(Items[Id])) {
-            Item->UndoEntityModifications(this);
+    if (!Type.Get()->IsChildOf<UItem>()) return 0;
+
+    //Check if any buff restricts the pickup
+    for (auto* Buff : Buffs) {
+        if(!Buff->CanPickUpItem(Type)) {
+            return nullptr;
         }
     }
 
-    Items.RemoveAt(Id);
-}
-void AEntity::RemoveAllItems(TSubclassOf<UItem> Type)
-{
-    int32 RemovedAmount = Items.Remove(Type);
-    for (int32 I = 0; I < RemovedAmount; I++) {
-        if (UItem* Item = UItem::GetObject(Type)) {
-            Item->UndoEntityModifications(this);
+    UItem** LastItemPtr = Items.FindByPredicate([Type](const auto* Item) {
+        return Item->IsA(Type);
+    });
+
+    //Found another item of the same type.
+    if (LastItemPtr && *LastItemPtr) {
+        UItem* LastItem = *LastItemPtr;
+
+        //Drop item if it's corrupted (not picked up)
+        if (!LastItem->IsPickedUp()) {
+            DropItem(LastItem);
+        }
+        else {
+            if (LastItem->bUnique) {
+                //It's unique. We dont want to pick up another.
+                return nullptr;
+            }
+            else if (LastItem->bStackable) {
+                //It's stackable. Pick it up on the same Item.
+                LastItem->PickUp(this);
+                return LastItem;
+            }
         }
     }
+    
+    if (UItem* Item = NewObject<UItem>(this, Type.Get())) {
+        Items.Add(Item);
+        Item->PickUp(this);
+        OnItemPickUp(Item);
+        return Item;
+    }
+    return nullptr;
+}
+
+void AEntity::DropItem(UItem* Item)
+{
+    if (!Item)
+        return;
+
+    //Drop and destroy an item
+    if (Items.Contains(Item)) {
+        OnItemDrop(Item);
+        Item->Drop();
+        Items.Remove(Item);
+    }
+}
+
+void AEntity::DropAllItems(TSubclassOf<UItem> Type)
+{
+    //Drop and destroy all items of a type
+    Items.RemoveAll([Type](UItem* Item) {
+        if (Item && Item->IsA(Type)) {
+            Item->Drop();
+            return true;
+        }
+        return false;
+    });
 }
 void AEntity::ClearItems()
 {
-    for (auto& ItemType : Items) {
-        if (UItem* Item = UItem::GetObject(ItemType)) {
-            Item->UndoEntityModifications(this);
+    for (auto* Item : Items) {
+        if (Item) {
+            Item->Drop();
         }
     }
     Items.Empty();
+}
+bool AEntity::HasItem(TSubclassOf<UItem> Type)
+{
+    if (!Type.Get()->IsChildOf<UItem>()) 
+        return false;
+
+    return Items.ContainsByPredicate([Type](auto* Item){
+        return Item->IsA(Type);
+    });
 }
 /** End ITEMS*/
 
@@ -139,18 +184,18 @@ bool AEntity::LiveIsUnderPercent(float Percent) const
 
 void AEntity::Walk()
 {
-    MovementState = EMovementState::MS_Walk;
-    UpdateMovementSpeed();
+    SetMovementState(EMovementState::MS_Walk);
 }
 
 void AEntity::Run()
 {
-    MovementState = EMovementState::MS_Run;
-    UpdateMovementSpeed();
+    SetMovementState(EMovementState::MS_Run);
 }
 
-void AEntity::UpdateMovementSpeed()
+void AEntity::SetMovementState(const EMovementState& State)
 {
+    MovementState = State;
+
     if (CharacterMovement) {
         switch (MovementState) {
         case EMovementState::MS_None:
@@ -237,7 +282,7 @@ void AEntity::ReceiveDamage_Implementation(AActor * DamagedActor, float _Damage,
     if (!CheckReceiveDamage(DamagedActor, _Damage, DamageType, DamageCauser))
         return;
 
-    Live = FMath::Clamp(Live - _Damage, 0.0f, MaxLive);
+    Live = FMath::Clamp(Live - _Damage, 0.0f, (float)MaxLive);
 
     if (!IsAlive()) {
         AEntity* Killer = nullptr;
@@ -314,19 +359,14 @@ void AEntity::ApplyDamage(AActor * DamagedActor, float _Damage, TSubclassOf<clas
 //APPLY CHECKS
 bool AEntity::CheckApplyRadialDamage_Implementation(float _Damage, const FVector & Origin, float DamageRadius, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, bool bDoFullDamage, ECollisionChannel DamagePreventionChannel)
 { return true; }
-
 bool AEntity::CheckApplyRadialDamageWithFalloff_Implementation(float _Damage, float MinimumDamage, const FVector & Origin, float DamageInnerRadius, float DamageOuterRadius, float DamageFalloff, TSubclassOf<class UDamageType> DamageTypeClass, const TArray<AActor*>& IgnoreActors, AActor * DamageCauser, ECollisionChannel DamagePreventionChannel)
 { return true; }
-
 bool AEntity::CheckApplyPointDamage_Implementation(AActor * DamagedActor, float _Damage, const FVector & HitFromDirection, const FHitResult & HitInfo, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
 { return true; }
-
 bool AEntity::CheckApplyDamage_Implementation(AActor * DamagedActor, float _Damage, TSubclassOf<class UDamageType> DamageTypeClass, AActor * DamageCauser)
 { return true; }
-
 bool AEntity::CheckApplyAnyDamage_Implementation(AActor * DamagedActor, float _Damage, const class UDamageType * DamageType, AActor * DamageCauser)
 { return true; }
-
 
 //RECEIVE CHECKS
 bool AEntity::CheckReceiveDamage_Implementation(AActor * DamagedActor, float _Damage, const class UDamageType * DamageType, AActor * DamageCauser)
@@ -335,12 +375,6 @@ bool AEntity::CheckReceiveDamage_Implementation(AActor * DamagedActor, float _Da
 
 void AEntity::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
 {
-    for (auto& ItemType : Items) {
-        if (UItem* Item = UItem::GetObject(ItemType)) {
-            Item->HolderJustDied(this, InstigatedBy, Killer);
-        }
-    }
-
     JustDied(InstigatedBy, Killer);
     JustDiedDelegate.Broadcast(InstigatedBy, Killer);
     if (IsPlayerControlled()) {
@@ -350,9 +384,49 @@ void AEntity::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
     }
 }
 
+UBuff * AEntity::ApplyBuff(TSubclassOf<UBuff> Class)
+{
+    if (!Class.Get()->IsChildOf<UBuff>()) return nullptr;
+
+    UBuff* Buff = Cast<UBuff>(NewObject<UBuff>(this, Class));
+    if (Buff) {
+        Buff->Apply(this);
+        Buffs.Add(Buff);
+    }
+    return Buff;
+}
+
+void AEntity::RemoveBuff(UBuff* Buff)
+{
+    if (!Buff) return;
+
+    if(Buffs.Remove(Buff)) {
+        Buff->Unapply();
+    }
+}
+
+bool AEntity::HasBuff(UBuff* Buff)
+{
+    if (!Buff) return false;
+    return Buffs.Contains(Buff);
+}
+
+bool AEntity::HasBuffOfClass(TSubclassOf<UBuff> Class)
+{
+    if (!Class.Get()->IsChildOf<UBuff>()) return false;
+
+    return Buffs.ContainsByPredicate([Class](UBuff* Buff) {
+        return Buff->IsA(Class.Get());
+    });
+}
+
+const TArray<UBuff*>& AEntity::GetBuffs() {
+    return Buffs;
+}
+
 /**
-* SUMMONING
-*/
+ * SUMMONING
+ */
 AEntity* AEntity::Summon(UClass* Class, FTransform Transform) {
     //Check that Class is a child of Entity
     if (!Class->IsChildOf(AEntity::StaticClass()))

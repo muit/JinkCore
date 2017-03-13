@@ -16,16 +16,17 @@ ALIAnchorTargetHandle::ALIAnchorTargetHandle(const FObjectInitializer& ObjectIni
 {
 #if WITH_EDITOR
     UArrowComponent* Arrow = GetArrowComponent();
-    Arrow->SetVisibility(true);
-    Arrow->ArrowSize = 3;
-    Arrow->bIsScreenSizeScaled = true;
-    Arrow->ScreenSize = 0.0025f;
+    if (Arrow) {
+        Arrow->SetVisibility(true);
+        Arrow->ArrowSize = 3;
+        Arrow->bIsScreenSizeScaled = true;
+        Arrow->ScreenSize = 0.0025f;
+    }
 
     UpdateLIBounds();
 #endif //WITH_EDITOR
 
     Name = "Conector";
-    GUID = FGuid::NewGuid();
 }
 
 FLIAnchor ALIAnchorTargetHandle::GetAsAnchor()
@@ -73,8 +74,11 @@ void ALIAnchorTargetHandle::UpdateLIBounds()
 {
     FLIAnchorTypeInfo TypeInfo;
     if(Type.GetAnchorInfo(TypeInfo)) {
-        GetArrowComponent()->ArrowColor = TypeInfo.Color;
-        GetArrowComponent()->MarkPackageDirty();
+        UArrowComponent* Arrow = GetArrowComponent();
+        if (Arrow) {
+            Arrow->ArrowColor = TypeInfo.Color;
+            Arrow->MarkPackageDirty();
+        }
     }
 
     //If no bounds assigned, try to find ones

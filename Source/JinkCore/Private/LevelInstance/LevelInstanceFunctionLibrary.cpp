@@ -8,9 +8,11 @@ ULevelInstanceFunctionLibrary::ULevelInstanceFunctionLibrary(const FObjectInitia
 {
 }
 
-bool ULevelInstanceFunctionLibrary::GetTypeInfo(FLIAnchorType AnchorType, FLIAnchorTypeInfo& Info) {
-    return AnchorType.GetAnchorInfo(Info);
+bool ULevelInstanceFunctionLibrary::GetTypeInfo(UPARAM(ref) FLIAnchorType& Type, FLIAnchorTypeInfo& Info) {
+    return Type.GetAnchorInfo(Info);
 }
 
-
-
+bool ULevelInstanceFunctionLibrary::Equals(UPARAM(ref) const FLIAnchorType & TypeA, UPARAM(ref) const FLIAnchorType & TypeB)
+{
+    return TypeA == TypeB;
+}

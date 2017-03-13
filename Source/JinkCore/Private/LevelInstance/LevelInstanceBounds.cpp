@@ -6,6 +6,9 @@
 #include "LevelInstance.h"
 #include "LIAnchorTargetHandle.h"
 
+#include "LIModule.h"
+#include "LevelInstanceComponent.h"
+
 #if WITH_EDITOR
 #include "ObjectEditorUtils.h"
 #endif
@@ -110,6 +113,14 @@ void ALevelInstanceBounds::PostEditChangeProperty(FPropertyChangedEvent& Propert
             FName PropName = PropertyChangedEvent.MemberProperty->GetFName();
 
             if (PropName == GET_MEMBER_NAME_CHECKED(ALevelInstanceBounds, Anchors)) {
+                //Generate GUIDs
+                for (auto Anchor : Anchors)
+                {
+                    if (Anchor) {
+                        //Generate new GUID for each anchor
+                        Anchor->GUID = FGuid::NewGuid();
+                    }
+                }
                 UpdateAnchors();
             }
         }
@@ -296,3 +307,23 @@ void ALevelInstanceBounds::UpdateAnchors()
     }
 }
 #endif //WITH_EDITOR
+
+void ALevelInstanceBounds::Internal_OnLevelInstanced(ULevelInstanceComponent* InstanceOwner)
+{
+    if(!IsInstanced() && InstanceOwner) {
+        m_InstanceOwner = InstanceOwner;
+        //Get LIModule is existing
+        m_ModuleOwner = Cast<ALIModule>(InstanceOwner->GetOwner());
+
+        OnLevelInstanced.Broadcast(m_ModuleOwner, InstanceOwner);
+    }
+}
+
+void ALevelInstanceBounds::Internal_OnLevelUninstanced()
+{
+    if (IsInstanced()) {
+        m_InstanceOwner = nullptr;
+        m_ModuleOwner = nullptr;
+        OnLevelUninstanced.Broadcast();
+    }
+}

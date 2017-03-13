@@ -43,7 +43,7 @@ public:
     virtual void BeginPlay() override;
 
 protected:
-#if WITH_EDITORONLY_DATA
+#if WITH_EDITOR
     virtual void SetupPreview(const FTransform Transform, int SplinePoint) {}
     virtual void ClearPreviews() {}
 #endif

@@ -7,6 +7,7 @@
 
 //~~~~~ Type Declarations ~~~~~
 typedef class AEntity;
+class USpellRules;
 
 UCLASS()
 class JINKCORE_API ASpell : public AActor
@@ -23,14 +24,19 @@ public:
     // Called every frame
     virtual void Tick( float DeltaSeconds ) override;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spell")
+    //UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Spell")
+    //TSubclassOf<USpellRules> Rules;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spell")
     AEntity* _Caster;
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Spell")
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spell")
     AEntity* _Target;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell")
     float _Damage;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell")
     TSubclassOf<UDamageType> DamageTypeClass;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spell")
+    bool bDestroyOnCasterDead;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Spell")
     bool Activated;
 
@@ -43,6 +49,10 @@ public:
     void ApplyDamage(AEntity* OtherTarget = NULL, float Damage = 0);
     
 
+    UFUNCTION()
+    void Internal_OnCasterDead(AController* InstigatedBy, AEntity* Killer);
+
+
     /**
      * EVENTS
      */
@@ -50,4 +60,6 @@ public:
     void OnCast(AEntity* Caster, AEntity* Target);
     UFUNCTION(BlueprintImplementableEvent, Category = "Spell")
     void OnTargetChange(AEntity* Target);
+    UFUNCTION(BlueprintImplementableEvent, Category = "Spell")
+    void OnCasterDead(AEntity* Caster, AController* InstigatedBy, AEntity* Killer);
 };

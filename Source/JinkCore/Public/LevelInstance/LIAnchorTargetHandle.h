@@ -31,7 +31,6 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Anchor")
     FGuid GUID;
 
-
     FLIAnchor GetAsAnchor();
 
 #if WITH_EDITOR
