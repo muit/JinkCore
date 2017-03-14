@@ -88,7 +88,7 @@ public:
 
     FPTDataAssetExecution() : Weight(1), IsValid(false) {}
 
-    FPTDataAssetExecution(TAssetSubclassOf<UDataAsset> Item, float InWeight) :
+    FPTDataAssetExecution(TAssetPtr<UDataAsset> Item, float InWeight) :
         ItemValue(Item),
         Weight(InWeight),
         IsValid(true)
@@ -102,16 +102,16 @@ public:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Node")
     float Weight;
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Node")
-    TAssetSubclassOf<UDataAsset> ItemValue;
+    TAssetPtr<UDataAsset> ItemValue;
 
     UPROPERTY(Transient)
-    TSet<TAssetSubclassOf<UDataAsset>> ItemRecord;
+    TSet<TAssetPtr<UDataAsset>> ItemRecord;
 
-    void AddItemToRecord(TAssetSubclassOf<UDataAsset> Item) {
+    void AddItemToRecord(TAssetPtr<UDataAsset> Item) {
         ItemRecord.Add(Item);
     }
 
-    void AddItemsToRecord(const TSet<TAssetSubclassOf<UDataAsset>> ItemSet) {
+    void AddItemsToRecord(const TSet<TAssetPtr<UDataAsset>> ItemSet) {
         ItemRecord.Append(ItemSet);
     }
 };
