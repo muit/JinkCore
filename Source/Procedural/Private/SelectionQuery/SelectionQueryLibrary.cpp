@@ -24,3 +24,18 @@ void USelectionQueryLibrary::GetAllQueryItems(TSubclassOf<USelectionQuery> Query
     Success = Result.IsValid;
     Items = Result.ItemRecord.Array();
 }
+
+UClass* USelectionQueryLibrary::RunClassPT(FPTClassExecution& Node)
+{
+    return Node.ItemValue;
+}
+
+/*TAssetPtr<UObject>& USelectionQueryLibrary::RunAssetPT()
+{
+    return TAssetPtr<UObject>();
+}*/
+
+TAssetSubclassOf<UDataAsset> USelectionQueryLibrary::RunDataAssetPT(FPTDataAssetExecution& Node)
+{
+    return Node.ItemValue;
+}

@@ -15,7 +15,7 @@ FSQExecution USelectionQuery::Execute_Implementation() {
     return FSQExecution();
 }
 
-void USelectionQuery::Selector(FSQExecution& Result, TArray<FSQExecution> SubNodes, float SelectorWeight)
+void USelectionQuery::Selector(FSQExecution& Result, TArray<FSQExecution> SubNodes, float Weight)
 {
     //Calculate total Weight
     float TotalWeight = 0;
@@ -46,7 +46,7 @@ void USelectionQuery::Selector(FSQExecution& Result, TArray<FSQExecution> SubNod
             else {
                 //If it's selected
                 Result = Node;
-                Result.Weight = SelectorWeight;
+                Result.Weight = Weight;
 
                 //Registry all the other items
                 Result.AddItemsToRecord(ItemRecord);
