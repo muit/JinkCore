@@ -8,6 +8,24 @@
 #include "EntityAttribute.generated.h"
 
 class AEntity;
+typedef struct FEntityAttribute;
+
+UENUM(BlueprintType)
+enum class EAttributeOperationType : uint8
+{
+    AO_None     UMETA(DisplayName = "None"),
+    AO_Add     UMETA(DisplayName = "Add"),
+    AO_Remove      UMETA(DisplayName = "Remove"),
+    AO_AddBuff     UMETA(DisplayName = "Add Buff"),
+    AO_RemoveBuff      UMETA(DisplayName = "Remove Buff")
+};
+#define AO_None       EAttributeOperationType::AO_None
+#define AO_Add        EAttributeOperationType::AO_Add
+#define AO_Remove     EAttributeOperationType::AO_Remove
+#define AO_AddBuff    EAttributeOperationType::AO_AddBuff
+#define AO_RemoveBuff EAttributeOperationType::AO_RemoveBuff
+
+DECLARE_DYNAMIC_DELEGATE_TwoParams(FModifiedDelegate, const EAttributeOperationType, Operation, const FAttributeModification&, Modification);
 
 /**
  * Entity Attribute
@@ -21,15 +39,22 @@ struct JINKCORE_API FEntityAttribute
 
     FEntityAttribute() {
         BaseValue = 0;
+        Owner = nullptr;
         Guid = FGuid::NewGuid();
     }
 
     FEntityAttribute(float _BaseValue) {
         BaseValue = _BaseValue;
+        Owner = nullptr;
         Guid = FGuid::NewGuid();
     }
 
-    UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+    void SetOwner(AEntity* Entity) { Owner = Entity; }
+
+    UPROPERTY(BlueprintReadWrite, Category = "Attributes")
+    AEntity* Owner;
+
+    UPROPERTY()
     FGuid Guid;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
@@ -37,24 +62,17 @@ struct JINKCORE_API FEntityAttribute
 	
     UPROPERTY(EditAnywhere, Category = "Attributes")
     TArray<FAttributeModification> Modifications;
-
+    
     UPROPERTY()
     TArray<FAttributeModification> BuffModifications;
 
-    void AddModification(FAttributeModification& Modification) {
-        Modifications.Add(Modification);
-    }
+    UPROPERTY()
+    FModifiedDelegate OnModified;
 
-    void RemoveModification(FAttributeModification& Modification) {
-        Modifications.Remove(Modification);
-    }
-
-    void AddBuffModification(FAttributeModification& Modification) {
-        BuffModifications.Add(Modification);
-    }
-    void RemoveBuffModification(FAttributeModification& Modification) {
-        BuffModifications.Remove(Modification);
-    }
+    void AddModification(FAttributeModification& Modification);
+    void RemoveModification(FAttributeModification& Modification);
+    void AddBuffModification(FAttributeModification& Modification);
+    void RemoveBuffModification(FAttributeModification& Modification);
 
     const float GetValue() const;
 
@@ -71,11 +89,4 @@ struct JINKCORE_API FEntityAttribute
     {
         return Guid == Other.Guid;
     }
-
-    /*
-    void OnModOwnerDestroyed(AActor* DestroyedActor) {
-        Modifications.RemoveAll([DestroyedActor] (FAttributeModification& Mod) {
-            return Mod.bLinkedToOwner && Mod.Owner == DestroyedActor;
-        });
-    }*/
 };

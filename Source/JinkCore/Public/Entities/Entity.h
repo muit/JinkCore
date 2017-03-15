@@ -38,9 +38,9 @@ public:
 
     // Called when the game starts or when spawned
     virtual void BeginPlay() override;
-    
+
     // Called every frame
-    virtual void Tick( float DeltaSeconds ) override;
+    virtual void Tick(float DeltaSeconds) override;
 
 public:
     /**
@@ -72,8 +72,7 @@ public:
     TArray<TSubclassOf<UItem>> ItemsAtStart;
     /** Adquired item objects */
     UPROPERTY(BlueprintReadOnly, Category = "Entity|Items")
-    TArray<UItem*> Items;
-
+        TArray<UItem*> Items;
     /* End ATTRIBUTES*/
 
 
@@ -124,25 +123,36 @@ public:
     /* End ITEMS*/
 
 
+    UCharacterMovementComponent* CharacterMovement;
+protected:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Movement")
     EMovementState MovementState;
+
+public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Movement")
     FEntityAttribute WalkSpeed;
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Movement")
     FEntityAttribute RunSpeed;
 
-
-    UCharacterMovementComponent* CharacterMovement;
-
     //Set Movement to Walk
     UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
-    virtual void Walk();
+    void Walk();
+
     //Set Movement to Run
     UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
-    virtual void Run();
-    //Update Movement Speed to the movement State
+    void Run();
+
+    //Set Movement to any state
     UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
-    virtual void UpdateMovementSpeed();
+    void SetMovementState(const EMovementState& State);
+
+    UFUNCTION()
+    void OnMovementAttributeModified(const EAttributeOperationType Operation, const FAttributeModification& Modification) {
+        //Update movement Speed
+        SetMovementState(MovementState);
+    }
+
+
     UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
     void RotateTowards(FRotator Rotation);
     UFUNCTION(BlueprintCallable, Category = "Entity|Movement")

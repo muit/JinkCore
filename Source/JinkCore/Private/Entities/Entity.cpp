@@ -14,6 +14,9 @@ AEntity::AEntity()
 {
     // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
+
+    CharacterMovement = GetCharacterMovement();
+
     MaxLive = 100;
     Live = MaxLive.BaseValue;
     Damage = 10;
@@ -22,21 +25,23 @@ AEntity::AEntity()
 
     Faction = FFaction();
 
-    MovementState = EMovementState::MS_Walk;
     WalkSpeed = 250;
     RunSpeed = 400;
-
-    CharacterMovement = GetCharacterMovement();
+    MovementState = EMovementState::MS_Walk;
 
     bIsSummoned = false;
-
-    UpdateMovementSpeed();
 }
 
 void AEntity::OnConstruction(const FTransform & Transform) {
     //Update Live if its pure
     if(Live == MaxLive.BaseValue)
         Live = MaxLive;
+
+    SetMovementState(MovementState);
+
+    //Bind Movement change
+    WalkSpeed.OnModified.BindDynamic(this, &AEntity::OnMovementAttributeModified);
+    RunSpeed.OnModified.BindDynamic(this, &AEntity::OnMovementAttributeModified);
 }
 
 // Called when the game starts or when spawned
@@ -179,18 +184,18 @@ bool AEntity::LiveIsUnderPercent(float Percent) const
 
 void AEntity::Walk()
 {
-    MovementState = EMovementState::MS_Walk;
-    UpdateMovementSpeed();
+    SetMovementState(EMovementState::MS_Walk);
 }
 
 void AEntity::Run()
 {
-    MovementState = EMovementState::MS_Run;
-    UpdateMovementSpeed();
+    SetMovementState(EMovementState::MS_Run);
 }
 
-void AEntity::UpdateMovementSpeed()
+void AEntity::SetMovementState(const EMovementState& State)
 {
+    MovementState = State;
+
     if (CharacterMovement) {
         switch (MovementState) {
         case EMovementState::MS_None:
