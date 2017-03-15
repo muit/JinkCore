@@ -18,7 +18,7 @@ public:
     UStaticMeshComponent* MeshComponent;
     UPROPERTY()
     TArray<UStaticMeshComponent*> MoreMeshComponents;
-#if WITH_EDITOR
+#if WITH_EDITORONLY_DATA
     UPROPERTY()
     TArray<UStaticMeshComponent*> PreviewMeshComponents;
 #endif

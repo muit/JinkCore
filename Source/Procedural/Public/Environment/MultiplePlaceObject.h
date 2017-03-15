@@ -26,7 +26,7 @@ public:
     UPROPERTY()
     bool bDestroyAfterSpawn;
 
-#if WITH_EDITOR
+#if WITH_EDITORONLY_DATA
     UPROPERTY(Transient)
     UMaterialInterface* PreviewMaterial;
 #endif

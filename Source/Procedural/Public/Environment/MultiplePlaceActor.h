@@ -18,7 +18,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Settings", meta = (DisplayName = "Actor"))
     TSubclassOf<AActor> ActorClass;
 
-#if WITH_EDITOR
+#if WITH_EDITORONLY_DATA
     UPROPERTY()
     TArray<UChildActorComponent*> PreviewComponents;
 #endif
