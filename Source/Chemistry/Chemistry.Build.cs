@@ -1,15 +1,15 @@
-// Copyright 1998-2016 Epic Games, Inc. All Rights Reserved.
+// Copyright 2015-2017 Piperift. All Rights Reserved.
 
 using UnrealBuildTool;
 
-public class JinkEditor : ModuleRules
+public class Chemistry : ModuleRules
 {
-	public JinkEditor(TargetInfo Target)
+	public Chemistry(TargetInfo Target)
 	{
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
-                "Editor/Public"
+                "Chemistry/Public"
 				// ... add public include paths required here ...
 			}
 			);
@@ -17,7 +17,7 @@ public class JinkEditor : ModuleRules
 		
 		PrivateIncludePaths.AddRange(
 			new string[] {
-				"Editor/Private"
+				"Chemistry/Private"
 				// ... add other private include paths required here ...
 			}
 			);
@@ -27,7 +27,9 @@ public class JinkEditor : ModuleRules
 			new string[]
 			{
 				"Core",
-                "InputCore"
+				"CoreUObject",
+				"Engine",
+                "JinkCore"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -36,22 +38,6 @@ public class JinkEditor : ModuleRules
 		PrivateDependencyModuleNames.AddRange(
 			new string[]
 			{
-                "Core",
-				"CoreUObject",
-				"Engine",
-                "UnrealEd",
-                "Blutility",
-				"Slate",
-				"SlateCore",
-                "AssetTools",
-                "EditorStyle",
-                "PropertyEditor",
-                "DetailCustomizations",
-                "ContentBrowser",
-                "Settings",
-                "JinkCore",
-                "Procedural",
-                "Chemistry"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

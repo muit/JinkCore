@@ -1,10 +1,11 @@
 {
 	"Changelist" : 3299760,
-	"BuildId" : "293ab29f-ed00-4aa9-9b06-f04a52cc6108",
+	"BuildId" : "4dd2da94-61d5-4237-9028-c5c02c361fac",
 	"Modules" : 
 	{
 		"JinkCore" : "UE4Editor-JinkCore.dll",
 		"JinkEditor" : "UE4Editor-JinkEditor.dll",
-		"Procedural" : "UE4Editor-Procedural.dll"
+		"Procedural" : "UE4Editor-Procedural.dll",
+		"Chemistry" : "UE4Editor-Chemistry.dll"
 	}
 }
