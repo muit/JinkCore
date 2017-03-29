@@ -18,6 +18,9 @@ class JINKCORE_API ALIModule : public AActor
 
 public:
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    USceneComponent* SceneComponent;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Level Instance", meta = (DisplayName = "Level Instance Component"))
     ULevelInstanceComponent* LIComponent;
 
@@ -48,4 +51,26 @@ public:
     void AttachToAnchorByGuid(FGuid MyAnchorGUID, ULIAnchorViewerComponent* OtherAnchor);
     UFUNCTION(BlueprintCallable, Category = "Level Instance", meta = (DisplayName = "AttachToAnchor"))
     virtual void AttachToAnchor(ULIAnchorViewerComponent* MyAnchor, ULIAnchorViewerComponent* OtherAnchor);
+
+
+    //Inlines
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    FORCEINLINE bool IsRegistered() {
+        return LIComponent ? LIComponent->IsRegistered() : false;
+    }
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    FORCEINLINE bool IsLoaded() {
+        return LIComponent ? LIComponent->IsLevelLoaded() : false;
+    }
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    FORCEINLINE bool IsVisible() {
+        return LIComponent ? LIComponent->IsLevelVisible() : false;
+    }
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    FORCEINLINE bool GetBounds(FBox& Bounds) const {
+        return LIComponent ? LIComponent->GetBounds(Bounds) : false;
+    }
 };
