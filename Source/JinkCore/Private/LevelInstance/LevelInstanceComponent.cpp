@@ -308,6 +308,7 @@ void ULevelInstanceComponent::UpdateAnchors()
             }
             AnchorViewer->AnchorGUID = Anchor.GUID;
             AnchorViewer->AnchorData = Anchor;
+            AnchorViewer->LIComponent = this;
 
             AnchorViewer->bHiddenInGame = !bDebugInGame;
             //Move to the local space anchor position

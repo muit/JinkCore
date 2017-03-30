@@ -8,6 +8,7 @@
 
 class ALevelInstanceBounds;
 struct FLIAnchor;
+class ULevelInstanceComponent;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class JINKCORE_API ULIAnchorViewerComponent : public UArrowComponent
@@ -54,6 +55,14 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Level Anchor|Attachment")
     ALIConector* SpawnConector();
 
+
+
+    UPROPERTY(BlueprintReadOnly, Category = "Level Anchor|Attachment")
+    ULevelInstanceComponent* LIComponent;
+
+
+
+    //Inlines
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Anchor|Attachment")
     bool IsAttached() { 
         return ConnectedAttachment != nullptr;
