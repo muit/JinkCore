@@ -4,7 +4,7 @@ using UnrealBuildTool;
 
 public class JinkCore : ModuleRules
 {
-    public JinkCore(TargetInfo Target)
+    public JinkCore(ReadOnlyTargetRules TargetRules) : base(TargetRules)
     {
 
         PublicIncludePaths.AddRange(

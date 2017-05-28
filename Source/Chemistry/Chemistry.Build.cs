@@ -4,8 +4,8 @@ using UnrealBuildTool;
 
 public class Chemistry : ModuleRules
 {
-	public Chemistry(TargetInfo Target)
-	{
+	public Chemistry(ReadOnlyTargetRules TargetRules) : base(TargetRules)
+    {
 		
 		PublicIncludePaths.AddRange(
 			new string[] {

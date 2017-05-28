@@ -1,12 +1,11 @@
 {
-	"Changelist" : 3348071,
-	"CompatibleChangelist" : 3299760,
-	"BuildId" : "061ee2a1-1708-49db-bd34-6faec8f81f95",
+	"Changelist" : 3452394,
+	"BuildId" : "3b4a7172-9407-4d67-93ef-2f9e6ae50c92",
 	"Modules" : 
 	{
-		"JinkCore" : "UE4Editor-JinkCore-5932.dll",
-		"JinkEditor" : "UE4Editor-JinkEditor-5932.dll",
-		"Procedural" : "UE4Editor-Procedural-5932.dll",
-		"Chemistry" : "UE4Editor-Chemistry-1362.dll"
+		"Chemistry" : "UE4Editor-Chemistry.dll",
+		"JinkCore" : "UE4Editor-JinkCore.dll",
+		"JinkEditor" : "UE4Editor-JinkEditor.dll",
+		"Procedural" : "UE4Editor-Procedural.dll"
 	}
 }
