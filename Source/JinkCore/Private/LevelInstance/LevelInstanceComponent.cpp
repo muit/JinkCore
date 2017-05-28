@@ -121,11 +121,6 @@ void ULevelInstanceComponent::SetLevelInstanceAsset(TAssetPtr<ULevelInstance> Ne
     }
 }
 
-ULevelInstance* ULevelInstanceComponent::GetLevelInstance() {
-    return LevelInstanceAsset.IsNull()? nullptr : LevelInstanceAsset.LoadSynchronous();
-}
-
-
 //~ Begin Level Instance Interface
 
 bool ULevelInstanceComponent::LoadLevel(bool bForced)
@@ -218,14 +213,6 @@ void ULevelInstanceComponent::UnloadLevel()
             m_LIBounds = nullptr;
         }
     }
-}
-
-FString ULevelInstanceComponent::GetUniqueName()
-{
-    if (!IsRegistered()) {
-        return TEXT("None");
-    }
-    return TEXT("");
 }
 //~ End Level Instance Interface
 
@@ -321,6 +308,7 @@ void ULevelInstanceComponent::UpdateAnchors()
             }
             AnchorViewer->AnchorGUID = Anchor.GUID;
             AnchorViewer->AnchorData = Anchor;
+            AnchorViewer->LIComponent = this;
 
             AnchorViewer->bHiddenInGame = !bDebugInGame;
             //Move to the local space anchor position
@@ -375,3 +363,13 @@ void ULevelInstanceComponent::OnLevelUnloaded()
     OnLevelInstanceUnload.Broadcast();
 }
 //~ End Anchors Interface
+
+
+
+FString ULevelInstanceComponent::GetUniqueName() const
+{
+    if (!IsRegistered()) {
+        return TEXT("None");
+    }
+    return TEXT("");
+}

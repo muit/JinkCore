@@ -14,7 +14,7 @@ ALIModule::ALIModule()
     PrimaryActorTick.bCanEverTick = true;
     bLoadLevelOnPlay = false; 
 
-    USceneComponent* SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
+    SceneComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComponent"));
     RootComponent = SceneComponent;
 
 #if WITH_EDITORONLY_DATA

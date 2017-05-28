@@ -43,8 +43,6 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "Level Instance")
     void SetLevelInstanceAsset(TAssetPtr<ULevelInstance> NewLevelInstanceAsset);
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
-    ULevelInstance* GetLevelInstance();
 
     //~ Begin Level Instance Interface
 private:
@@ -62,15 +60,6 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Level Instance")
     void UnloadLevel();
 
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
-    FString GetUniqueName();
-
-    bool IsRegistered() { return StreamingLevel != nullptr; }
-
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
-    bool IsLevelLoaded() { return IsRegistered() && StreamingLevel->IsLevelLoaded(); }
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
-    bool IsLevelVisible() { return IsRegistered() && StreamingLevel->IsLevelVisible(); }
     //~ End Level Instance Interface
 
     //~ Begin Level Instance Interface
@@ -98,4 +87,33 @@ public:
     FLevelLoaded OnLevelInstanceLoad;
     UPROPERTY(BlueprintAssignable, Category = "Level Instance")
     FLevelUnloaded OnLevelInstanceUnload;
+
+
+    //Inlines
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    FORCEINLINE bool IsRegistered() const { return StreamingLevel != nullptr; }
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    FORCEINLINE bool IsLevelLoaded() const { return IsRegistered() && StreamingLevel->IsLevelLoaded(); }
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    FORCEINLINE bool IsLevelVisible() const { return IsRegistered() && StreamingLevel->IsLevelVisible(); }
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    FString GetUniqueName() const;
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    ULevelInstance* GetLevelInstance() {
+        return LevelInstanceAsset.IsNull() ? nullptr : LevelInstanceAsset.LoadSynchronous();
+    }
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Level Instance")
+    FORCEINLINE bool GetBounds(FBox& LevelBounds) {
+        ULevelInstance* LIAsset = GetLevelInstance();
+        if (LIAsset) {
+            LevelBounds = LIAsset->Bounds;
+            return true;
+        }
+        return false;
+    }
 };

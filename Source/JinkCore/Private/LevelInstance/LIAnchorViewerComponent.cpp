@@ -3,6 +3,7 @@
 #include "JinkCorePrivatePCH.h"
 #include "LevelInstanceBounds.h"
 #include "LevelInstance.h"
+#include "LIModule.h"
 #include "LIAnchorViewerComponent.h"
 
 
