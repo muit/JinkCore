@@ -4,8 +4,8 @@ using UnrealBuildTool;
 
 public class Procedural : ModuleRules
 {
-	public Procedural(TargetInfo Target)
-	{
+	public Procedural(ReadOnlyTargetRules TargetRules) : base(TargetRules)
+    {
 		
 		PublicIncludePaths.AddRange(
 			new string[] {

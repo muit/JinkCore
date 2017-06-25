@@ -304,7 +304,7 @@ void ULevelInstanceComponent::UpdateAnchors()
 
             FLIAnchorTypeInfo TypeInfo;
             if (Anchor.Type.GetAnchorInfo(TypeInfo)) {
-                AnchorViewer->SetArrowColor_New(TypeInfo.Color);
+                AnchorViewer->SetArrowColor(TypeInfo.Color);
             }
             AnchorViewer->AnchorGUID = Anchor.GUID;
             AnchorViewer->AnchorData = Anchor;
