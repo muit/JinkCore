@@ -5,7 +5,7 @@ using UnrealBuildTool;
 public class Procedural : ModuleRules
 {
 	public Procedural(ReadOnlyTargetRules TargetRules) : base(TargetRules)
-	{
+    {
 		
 		PublicIncludePaths.AddRange(
 			new string[] {

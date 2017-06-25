@@ -5,7 +5,7 @@ using UnrealBuildTool;
 public class JinkEditor : ModuleRules
 {
 	public JinkEditor(ReadOnlyTargetRules TargetRules) : base(TargetRules)
-	{
+    {
 		
 		PublicIncludePaths.AddRange(
 			new string[] {
@@ -50,7 +50,8 @@ public class JinkEditor : ModuleRules
                 "ContentBrowser",
                 "Settings",
                 "JinkCore",
-                "Procedural"
+                "Procedural",
+                "Chemistry"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);
