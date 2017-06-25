@@ -4,7 +4,7 @@ using UnrealBuildTool;
 
 public class JinkEditor : ModuleRules
 {
-	public JinkEditor(TargetInfo Target)
+	public JinkEditor(ReadOnlyTargetRules TargetRules) : base(TargetRules)
 	{
 		
 		PublicIncludePaths.AddRange(

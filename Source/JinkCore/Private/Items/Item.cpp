@@ -94,6 +94,21 @@ void UItem::Drop() {
     MarkPendingKill();
 }
 
+UWorld* UItem::GetWorld() const
+{
+    if (HasAllFlags(RF_ClassDefaultObject))
+    {
+        // If we are a CDO, we must return nullptr instead of calling Outer->GetWorld() to fool UObject::ImplementsGetWorld.
+        return nullptr;
+    }
+    if (Holder)
+    {
+        return Holder->GetWorld();
+    }
+
+    return GetOuter()->GetWorld();
+}
+
 void UItem::OnPickUp_Implementation(AEntity * Entity)
 {}
 

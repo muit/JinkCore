@@ -70,12 +70,15 @@ protected:
     AEntity* Holder;
 
 public:
+
     void PickUp(AEntity* Entity);
     void Drop();
 
 protected:
+
     UFUNCTION(BlueprintNativeEvent, Category = "Item")
     void OnPickUp(AEntity* Entity);
+
     UFUNCTION(BlueprintNativeEvent, Category = "Item")
     void OnDrop();
 
@@ -87,6 +90,10 @@ protected:
     void HolderJustDied(AController * InstigatedBy, AEntity * Killer);
 
 public:
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Item")
     bool IsPickedUp() { return Holder != nullptr; }
+    
+
+    virtual UWorld* GetWorld() const override;
 };
