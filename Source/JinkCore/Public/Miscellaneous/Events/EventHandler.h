@@ -10,7 +10,7 @@ DECLARE_DELEGATE_OneParam(FEventDelegate, int);
 /**
  * 
  */
-USTRUCT()
+USTRUCT(BlueprintType)
 struct JINKCORE_API FEventHandler
 {
     GENERATED_USTRUCT_BODY()

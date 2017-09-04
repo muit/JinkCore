@@ -52,10 +52,12 @@ void ALevelInstanceBounds::PostLoad()
 FBox ALevelInstanceBounds::GetComponentsBoundingBox(bool bNonColliding) const
 {
     checkf(RootComponent != nullptr, TEXT("LevelInstanceBounds actor with null root component: %s"), *GetPathNameSafe(this));
-    FVector BoundsCenter = RootComponent->GetComponentLocation();
-    FVector BoundsExtent = RootComponent->ComponentToWorld.GetScale3D() * 0.5f;
-    return FBox(BoundsCenter - BoundsExtent,
-        BoundsCenter + BoundsExtent);
+
+    const FTransform WorldTransform = RootComponent->GetComponentTransform();
+    const FVector BoundsCenter = WorldTransform.GetLocation();
+    const FVector BoundsExtent = WorldTransform.GetScale3D() * 0.5f;
+
+    return FBox(BoundsCenter - BoundsExtent, BoundsCenter + BoundsExtent);
 }
 
 FBox ALevelInstanceBounds::CalculateLevelBounds(ULevel* InLevel)

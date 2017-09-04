@@ -8,7 +8,7 @@
 /**
  * 
  */
-USTRUCT()
+USTRUCT(BlueprintType)
 struct PROCEDURAL_API FSQExecution
 {
 public:
@@ -44,7 +44,7 @@ public:
     }
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct PROCEDURAL_API FPTClassExecution
 {
 public:
@@ -80,7 +80,7 @@ public:
     }
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct PROCEDURAL_API FPTDataAssetExecution
 {
 public:

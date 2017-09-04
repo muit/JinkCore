@@ -2,7 +2,6 @@
 
 #include "JinkEditorPrivatePCH.h"
 
-#include "FactionCustomization.h"
 #include "AnchorTypeCustomization.h"
 
 #include "Asset/AssetTypeAction_LevelInstance.h"
@@ -61,7 +60,6 @@ void FJinkEditorModule::ShutdownModule()
 
 void FJinkEditorModule::RegisterPropertyTypeCustomizations()
 {
-    RegisterCustomPropertyTypeLayout("Faction", FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FFactionCustomization::MakeInstance));
     RegisterCustomPropertyTypeLayout("LIAnchorType", FOnGetPropertyTypeCustomizationInstance::CreateStatic(&FAnchorTypeCustomization::MakeInstance));
 }
 

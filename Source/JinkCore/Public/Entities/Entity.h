@@ -3,9 +3,12 @@
 #pragma once
 
 #include "GameFramework/Character.h"
-#include "Faction.h"
 #include "Spell.h"
 #include "Buff.h"
+
+#include "Faction.h"
+#include "FactionAgentInterface.h"
+
 #include "Entity.generated.h"
 
 struct FActorSpawnParameters;
@@ -26,7 +29,7 @@ enum class EMovementState : uint8
 
 
 UCLASS(config = Game, BlueprintType, meta = (ShortTooltip = "An entity is a type of Character that includes the basic alive features."))
-class JINKCORE_API AEntity : public ACharacter
+class JINKCORE_API AEntity : public ACharacter, public IFactionAgentInterface
 {
     GENERATED_BODY()
 
@@ -72,7 +75,7 @@ public:
     TArray<TSubclassOf<UItem>> ItemsAtStart;
     /** Adquired item objects */
     UPROPERTY(BlueprintReadOnly, Category = "Entity|Items")
-        TArray<UItem*> Items;
+    TArray<UItem*> Items;
     /* End ATTRIBUTES*/
 
 
@@ -163,11 +166,27 @@ public:
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
     virtual bool LiveIsUnderPercent(float Percent) const;
 
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
-    bool IsHostileTo(AEntity* Other);
+
+
+    /***************************************
+    * Factions                             *
+    ***************************************/
+
+    /** Retrieve faction identifier in form of Faction */
+    UFUNCTION(BlueprintPure, Category = Faction)
+    virtual FFaction GetFaction() const override;
+
+    /** Assigns faction */
+    UFUNCTION(BlueprintCallable, Category = Faction)
+    virtual void SetFaction(const FFaction& InFaction) override;
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
-    bool IsHostileToFaction(FFaction Other);
+    bool IsHostileTo(const AActor* Other);
+
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+    bool IsHostileToFaction(const FFaction Other);
+
+
 
     UFUNCTION(BlueprintCallable, Category = "Entity")
     void Die(AController * InstigatedBy = nullptr, AEntity* Killer = nullptr);

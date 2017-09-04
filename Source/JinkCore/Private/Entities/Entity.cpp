@@ -182,6 +182,29 @@ bool AEntity::LiveIsUnderPercent(float Percent) const
     return Live/MaxLive < Percent/100;
 }
 
+FFaction AEntity::GetFaction() const
+{
+    return Faction;
+}
+
+void AEntity::SetFaction(const FFaction & InFaction)
+{
+    Faction = InFaction;
+}
+
+bool AEntity::IsHostileTo(const AActor* Other) {
+    if (Other == nullptr) {
+        UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: AEntity::IsHostileTo tried to compare a Null Entity"));
+        return false;
+    }
+    return IsHostileTowards(*Other);
+}
+
+bool AEntity::IsHostileToFaction(const FFaction Other) {
+    return Faction.IsHostileTowards(Other);
+}
+
+
 void AEntity::Walk()
 {
     SetMovementState(EMovementState::MS_Walk);
@@ -229,18 +252,6 @@ void AEntity::RotateTowardsActor(AActor * Actor)
 
     const FVector Direction = Actor->GetActorLocation() - this->GetActorLocation();
     RotateTowards(Direction.ToOrientationRotator());
-}
-
-bool AEntity::IsHostileTo(AEntity* Other) {
-    if (Other == nullptr) {
-        UE_LOG(LogJinkCore, Warning, TEXT("JinkCore: AEntity::IsHostileTo tried to compare a Null Entity"));
-        return false;
-    }
-    return Faction.IsHostileTo(Other->Faction);
-}
-
-bool AEntity::IsHostileToFaction(FFaction Other) {
-    return Faction.IsHostileTo(Other);
 }
 
 void AEntity::Die(AController * InstigatedBy, AEntity * Killer)
