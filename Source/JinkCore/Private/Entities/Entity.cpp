@@ -4,7 +4,6 @@
 #include "Entity.h"
 
 #include "Item.h"
-#include "Basic_Con.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "SummonList.h"
 
@@ -204,23 +203,14 @@ bool AEntity::IsHostileToFaction(const FFaction Other) {
     return Faction.IsHostileTowards(Other);
 }
 
-
-void AEntity::Walk()
-{
-    SetMovementState(EMovementState::MS_Walk);
-}
-
-void AEntity::Run()
-{
-    SetMovementState(EMovementState::MS_Run);
-}
-
-void AEntity::SetMovementState(const EMovementState& State)
+void AEntity::SetMovementState(const EMovementState State)
 {
     MovementState = State;
 
-    if (CharacterMovement) {
-        switch (MovementState) {
+    if (CharacterMovement)
+    {
+        switch (MovementState)
+        {
         case EMovementState::MS_None:
             CharacterMovement->MaxWalkSpeed = 0;
             break;
@@ -231,7 +221,7 @@ void AEntity::SetMovementState(const EMovementState& State)
             CharacterMovement->MaxWalkSpeed = RunSpeed;
             break;
         default:
-            //Don't change anything
+            //Don't do anything
             break;
         }
     }
@@ -390,9 +380,9 @@ void AEntity::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
     JustDiedDelegate.Broadcast(InstigatedBy, Killer);
     if (IsPlayerControlled()) {
     }
-    else if (ABasic_Con* AI = GetAI()) {
+    /*else if (ABasic_Con* AI = GetAI()) {
         AI->JustDied_Internal(InstigatedBy, Killer);
-    }
+    }*/
 }
 
 UBuff * AEntity::ApplyBuff(TSubclassOf<UBuff> Class)

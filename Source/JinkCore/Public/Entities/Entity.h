@@ -12,7 +12,6 @@
 #include "Entity.generated.h"
 
 struct FActorSpawnParameters;
-class ABasic_Con;
 class UItem;
 class USummonList;
 
@@ -127,7 +126,9 @@ public:
 
 
     UCharacterMovementComponent* CharacterMovement;
-protected:
+
+private:
+
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Movement")
     EMovementState MovementState;
 
@@ -137,17 +138,22 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Entity|Movement")
     FEntityAttribute RunSpeed;
 
+
     //Set Movement to Walk
     UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
-    void Walk();
+    void Walk() { SetMovementState(EMovementState::MS_Walk); }
 
     //Set Movement to Run
     UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
-    void Run();
+    void Run() { SetMovementState(EMovementState::MS_Run); }
 
     //Set Movement to any state
     UFUNCTION(BlueprintCallable, Category = "Entity|Movement")
-    void SetMovementState(const EMovementState& State);
+    void SetMovementState(const EMovementState State);
+
+    //Get Current movement state
+    UFUNCTION(BlueprintPure, Category = "Entity|Movement")
+    FORCEINLINE EMovementState GetMovementState() const { return MovementState; }
 
     UFUNCTION()
     void OnMovementAttributeModified(const EAttributeOperationType Operation, const FAttributeModification& Modification) {
@@ -285,14 +291,14 @@ public:
     /**
      * HANDLERS
      */
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
-    ABasic_Con* GetAI() const { return Cast<ABasic_Con>(GetController()); }
+    /*UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+    ABasic_Con* GetAI() const { return Cast<ABasic_Con>(GetController()); }*/
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
     bool IsPlayer() const { return IsPlayerControlled(); }
 
-    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
-    bool IsAI() const { return GetAI() != NULL; }
+    /*UFUNCTION(BlueprintPure, Category = "Entity")
+    bool IsAI() const { return GetAI() != NULL; }*/
 
     /**
      * DROPS
