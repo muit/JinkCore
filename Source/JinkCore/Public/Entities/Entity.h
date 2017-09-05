@@ -129,7 +129,7 @@ public:
 
 private:
 
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Entity|Movement")
+    UPROPERTY(EditAnywhere, Category = "Entity|Movement")
     EMovementState MovementState;
 
 public:
