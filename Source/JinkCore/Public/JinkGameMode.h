@@ -12,6 +12,16 @@ class JINKCORE_API AJinkGameMode : public AGameMode
 public:
     AJinkGameMode();
 
+    UFUNCTION(BlueprintCallable)
+    FORCEINLINE void Pause() {
+        UGameplayStatics::SetGamePaused(this, true);
+    }
+
+    UFUNCTION(BlueprintCallable)
+    FORCEINLINE void Unpause() {
+        UGameplayStatics::SetGamePaused(this, false);
+    }
+
     FStreamableManager AssetLoader;
 };
 
