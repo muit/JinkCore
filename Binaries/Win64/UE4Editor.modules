@@ -4,9 +4,9 @@
 	"BuildId" : "a85275cd-d363-4594-bbcc-177600e839e0",
 	"Modules" : 
 	{
-		"Chemistry" : "UE4Editor-Chemistry-969.dll",
-		"JinkCore" : "UE4Editor-JinkCore-1237.dll",
-		"JinkEditor" : "UE4Editor-JinkEditor-2765.dll",
-		"Procedural" : "UE4Editor-Procedural-2765.dll"
+		"Chemistry" : "UE4Editor-Chemistry.dll",
+		"JinkCore" : "UE4Editor-JinkCore.dll",
+		"JinkEditor" : "UE4Editor-JinkEditor.dll",
+		"Procedural" : "UE4Editor-Procedural.dll"
 	}
 }
