@@ -4,6 +4,9 @@
 #include "Engine/StreamableManager.h"
 #include "JinkGameMode.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGamePaused);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameUnpaused);
+
 UCLASS()
 class JINKCORE_API AJinkGameMode : public AGameMode
 {
@@ -13,16 +16,27 @@ public:
     AJinkGameMode();
 
     UFUNCTION(BlueprintCallable)
-    FORCEINLINE void Pause() {
-        UGameplayStatics::SetGamePaused(this, true);
+    FORCEINLINE bool Pause() {
+        const bool Paused = UGameplayStatics::SetGamePaused(this, true);
+
+        if(Paused)
+            OnGamePaused.Broadcast();
+        return Paused;
     }
 
     UFUNCTION(BlueprintCallable)
-    FORCEINLINE void Unpause() {
-        UGameplayStatics::SetGamePaused(this, false);
+    FORCEINLINE bool Unpause() {
+        const bool Resumed = UGameplayStatics::SetGamePaused(this, false);
+
+        if (Resumed)
+            OnGameUnpaused.Broadcast();
+        return Resumed;
     }
 
-    FStreamableManager AssetLoader;
+    UPROPERTY(BlueprintAssignable)
+    FOnGamePaused OnGamePaused;
+    UPROPERTY(BlueprintAssignable)
+    FOnGameUnpaused OnGameUnpaused;
 };
 
 
