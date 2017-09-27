@@ -21,19 +21,19 @@ class JINKCORE_API UAttributesFunctionLibrary : public UBlueprintFunctionLibrary
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Attributes")
     static bool Is(UPARAM(ref) FEntityAttribute& A, UPARAM(ref) FEntityAttribute& B);
 
-    // Compare two Attributes by Guid
+    // Compare two Attributes by Base Value
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Attributes")
     static bool Equals(UPARAM(ref) FEntityAttribute& A, UPARAM(ref) FEntityAttribute& B);
 
-    //Get final value
+    // Get final value
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Attributes")
     static const float GetValue (const FEntityAttribute& Attribute);
 
-    //Get final value
+    // Get final value
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Attributes")
     static const float ToFloat (const FEntityAttribute& Attribute);
 	
-    //Get base value
+    // Get base value
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Attributes")
     static const float& GetBase(const FEntityAttribute& Attribute);
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Attributes")
@@ -45,4 +45,10 @@ class JINKCORE_API UAttributesFunctionLibrary : public UBlueprintFunctionLibrary
 
     UFUNCTION(BlueprintCallable, Category = "Attributes")
     static void RemoveModification(UPARAM(ref) FEntityAttribute& Attribute, UPARAM(ref) FAttributeModification& Modification);
+
+    UFUNCTION(BlueprintPure, Category = "Attributes")
+    static const TArray<FAttributeModification>& GetModifications(UPARAM(ref) FEntityAttribute& Attribute);
+
+    UFUNCTION(BlueprintCallable, Category = "Attributes")
+    static void CleanModifications(UPARAM(ref) FEntityAttribute& Attribute);
 };

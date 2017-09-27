@@ -156,7 +156,7 @@ public:
     FORCEINLINE EMovementState GetMovementState() const { return MovementState; }
 
     UFUNCTION()
-    void OnMovementAttributeModified(const EAttributeOperationType Operation, const FAttributeModification& Modification) {
+    void OnMovementAttributeModified(const EAttributeOpType Operation, const FAttributeModification& Modification) {
         //Update movement Speed
         SetMovementState(MovementState);
     }

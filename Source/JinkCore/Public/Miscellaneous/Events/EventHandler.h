@@ -25,9 +25,12 @@ public:
 
     FEventHandler(UObject* _Outer, int _Id);
 
+
 protected:
+
     UPROPERTY()
     bool bValid;
+
     UPROPERTY()
     bool bPaused;
 
@@ -40,6 +43,7 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Timer")
     int Id;
+
     UPROPERTY(BlueprintReadOnly, Category = "Timer")
     bool bActivated;
 
@@ -56,9 +60,11 @@ public:
     bool Start(float Length);
 
 private:
+
     bool StartInternal(float Length);
 
 public:
+
     // Pause the event timer
     void Pause();
 
@@ -67,21 +73,24 @@ public:
 
     //Reset the event and start it.
     void Restart(float Length);
+
     //Reset the event and start it.
     void Reset();
 
     //Called when the event is done.
     void OnExecute();
 
-    // HELPERS
-    bool const IsValid() { return bValid; }
-    bool const IsRunning() { return bActivated; }
-    bool const IsPaused() { return IsRunning() && bPaused; }
-    float const GetLength() { return Length; }
 
     void Tick(float DeltaTime);
 
-    virtual class UWorld* GetWorld() const{
-        return  Outer ? Outer->GetWorld() : nullptr;;
+    /** Helpers */
+    bool const  IsValid()   { return bValid; }
+    bool const  IsRunning() { return bActivated; }
+    bool const  IsPaused()  { return IsRunning() && bPaused; }
+    float const GetLength() { return Length; }
+
+
+    class UWorld* GetWorld() const {
+        return  Outer ? Outer->GetWorld() : nullptr;
     }
 };

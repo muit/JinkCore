@@ -48,3 +48,11 @@ void UAttributesFunctionLibrary::RemoveModification(FEntityAttribute & Attribute
 {
     Attribute.RemoveModification(Modification);
 }
+
+const TArray<FAttributeModification>& UAttributesFunctionLibrary::GetModifications(UPARAM(ref) FEntityAttribute& Attribute) {
+    return Attribute.GetModifications();
+}
+
+void UAttributesFunctionLibrary::CleanModifications(UPARAM(ref) FEntityAttribute& Attribute) {
+    return Attribute.CleanModifications();
+}
