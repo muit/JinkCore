@@ -185,6 +185,11 @@ bool ABasic_Con::IsValidTarget(AEntity * Entity)
     return false;
 }
 
+void ABasic_Con::JustDamaged_Internal(AController* InstigatedBy, AActor* DamageCauser, float Damage)
+{
+	JustDamaged(InstigatedBy, DamageCauser, Damage);
+}
+
 void ABasic_Con::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
 {
     GetMe()->GetCharacterMovement()->StopMovementImmediately();

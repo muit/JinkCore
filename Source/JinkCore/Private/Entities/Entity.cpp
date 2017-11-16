@@ -283,9 +283,15 @@ void AEntity::ReceiveDamage_Implementation(AActor * DamagedActor, float _Damage,
     if (!CheckReceiveDamage(DamagedActor, _Damage, DamageType, DamageCauser))
         return;
 
+	if (_Damage <= 0)
+		return;
+
     Live = FMath::Clamp(Live - _Damage, 0.0f, (float)MaxLive);
 
-    if (!IsAlive()) {
+	JustDamaged_Internal(InstigatedBy, DamageCauser, _Damage);
+
+    if (!IsAlive())
+	{
         AEntity* Killer = nullptr;
         if (InstigatedBy != nullptr) {
             //If the controller is valid the killer is the controlled entity
@@ -374,15 +380,26 @@ bool AEntity::CheckReceiveDamage_Implementation(AActor * DamagedActor, float _Da
 { return true; }
 
 
+void AEntity::JustDamaged_Internal(AController* InstigatedBy, AActor* DamageCauser, float InDamage)
+{
+	JustDamaged(InstigatedBy, DamageCauser, InDamage);
+	JustDamagedDelegate.Broadcast(InstigatedBy, DamageCauser, InDamage);
+
+	if (ABasic_Con* AI = GetBasicAI())
+	{
+		AI->JustDamaged_Internal(InstigatedBy, DamageCauser, InDamage);
+	}
+}
+
 void AEntity::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
 {
     JustDied(InstigatedBy, Killer);
     JustDiedDelegate.Broadcast(InstigatedBy, Killer);
     if (IsPlayerControlled()) {
     }
-    /*else if (ABasic_Con* AI = GetAI()) {
+    else if (ABasic_Con* AI = GetBasicAI()) {
         AI->JustDied_Internal(InstigatedBy, Killer);
-    }*/
+    }
 }
 
 UBuff * AEntity::ApplyBuff(TSubclassOf<UBuff> Class)

@@ -9,12 +9,15 @@
 #include "Faction.h"
 #include "FactionAgentInterface.h"
 
+#include "AIGeneric.h"
+
 #include "Entity.generated.h"
 
 struct FActorSpawnParameters;
 class UItem;
 class USummonList;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FJustDamagedSignature, AController*, InstigatedBy, AActor*, DamageCauser, float, Damage);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FJustDiedSignature, AController*, InstigatedBy, AEntity*, Killer);
 
 //MovementState to define different types of movements.
@@ -281,7 +284,13 @@ public:
 
 
     //EVENTS
-    void JustDied_Internal(AController * InstigatedBy, AEntity* Killer);
+	void JustDamaged_Internal(AController* InstigatedBy, AActor* DamageCauser, float InDamage);
+    void JustDied_Internal(AController* InstigatedBy, AEntity* Killer);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+	void JustDamaged(AController* InstigatedBy, AActor* DamageCauser, float InDamage);
+	UPROPERTY(BlueprintAssignable, Category = "Combat")
+	FJustDamagedSignature JustDamagedDelegate;
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
     void JustDied(AController * InstigatedBy, AEntity* Killer);
@@ -291,14 +300,17 @@ public:
     /**
      * HANDLERS
      */
-    /*UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
-    ABasic_Con* GetAI() const { return Cast<ABasic_Con>(GetController()); }*/
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+    AAIGeneric* GetAI() const { return Cast<AAIGeneric>(GetController()); }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+	ABasic_Con* GetBasicAI() const { return Cast<ABasic_Con>(GetController()); }
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
     bool IsPlayer() const { return IsPlayerControlled(); }
 
-    /*UFUNCTION(BlueprintPure, Category = "Entity")
-    bool IsAI() const { return GetAI() != NULL; }*/
+    UFUNCTION(BlueprintPure, Category = "Entity")
+    bool IsAI() const { return GetAI() != nullptr && GetBasicAI() != nullptr; }
 
     /**
      * DROPS

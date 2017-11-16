@@ -94,7 +94,12 @@ public:
     UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
     void TargetIsGone();
 
+
+	void JustDamaged_Internal(AController* InstigatedBy, AActor* DamageCauser, float Damage);
     void JustDied_Internal(AController * InstigatedBy, AEntity* Killer);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+	void JustDamaged(AController* InstigatedBy, AActor* DamageCauser, float Damage);
     UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
     void JustDied(AController * InstigatedBy, AEntity* Killer);
 
