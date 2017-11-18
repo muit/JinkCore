@@ -22,7 +22,7 @@ const float UAttributesFunctionLibrary::ToFloat (const FEntityAttribute & Attrib
     return GetValue(Attribute);
 }
 
-const float& UAttributesFunctionLibrary::GetBase (const FEntityAttribute & Attribute)
+const float UAttributesFunctionLibrary::GetBase (const FEntityAttribute & Attribute)
 {
     return Attribute.BaseValue;
 }

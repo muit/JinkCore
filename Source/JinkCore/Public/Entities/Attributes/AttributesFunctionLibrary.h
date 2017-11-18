@@ -35,7 +35,8 @@ class JINKCORE_API UAttributesFunctionLibrary : public UBlueprintFunctionLibrary
 	
     // Get base value
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Attributes")
-    static const float& GetBase(const FEntityAttribute& Attribute);
+    static const float GetBase(const FEntityAttribute& Attribute);
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Attributes")
     void SetBase(UPARAM(ref) FEntityAttribute & Attribute, float Value);
 
