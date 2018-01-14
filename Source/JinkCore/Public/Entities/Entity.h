@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Piperift. All Rights Reserved.
+// Copyright 2015-2018 Piperift. All Rights Reserved.
 
 #pragma once
 
@@ -324,8 +324,10 @@ public:
     */
     UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (DisplayName = "Buffs"))
     TArray<TSubclassOf<UBuff>> BuffsAtStart;
+
     UPROPERTY(BlueprintReadOnly, Category = "Entity|Buffs")
     TArray<UBuff*> Buffs;
+
 
     UFUNCTION(BlueprintCallable, Category = "Entity|Buffs")
     UBuff* ApplyBuff(TSubclassOf<UBuff> Class);
@@ -335,22 +337,27 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Buffs")
     bool HasBuff(UBuff* Buff);
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Buffs")
     bool HasBuffOfClass(TSubclassOf<UBuff> Class);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Buffs")
     const TArray<UBuff*>& GetBuffs();
 
+
     /**
     * SUMMONING
     */
 protected:
+
     UPROPERTY(VisibleAnywhere, Category = "Entity")
     bool bIsSummoned;
+
     UPROPERTY(BlueprintReadOnly, Category = "Entity")
     AEntity* Summoner;
 
 public:
+
     /**
     * Summon Entities with given absolute transform (override root component transform) and SpawnParameters
     *
@@ -367,12 +374,10 @@ public:
     template<class T>
     T Summon(FTransform Transform);
     
-
     void SetupSummon(AEntity* InSummoner);
 
     UFUNCTION(BlueprintCallable, Category = "Entity|Summons")
     USummonList* CreateSummonList();
-
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Summons")
     bool IsSummoned() const { return bIsSummoned && Summoner; };

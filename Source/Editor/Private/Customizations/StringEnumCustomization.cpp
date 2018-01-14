@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Piperift. All Rights Reserved.
+// Copyright 2015-2018 Piperift. All Rights Reserved.
 
 #include "JinkEditorPrivatePCH.h"
 #if ENGINE_MINOR_VERSION >= 15 //If engine is 4.15 or newer
