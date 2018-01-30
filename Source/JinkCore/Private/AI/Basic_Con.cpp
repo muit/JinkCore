@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Piperift. All Rights Reserved.
+// Copyright 2015-2018 Piperift. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
 #include "Navigation/CrowdFollowingComponent.h"
@@ -183,6 +183,11 @@ bool ABasic_Con::IsValidTarget(AEntity * Entity)
         return Entity != GetMe() && GetMe()->IsHostileTo(Entity);
     }
     return false;
+}
+
+void ABasic_Con::JustDamaged_Internal(AController* InstigatedBy, AActor* DamageCauser, float Damage)
+{
+	JustDamaged(InstigatedBy, DamageCauser, Damage);
 }
 
 void ABasic_Con::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)

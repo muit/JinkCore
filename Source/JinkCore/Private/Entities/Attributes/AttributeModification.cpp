@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Piperift. All Rights Reserved.
+// Copyright 2015-2018 Piperift. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
 
@@ -6,11 +6,11 @@
 #include "EntityAttribute.h"
 
 void FAttributeModification::Apply(const FEntityAttribute& Attribute, float& ActualValue) const{
-    if (PercentageIncrement > 0) {
+    if (PercentageIncrement != 0) {
         ActualValue *= 1+(PercentageIncrement / 100);
     }
 
-    if (BasePercentageIncrement > 0) {
+    if (BasePercentageIncrement != 0) {
         ActualValue += Attribute.BaseValue * (BasePercentageIncrement / 100);
     }
 

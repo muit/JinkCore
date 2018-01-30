@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Piperift. All Rights Reserved.
+// Copyright 2015-2018 Piperift. All Rights Reserved.
 
 #include "JinkCorePrivatePCH.h"
 #include "AttributesFunctionLibrary.h"
@@ -22,7 +22,7 @@ const float UAttributesFunctionLibrary::ToFloat (const FEntityAttribute & Attrib
     return GetValue(Attribute);
 }
 
-const float& UAttributesFunctionLibrary::GetBase (const FEntityAttribute & Attribute)
+const float UAttributesFunctionLibrary::GetBase (const FEntityAttribute & Attribute)
 {
     return Attribute.BaseValue;
 }

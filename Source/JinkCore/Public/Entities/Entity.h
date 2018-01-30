@@ -1,4 +1,4 @@
-// Copyright 2015-2017 Piperift. All Rights Reserved.
+// Copyright 2015-2018 Piperift. All Rights Reserved.
 
 #pragma once
 
@@ -9,12 +9,15 @@
 #include "Faction.h"
 #include "FactionAgentInterface.h"
 
+#include "AIGeneric.h"
+
 #include "Entity.generated.h"
 
 struct FActorSpawnParameters;
 class UItem;
 class USummonList;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FJustDamagedSignature, AController*, InstigatedBy, AActor*, DamageCauser, float, Damage);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FJustDiedSignature, AController*, InstigatedBy, AEntity*, Killer);
 
 //MovementState to define different types of movements.
@@ -281,7 +284,13 @@ public:
 
 
     //EVENTS
-    void JustDied_Internal(AController * InstigatedBy, AEntity* Killer);
+	void JustDamaged_Internal(AController* InstigatedBy, AActor* DamageCauser, float InDamage);
+    void JustDied_Internal(AController* InstigatedBy, AEntity* Killer);
+
+	UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
+	void JustDamaged(AController* InstigatedBy, AActor* DamageCauser, float InDamage);
+	UPROPERTY(BlueprintAssignable, Category = "Combat")
+	FJustDamagedSignature JustDamagedDelegate;
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Combat")
     void JustDied(AController * InstigatedBy, AEntity* Killer);
@@ -291,14 +300,17 @@ public:
     /**
      * HANDLERS
      */
-    /*UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
-    ABasic_Con* GetAI() const { return Cast<ABasic_Con>(GetController()); }*/
+    UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+    AAIGeneric* GetAI() const { return Cast<AAIGeneric>(GetController()); }
+
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
+	ABasic_Con* GetBasicAI() const { return Cast<ABasic_Con>(GetController()); }
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
     bool IsPlayer() const { return IsPlayerControlled(); }
 
-    /*UFUNCTION(BlueprintPure, Category = "Entity")
-    bool IsAI() const { return GetAI() != NULL; }*/
+    UFUNCTION(BlueprintPure, Category = "Entity")
+    bool IsAI() const { return GetAI() != nullptr && GetBasicAI() != nullptr; }
 
     /**
      * DROPS
@@ -312,8 +324,10 @@ public:
     */
     UPROPERTY(EditAnywhere, Category = "Entity|Attributes", meta = (DisplayName = "Buffs"))
     TArray<TSubclassOf<UBuff>> BuffsAtStart;
+
     UPROPERTY(BlueprintReadOnly, Category = "Entity|Buffs")
     TArray<UBuff*> Buffs;
+
 
     UFUNCTION(BlueprintCallable, Category = "Entity|Buffs")
     UBuff* ApplyBuff(TSubclassOf<UBuff> Class);
@@ -323,22 +337,27 @@ public:
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Buffs")
     bool HasBuff(UBuff* Buff);
+
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Buffs")
     bool HasBuffOfClass(TSubclassOf<UBuff> Class);
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Buffs")
     const TArray<UBuff*>& GetBuffs();
 
+
     /**
     * SUMMONING
     */
 protected:
+
     UPROPERTY(VisibleAnywhere, Category = "Entity")
     bool bIsSummoned;
+
     UPROPERTY(BlueprintReadOnly, Category = "Entity")
     AEntity* Summoner;
 
 public:
+
     /**
     * Summon Entities with given absolute transform (override root component transform) and SpawnParameters
     *
@@ -355,12 +374,10 @@ public:
     template<class T>
     T Summon(FTransform Transform);
     
-
     void SetupSummon(AEntity* InSummoner);
 
     UFUNCTION(BlueprintCallable, Category = "Entity|Summons")
     USummonList* CreateSummonList();
-
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity|Summons")
     bool IsSummoned() const { return bIsSummoned && Summoner; };
