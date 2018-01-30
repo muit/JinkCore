@@ -3,6 +3,8 @@
 #include "JinkCorePrivatePCH.h"
 #include "Entity.h"
 
+#include "Basic_Con.h"
+
 #include "Item.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "SummonList.h"
@@ -400,6 +402,11 @@ void AEntity::JustDied_Internal(AController * InstigatedBy, AEntity * Killer)
     else if (ABasic_Con* AI = GetBasicAI()) {
         AI->JustDied_Internal(InstigatedBy, Killer);
     }
+}
+
+ABasic_Con* AEntity::GetBasicAI() const
+{
+	return Cast<ABasic_Con>(GetController());
 }
 
 UBuff * AEntity::ApplyBuff(TSubclassOf<UBuff> Class)

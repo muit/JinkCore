@@ -16,6 +16,7 @@
 struct FActorSpawnParameters;
 class UItem;
 class USummonList;
+class ABasic_Con;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FJustDamagedSignature, AController*, InstigatedBy, AActor*, DamageCauser, float, Damage);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FJustDiedSignature, AController*, InstigatedBy, AEntity*, Killer);
@@ -301,10 +302,10 @@ public:
      * HANDLERS
      */
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
-    AAIGeneric* GetAI() const { return Cast<AAIGeneric>(GetController()); }
+    FORCEINLINE AAIGeneric* GetAI() const { return Cast<AAIGeneric>(GetController()); }
 
 	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
-	ABasic_Con* GetBasicAI() const { return Cast<ABasic_Con>(GetController()); }
+	ABasic_Con* GetBasicAI() const;
 
     UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Entity")
     bool IsPlayer() const { return IsPlayerControlled(); }
