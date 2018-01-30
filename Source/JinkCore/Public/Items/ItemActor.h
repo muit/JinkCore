@@ -6,18 +6,21 @@
 #include "Item.h"
 #include "ItemActor.generated.h"
 
-UCLASS(Abstract)
+UCLASS(Blueprintable)
 class JINKCORE_API AItemActor : public AActor
 {
     GENERATED_BODY()
-    
+
+private:
+
+	UPROPERTY(Category = ItemActor, VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UStaticMeshComponent* Mesh;
+
 public:    
     // Sets default values for this actor's properties
     AItemActor();
     virtual void OnConstruction(const FTransform& Transform) override;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-    UStaticMeshComponent* Mesh;
 
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item", meta = (ExposeOnSpawn = true))
     TSubclassOf<UItem> ItemType;
